@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
 project(lsca)
-
-add_executable(lsca main.cpp)
-
-install(TARGETS lsca RUNTIME DESTINATION bin)
+enable_testing()
+install(FILES lsca.hpp DESTINATION ${CMAKE_SYSTEM_INCLUDE_PATH})
+add_subdirectory(tests)

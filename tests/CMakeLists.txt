@@ -1,0 +1,5 @@
+find_package(Boost 1.49 REQUIRED graph test_exec_monitor)
+add_executable(test_lca test_lca.cpp)
+add_test(test_lca test_lca)
+include_directories(".." ${Boost_INCLUDE_DIRS})
+target_link_libraries(test_lca ${Boost_LIBRARIES})
