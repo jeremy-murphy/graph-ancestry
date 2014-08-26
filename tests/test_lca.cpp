@@ -68,4 +68,16 @@ BOOST_AUTO_TEST_CASE(basic)
     preprocess(g, output);
 }
 
+
+BOOST_AUTO_TEST_CASE(Eulerian_path)
+{
+    typedef typename boost::graph_traits<decltype(g)>::vertex_descriptor vertex_descriptor;
+    std::vector<vertex_descriptor> E;
+    boost::depth_first_search(g, boost::visitor(detail::make_eulerian_path(std::back_inserter(E))));
+    auto const tmp = std::unique(std::begin(E), std::end(E));
+    E.erase(tmp, std::end(E));
+    std::vector<vertex_descriptor> const expected = {0, 1, 4, 9, 4, 10, 17, 10, 18, 10, 4, 11, 19, 11, 4, 1, 5, 12, 5, 1, 0, 2, 6, 13, 6, 2, 0, 3, 7, 14, 7, 15, 7, 16, 7, 3, 8, 3, 0};
+    BOOST_CHECK_EQUAL(E.size(), expected.size());
+}
+
 BOOST_AUTO_TEST_SUITE_END()
