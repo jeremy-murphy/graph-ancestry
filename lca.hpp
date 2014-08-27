@@ -37,32 +37,37 @@ namespace LCA
     namespace detail
     {
         /// DFS visitor calculates Eulerian path of a graph (after some post-processing).
-        template <typename Inserter>
+        template <typename T, typename O>
         struct eulerian_path : public boost::default_dfs_visitor
         {
-            Inserter result;
+            T previous;
+            O result;
+            bool start;
             
-            eulerian_path(Inserter result) : result(result) {}
+            eulerian_path(O result) : result(result), start(true) {}
             
             template <typename Edge, typename Graph>
             void tree_edge(Edge const &e, Graph const &g)
             {
-                *result++ = boost::source(e, g);
-                *result++ = boost::target(e, g);
+                if(start || boost::source(e, g) != previous)
+                    *result++ = boost::source(e, g);
+                start = false;
+                *result++ = previous = boost::target(e, g);
             }
             
             template <typename Vertex, typename Graph>
             void finish_vertex(Vertex const &v, Graph const &)
             {
-                *result++ = v;
+                if(v != previous)
+                    *result++ = v;
             }
         };
         
         // Convenience function for making the visitor.
-        template <typename Inserter>
-        eulerian_path<Inserter> make_eulerian_path(Inserter inserter)
+        template <typename T, typename O>
+        eulerian_path<T, O> make_eulerian_path(O output)
         {
-            return eulerian_path<Inserter>(inserter);
+            return eulerian_path<T, O>(output);
         }
         
         
@@ -77,46 +82,6 @@ namespace LCA
             
         };
         */
-        
-        // Hand-rolled DFS because I can't think of something better.
-        template <typename Graph, typename Vertex, typename Inserter>
-        void directed_treee_dfs_impl(Graph g, Vertex u, Inserter output, unsigned height)
-        {
-            typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
-            // std::stack<>
-            *output++ = std::make_pair(u, height);
-            auto const foo = boost::out_edges(u, g);
-            // auto const f = std::bind(directed_treee_dfs<Graph, Vertex, Inserter>, g, std::placeholders::_1, output, height + 1);
-            std::for_each(foo.first, foo.second, [&](edge_descriptor const &e)
-            {
-                directed_treee_dfs(g, boost::target(e, g), output, height + 1);
-            });
-        }
-
-        
-        template <typename Graph, typename Inserter>
-        void directed_treee_dfs(Graph g, Inserter output)
-        {
-            typedef typename boost::graph_traits<Graph>::vertex_iterator vertex_iterator;
-            typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-            auto const foo = boost::vertices(g);
-            if(foo.first != foo.second)
-            {
-                std::stack<vertex_descriptor> bar;
-                bar.push(*foo.first);
-                while(!bar.empty())
-                {
-                    auto const x = bar.top();
-                    auto const baz = boost::out_edges(x);
-                    std::for_each(baz.first, baz.second, [](std::size_t v)
-                    {
-                        
-                    });
-                    bar.pop();
-                }
-                directed_treee_dfs(g, *foo.first, output, 0);
-            }
-        }
     }
     
     
@@ -130,11 +95,7 @@ namespace LCA
         std::vector<vertex_descriptor> E;
         std::vector<vertex_height> EL;
         E.reserve(boost::num_vertices(input));
-        boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path(std::back_inserter(E))));
-        // detail::directed_treee_dfs(input, std::back_inserter(EL));
-        auto const x = std::unique(std::begin(E), std::end(E));
-        E.erase(x, std::end(E));
-        E.clear();
+        boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E))));
     }
 }
 
