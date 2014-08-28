@@ -71,17 +71,39 @@ namespace LCA
         }
         
         
-        /*
-        template <typename Inserter>
+        template <typename O>
         struct vertex_level : public boost::default_dfs_visitor
         {
-            Inserter result;
+            O result;
+            std::size_t depth;
+            std::size_t previous;
             
-            vertex_level(Inserter result) : result(result) {}
+            vertex_level(O result) : result(result), depth(0), previous(1) {}
             
-            
+            template <typename Edge, typename Graph>
+            void tree_edge(Edge const &, Graph const &)
+            {
+                if(depth != previous)
+                    *result++ = depth;
+                ++depth;
+                *result++ = previous = depth;
+            }
+
+            template <typename Vertex, typename Graph>
+            void finish_vertex(Vertex const &, Graph const &)
+            {
+                if(depth != previous)
+                    *result++ = depth;
+                --depth;
+            }
         };
-        */
+        
+        
+        template <typename O>
+        vertex_level<O> make_vertex_level(O result)
+        {
+            return vertex_level<O>(result);
+        }
     }
     
     
@@ -91,11 +113,10 @@ namespace LCA
     void preprocess(Graph const &input, OGraph &output)
     {
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef std::pair<vertex_descriptor, std::size_t> vertex_height;
         std::vector<vertex_descriptor> E;
-        std::vector<vertex_height> EL;
-        E.reserve(boost::num_vertices(input));
+        std::vector<std::size_t> L;
         boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E))));
+        boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L))));
     }
 }
 

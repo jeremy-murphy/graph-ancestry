@@ -11,6 +11,7 @@
 
 #include <boost/graph//adjacency_list.hpp>
 
+using namespace std;
 using namespace LCA;
 
 template <typename Graph>
@@ -54,7 +55,7 @@ BOOST_FIXTURE_TEST_SUITE(TEST_LCA, Bender_2005_2<boost::adjacency_list<>>)
 BOOST_AUTO_TEST_CASE(empty)
 {
 #ifndef NDEBUG
-    std::ofstream output("Bender_2005_2.dot");
+    ofstream output("Bender_2005_2.dot");
     boost::write_graphviz(output, g);
 #endif
     boost::adjacency_list<> empty;
@@ -69,12 +70,23 @@ BOOST_AUTO_TEST_CASE(basic)
 }
 
 
+BOOST_AUTO_TEST_CASE(vertex_height)
+{
+    vector<size_t> L;
+    boost::depth_first_search(g, boost::visitor(detail::make_vertex_level(back_inserter(L))));
+    vector<size_t> const expected = {0, 1, 2, 3, 2, 3, 4, 3, 4, 3, 2, 3, 4, 3, 2, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 3, 2, 3, 2, 1, 2, 1, 0};
+    BOOST_CHECK_EQUAL(L.size(), expected.size());
+    if(L.size() == expected.size())
+        BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(expected), end(expected));
+}
+
+
 BOOST_AUTO_TEST_CASE(Eulerian_path)
 {
     typedef typename boost::graph_traits<decltype(g)>::vertex_descriptor vertex_descriptor;
-    std::vector<vertex_descriptor> E;
-    boost::depth_first_search(g, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E))));
-    std::vector<vertex_descriptor> const expected = {0, 1, 4, 9, 4, 10, 17, 10, 18, 10, 4, 11, 19, 11, 4, 1, 5, 12, 5, 1, 0, 2, 6, 13, 6, 2, 0, 3, 7, 14, 7, 15, 7, 16, 7, 3, 8, 3, 0};
+    vector<vertex_descriptor> E;
+    boost::depth_first_search(g, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(back_inserter(E))));
+    vector<vertex_descriptor> const expected = {0, 1, 4, 9, 4, 10, 17, 10, 18, 10, 4, 11, 19, 11, 4, 1, 5, 12, 5, 1, 0, 2, 6, 13, 6, 2, 0, 3, 7, 14, 7, 15, 7, 16, 7, 3, 8, 3, 0};
     BOOST_CHECK_EQUAL(E.size(), expected.size());
     if(E.size() == expected.size())
         BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(expected), end(expected));
