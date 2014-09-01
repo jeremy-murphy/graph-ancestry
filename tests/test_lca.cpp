@@ -55,11 +55,12 @@ BOOST_FIXTURE_TEST_SUITE(TEST_LCA, Bender_2005_2<boost::adjacency_list<>>)
 BOOST_AUTO_TEST_CASE(empty)
 {
 #ifndef NDEBUG
-    ofstream output("Bender_2005_2.dot");
-    boost::write_graphviz(output, g);
+    // ofstream output("Bender_2005_2.dot");
+    // boost::write_graphviz(output, g);
 #endif
-    boost::adjacency_list<> empty;
-    preprocess(empty, empty);
+    boost::adjacency_list<> const empty;
+    boost::adjacency_list<> result;
+    preprocess(empty, result);
 }
 
 
@@ -90,6 +91,26 @@ BOOST_AUTO_TEST_CASE(Eulerian_path)
     BOOST_CHECK_EQUAL(E.size(), expected.size());
     if(E.size() == expected.size())
         BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(expected), end(expected));
+}
+
+
+BOOST_AUTO_TEST_CASE(representative_element_all)
+{
+    vector<unsigned> a, b;
+    auto bi = back_inserter(b);
+    auto result = representative_element(begin(a), a.size(), bi);
+    BOOST_CHECK_EQUAL(b.size(), 0);
+    
+    for(unsigned i = 10; i < 20; i++)
+    {
+        a.push_back(i);
+        a.push_back(i);
+    }
+    
+    result = representative_element(begin(a), a.size(), bi);
+    vector<size_t> expected = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
+    BOOST_CHECK_EQUAL(expected.size(), b.size());
+    BOOST_CHECK_EQUAL_COLLECTIONS(begin(expected), end(expected), begin(b), end(b));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

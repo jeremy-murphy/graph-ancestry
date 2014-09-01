@@ -30,13 +30,13 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
-#include <stack>
+#include <unordered_set>
 
 namespace LCA
 {
     namespace detail
     {
-        /// DFS visitor calculates Eulerian path of a graph (after some post-processing).
+        /// DFS visitor calculates Eulerian path of a graph.
         template <typename T, typename O>
         struct eulerian_path : public boost::default_dfs_visitor
         {
@@ -107,16 +107,39 @@ namespace LCA
     }
     
     
+    template <typename I, typename N, typename O>
+    O representative_element(I first, N n, O result)
+    {
+        typedef typename std::iterator_traits<I>::value_type value_type;
+        std::unordered_set<value_type> seen;
+        for(std::size_t i = 0; i < n; ++i)
+        {
+            if(seen.find(*first) == std::end(seen))
+            {
+                *result++ = i;
+                seen.insert(*first);
+            }
+            ++first;
+        }
+        return result;
+    }
+    
+    
     template <typename Graph, typename OGraph>
     // requires: VertexListGraph(Graph)
     //           OGraph is mutable
     void preprocess(Graph const &input, OGraph &output)
     {
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        // requirement: Compute E in O(n).
         std::vector<vertex_descriptor> E;
-        std::vector<std::size_t> L;
         boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E))));
+        // requirement: Compute L in O(n).
+        std::vector<std::size_t> L;
         boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L))));
+        std::vector<std::size_t> R;
+        // requirement: Compute R in O(n).
+        representative_element(std::begin(E), E.size(), std::back_inserter(R));
     }
 }
 
