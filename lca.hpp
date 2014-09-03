@@ -25,6 +25,8 @@
 #ifndef LCA_HPP
 #define LCA_HPP
 
+#include "RMQ.hpp"
+
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <vector>
@@ -131,15 +133,21 @@ namespace LCA
     void preprocess(Graph const &input, OGraph &output)
     {
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef std::vector<std::size_t> array_foo;
         // requirement: Compute E in O(n).
         std::vector<vertex_descriptor> E;
         boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E))));
         // requirement: Compute L in O(n).
-        std::vector<std::size_t> L;
+        array_foo L;
         boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L))));
-        std::vector<std::size_t> R;
+        array_foo R;
         // requirement: Compute R in O(n).
         representative_element(std::begin(E), E.size(), std::back_inserter(R));
+        // TODO: RMQ on L.
+        typedef typename array_foo::const_iterator const_iterator;
+        std::vector<const_iterator> T;
+        // RMQ::sparse_table(std::begin(L), L.size(), std::back_inserter(T));
+        RMQ::sparse_table(L, T);
     }
 }
 
