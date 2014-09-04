@@ -147,7 +147,7 @@ namespace LCA
         typedef typename array_foo::const_iterator const_iterator;
         std::vector<const_iterator> T;
         // RMQ::sparse_table(std::begin(L), L.size(), std::back_inserter(T));
-        RMQ::sparse_table(L, T);
+        // RMQ::sparse_table(L, T);
     }
 }
 

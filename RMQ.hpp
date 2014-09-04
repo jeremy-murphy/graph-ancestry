@@ -38,17 +38,17 @@ namespace RMQ
     }
     
     
-    template <typename Sequence, typename OSequence>
-    // requires: RandomAccess(I)
-    void sparse_table(Sequence const &A, OSequence &M)
+    template <typename I, typename OSequence>
+    // requires: ForwardIterator(I)
+    void sparse_table(I first, I last, OSequence &M)
     {
-        auto const n = A.size();
-        if(n > 0)
+        if(first != last && std::next(first) != last)
         {
-            char unsigned const lowerlogn = std::log2(n);
-            for(auto Ai = std::begin(A); Ai != std::end(A) - 1; ++Ai)
-                M.push_back(*Ai <= *(Ai + 1) ? Ai : std::next(Ai));
+            for(auto Ai = first, Aj = std::next(Ai); Aj != last; ++Ai, ++Aj)
+                M.push_back(*Ai <= *Aj ? Ai : Aj);
             
+            auto const n = M.size() + 1;
+            char unsigned const lowerlogn = std::log2(n);
             for(char unsigned j = 2; j <= lowerlogn; j++)
             {
                 auto const block_length = pow2(j), block_length_2 = block_length / 2;
