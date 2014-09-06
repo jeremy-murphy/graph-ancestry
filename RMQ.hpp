@@ -40,6 +40,7 @@ namespace RMQ
     
     template <typename I, typename OSequence>
     // requires: ForwardIterator(I)
+    //           RandomAccessSequence(OSequence)
     void sparse_table(I first, I last, OSequence &M)
     {
         if(first != last && std::next(first) != last)
@@ -56,7 +57,7 @@ namespace RMQ
                 std::size_t Mi = M.size() - offset; // Use index because of iterator invalidation.
                 for(std::size_t i = 0; i != n - block_length + 1; ++i)
                 {
-                    auto const M1 = M[Mi], M2 = M[Mi + block_length_2];
+                    auto const &M1 = M[Mi], &M2 = M[Mi + block_length_2];
                     M.push_back(*M1 <= *M2 ? M1 : M2);
                     ++Mi;
                 }
