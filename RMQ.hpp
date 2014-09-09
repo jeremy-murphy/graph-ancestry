@@ -25,7 +25,11 @@
 
 #include <iterator>
 #include <algorithm>
+#include <stdexcept>
 
+#ifndef NDEBUG
+#include <iostream>
+#endif
 
 namespace RMQ
 {
@@ -38,10 +42,24 @@ namespace RMQ
     }
     
     
+    // Maybe just for my own sanity, but there needs to be a transformation from the
+    // M(i, j) syntax to the M(ij) syntax.
+    // e.g.:    (1, 1) = 0, (2, 1) = 1, (3, 1) = 2
+    //          (1, 2) = (n * (j - 1) - ∑n - 2^j)
+    
+    // ∑2^j + k = 
+    template <typename N0, typename N1, typename N2>
+    // requires: UnsignedIntegral(N0) && UnsignedIntegral(N1) && UnsignedIntegral(N2)
+    N0 translate(N0 i, N1 j, N2 n)
+    {
+        return j == 1 ? i : ((j - 1) * n) - (pow2(j) - j - 1) + i;
+    }
+    
+    
     template <typename I, typename OSequence>
     // requires: ForwardIterator(I)
     //           RandomAccessSequence(OSequence)
-    void sparse_table(I first, I last, OSequence &M)
+    void preprocess_sparse_table(I first, I last, OSequence &M)
     {
         if(first != last && std::next(first) != last)
         {
@@ -50,20 +68,76 @@ namespace RMQ
             
             auto const n = M.size() + 1;
             char unsigned const lowerlogn = std::log2(n);
+#ifndef NDEBUG
+            std::cerr << "n: " << n << ", block sizes: " << M.size() << " ";
+#endif
             for(char unsigned j = 2; j <= lowerlogn; j++)
             {
                 auto const block_length = pow2(j), block_length_2 = block_length / 2;
                 auto const offset = n - block_length_2 + 1;
                 std::size_t Mi = M.size() - offset; // Use index because of iterator invalidation.
-                for(std::size_t i = 0; i != n - block_length + 1; ++i)
+                std::size_t i = 0;
+                for(; i != n - block_length + 1; ++i)
                 {
                     auto const &M1 = M[Mi], &M2 = M[Mi + block_length_2];
                     M.push_back(*M1 <= *M2 ? M1 : M2);
                     ++Mi;
                 }
+#ifndef NDEBUG
+                std::cerr << i << " ";
+#endif
             }
+#ifndef NDEBUG
+            std::cerr << "\n";
+#endif
         }
     }
+    
+    
+    template <typename N0, typename N1, typename N2, typename Sequence>
+    // requires: UnsignedIntegral(N0..N2)
+    typename Sequence::value_type query_sparse_table(N0 i, N1 j, N2 n, Sequence M)
+    {
+        // requires: [i, j] is a valid range.
+        if(j < i)
+            throw std::invalid_argument("j < i");
+        if(i == j)
+            return M[i];
+        char unsigned const k = std::log2(j - i + 1);
+        auto const block_size = pow2(k);
+        auto x = translate(i, k, n), 
+            y = translate(i + (j - i) - block_size + 1, k, n);
+        auto Mx = M[x], My = M[y];
+        return *My < *Mx ? My : Mx;
+    }
+    
+    
+    template <typename I>
+    // requires: ForwardIterator(I)
+    class sparse_table
+    {
+        std::vector<I> M;
+        
+    public:
+        sparse_table(I first, I last)
+        {
+            preprocess_sparse_table(first, last, M);
+        }
+        
+        
+        void preprocess(I first, I last)
+        {
+            M.clear();
+            preprocess_sparse_table(first, last, M);
+        }
+        
+        
+        template <typename N>
+        I query(N i, N j)
+        {
+            return query_sparse_table(i, j, M);
+        }
+    };
 }
 
 #endif

@@ -25,7 +25,7 @@
 #ifndef LCA_HPP
 #define LCA_HPP
 
-#include "RMQ.hpp"
+// #include "RMQ.hpp"
 
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/adjacency_list.hpp>
