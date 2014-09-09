@@ -25,7 +25,7 @@
 
 #include <iterator>
 #include <algorithm>
-#include <stdexcept>
+#include <cassert>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -99,8 +99,8 @@ namespace RMQ
     typename Sequence::value_type query_sparse_table(N0 i, N1 j, N2 n, Sequence M)
     {
         // requires: [i, j] is a valid range.
-        if(j < i)
-            throw std::invalid_argument("j < i");
+        assert(i <= j);
+        assert(j < n);
         if(i == j)
             return M[i];
         char unsigned const k = std::log2(j - i + 1);

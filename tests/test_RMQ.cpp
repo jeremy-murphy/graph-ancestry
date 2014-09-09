@@ -86,9 +86,23 @@ BOOST_AUTO_TEST_CASE(basic_query)
 
     foo = RMQ::query_sparse_table(0, 6, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
-
-    BOOST_REQUIRE_THROW(RMQ::query_sparse_table(1, 0, Q.size(), A), invalid_argument);
 }
 
+/*
+BOOST_AUTO_TEST_CASE(invalid_query)
+{
+    BOOST_REQUIRE_THROW(RMQ::query_sparse_table(1, 0, Q.size(), A), invalid_argument);
+    BOOST_REQUIRE_THROW(RMQ::query_sparse_table(1, 100, Q.size(), A), invalid_argument);
+}
+*/
+
+BOOST_FIXTURE_TEST_CASE(query_16, basic_16)
+{
+    auto foo = RMQ::query_sparse_table(0, 5, Q.size(), A);
+    BOOST_CHECK_EQUAL(*foo, 2);
+
+    foo = RMQ::query_sparse_table(0, 15, Q.size(), A);
+    BOOST_CHECK_EQUAL(*foo, 1);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
