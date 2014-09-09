@@ -27,9 +27,6 @@
 #include <algorithm>
 #include <cassert>
 
-#ifndef NDEBUG
-#include <iostream>
-#endif
 
 namespace RMQ
 {
@@ -50,6 +47,7 @@ namespace RMQ
     // ∑2^j + k = 
     template <typename N0, typename N1, typename N2>
     // requires: UnsignedIntegral(N0) && UnsignedIntegral(N1) && UnsignedIntegral(N2)
+    inline
     N0 translate(N0 i, N1 j, N2 n)
     {
         return j == 1 ? i : ((j - 1) * n) - (pow2(j) - j - 1) + i;
@@ -68,28 +66,19 @@ namespace RMQ
             
             auto const n = M.size() + 1;
             char unsigned const lowerlogn = std::log2(n);
-#ifndef NDEBUG
-            std::cerr << "n: " << n << ", block sizes: " << M.size() << " ";
-#endif
             for(char unsigned j = 2; j <= lowerlogn; j++)
             {
                 auto const block_length = pow2(j), block_length_2 = block_length / 2;
                 auto const offset = n - block_length_2 + 1;
                 std::size_t Mi = M.size() - offset; // Use index because of iterator invalidation.
-                std::size_t i = 0;
-                for(; i != n - block_length + 1; ++i)
+
+                for(std::size_t i = 0; i != n - block_length + 1; ++i)
                 {
                     auto const &M1 = M[Mi], &M2 = M[Mi + block_length_2];
                     M.push_back(*M1 <= *M2 ? M1 : M2);
                     ++Mi;
                 }
-#ifndef NDEBUG
-                std::cerr << i << " ";
-#endif
             }
-#ifndef NDEBUG
-            std::cerr << "\n";
-#endif
         }
     }
     
@@ -105,9 +94,9 @@ namespace RMQ
             return M[i];
         char unsigned const k = std::log2(j - i + 1);
         auto const block_size = pow2(k);
-        auto x = translate(i, k, n), 
-            y = translate(i + (j - i) - block_size + 1, k, n);
-        auto Mx = M[x], My = M[y];
+        auto const x = translate(i, k, n), 
+                   y = translate(i + (j - i) - block_size + N0(1), k, n);
+        auto const &Mx = M[x], &My = M[y];
         return *My < *Mx ? My : Mx;
     }
     
