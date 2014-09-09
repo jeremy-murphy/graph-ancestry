@@ -25,7 +25,7 @@
 #ifndef LCA_HPP
 #define LCA_HPP
 
-// #include "RMQ.hpp"
+#include "RMQ.hpp"
 
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -143,11 +143,11 @@ namespace LCA
         array_foo R;
         // requirement: Compute R in O(n).
         representative_element(std::begin(E), E.size(), std::back_inserter(R));
-        // TODO: RMQ on L.
+        // requirement: Compute T in O(n).
         typedef typename array_foo::const_iterator const_iterator;
         std::vector<const_iterator> T;
-        // RMQ::sparse_table(std::begin(L), L.size(), std::back_inserter(T));
-        // RMQ::sparse_table(L, T);
+        RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // NOTE: This computes in O(n lg n).
+        // TODO: Now what to do with T?
     }
 }
 
