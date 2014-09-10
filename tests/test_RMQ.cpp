@@ -69,10 +69,10 @@ BOOST_FIXTURE_TEST_CASE(test_16, basic_16)
 
 BOOST_AUTO_TEST_CASE(basic_query)
 {
-    auto q = RMQ::translate(1, 2, Q.size());
+    auto q = RMQ::translate_sparse_table(1, 2, Q.size());
     BOOST_CHECK_EQUAL(q, 8);
 
-    q = RMQ::translate(1, 3, Q.size());
+    q = RMQ::translate_sparse_table(1, 3, Q.size());
     BOOST_CHECK_EQUAL(q, 13);
 
     auto foo = RMQ::query_sparse_table(1, 5, Q.size(), A);

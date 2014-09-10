@@ -110,11 +110,12 @@ namespace LCA
     
     
     template <typename I, typename N, typename O>
+    // requires: InputIterator(I), I::DifferenceType(N), OutputIterator(O)
     O representative_element(I first, N n, O result)
     {
         typedef typename std::iterator_traits<I>::value_type value_type;
         std::unordered_set<value_type> seen;
-        for(std::size_t i = 0; i < n; ++i)
+        for(N i = 0; i < n; ++i)
         {
             if(seen.find(*first) == std::end(seen))
             {
@@ -133,20 +134,16 @@ namespace LCA
     void preprocess(Graph const &input, OGraph &output)
     {
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef std::vector<std::size_t> array_foo;
-        // requirement: Compute E in O(n).
+        typedef std::vector<std::size_t> index_vector;
         std::vector<vertex_descriptor> E;
-        boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E))));
-        // requirement: Compute L in O(n).
-        array_foo L;
-        boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L))));
-        array_foo R;
-        // requirement: Compute R in O(n).
-        representative_element(std::begin(E), E.size(), std::back_inserter(R));
-        // requirement: Compute T in O(n).
-        typedef typename array_foo::const_iterator const_iterator;
+        boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
+        index_vector L;
+        boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L)))); // Θ(n)
+        index_vector R;
+        representative_element(std::begin(E), E.size(), std::back_inserter(R)); // Θ(n)
+        typedef typename index_vector::const_iterator const_iterator;
         std::vector<const_iterator> T;
-        RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // NOTE: This computes in O(n lg n).
+        RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // Θ(n lg n)
         // TODO: Now what to do with T?
     }
 }

@@ -48,7 +48,7 @@ namespace RMQ
     template <typename N0, typename N1, typename N2>
     // requires: UnsignedIntegral(N0) && UnsignedIntegral(N1) && UnsignedIntegral(N2)
     inline
-    auto translate(N0 i, N1 j, N2 n) -> decltype(j * n + i)
+    auto translate_sparse_table(N0 i, N1 j, N2 n) -> decltype(j * n + i)
     {
         return j == 1 ? i : ((j - N1(1)) * n) - (pow2(j) - j - N1(1)) + i;
     }
@@ -94,8 +94,8 @@ namespace RMQ
             return M[i];
         char unsigned const k = std::log2(j - i + 1);
         auto const block_size = pow2(k);
-        auto const x = translate(i, k, n), 
-                   y = translate(i + (j - i) - block_size + N0(1), k, n);
+        auto const x = translate_sparse_table(i, k, n), 
+                   y = translate_sparse_table(i + (j - i) - block_size + N0(1), k, n);
         auto const &Mx = M[x], &My = M[y];
         return *My < *Mx ? My : Mx;
     }
