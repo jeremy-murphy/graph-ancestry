@@ -27,7 +27,7 @@
 
 #include "RMQ.hpp"
 
-#include <boost/graph/topological_sort.hpp>
+#include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <vector>
 #include <iterator>
@@ -128,23 +128,16 @@ namespace LCA
     }
     
     
-    template <typename Graph, typename OGraph>
+    template <typename Graph, typename DescriptorSequence, typename LevelSequence, typename IndexOutputIterator, typename IteratorSequence>
     // requires: VertexListGraph(Graph)
     //           OGraph is mutable
-    void preprocess(Graph const &input, OGraph &output)
+    void preprocess(Graph const &input, DescriptorSequence &E, LevelSequence &L, IndexOutputIterator R, IteratorSequence &T)
     {
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef std::vector<std::size_t> index_vector;
-        std::vector<vertex_descriptor> E;
         boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
-        index_vector L;
         boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L)))); // Θ(n)
-        index_vector R;
-        representative_element(std::begin(E), E.size(), std::back_inserter(R)); // Θ(n)
-        typedef typename index_vector::const_iterator const_iterator;
-        std::vector<const_iterator> T;
+        representative_element(std::begin(E), E.size(), R); // Θ(n)
         RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // Θ(n lg n)
-        // TODO: Now what to do with T?
     }
 }
 

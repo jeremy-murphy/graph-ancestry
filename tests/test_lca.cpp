@@ -21,6 +21,7 @@ struct Bender_2005_2
     
     Graph g;
     
+    
     Bender_2005_2()
     {
         for(auto i = 0u; i < 19u; ++i)
@@ -45,12 +46,13 @@ struct Bender_2005_2
         boost::add_edge(10, 17, g);
         boost::add_edge(10, 18, g);
         boost::add_edge(11, 19, g);
-        
     }
 };
 
 
 BOOST_FIXTURE_TEST_SUITE(TEST_LCA, Bender_2005_2<boost::adjacency_list<>>)
+
+typedef std::vector<std::size_t> index_vector;
 
 BOOST_AUTO_TEST_CASE(empty)
 {
@@ -59,15 +61,23 @@ BOOST_AUTO_TEST_CASE(empty)
     // boost::write_graphviz(output, g);
 #endif
     boost::adjacency_list<> const empty;
-    boost::adjacency_list<> result;
-    preprocess(empty, result);
+    std::vector<vertex_descriptor> E;
+    index_vector L;
+    index_vector R;
+    typedef typename index_vector::const_iterator const_iterator;
+    std::vector<const_iterator> T;
+    preprocess(empty, E, L, back_inserter(R), T);
 }
 
 
 BOOST_AUTO_TEST_CASE(basic)
 {
-    boost::adjacency_list<> output;
-    preprocess(g, output);
+    std::vector<vertex_descriptor> E;
+    index_vector L;
+    index_vector R;
+    typedef typename index_vector::const_iterator const_iterator;
+    std::vector<const_iterator> T;
+    preprocess(g, E, L, back_inserter(R), T);
 }
 
 
