@@ -48,9 +48,9 @@ namespace RMQ
     template <typename N0, typename N1, typename N2>
     // requires: UnsignedIntegral(N0) && UnsignedIntegral(N1) && UnsignedIntegral(N2)
     inline
-    N0 translate(N0 i, N1 j, N2 n)
+    auto translate(N0 i, N1 j, N2 n) -> decltype(j * n + i)
     {
-        return j == 1 ? i : ((j - 1) * n) - (pow2(j) - j - 1) + i;
+        return j == 1 ? i : ((j - N1(1)) * n) - (pow2(j) - j - N1(1)) + i;
     }
     
     
