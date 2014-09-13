@@ -38,7 +38,7 @@ namespace jwm
         {
             if(seen.find(*first) == std::end(seen))
             {
-                *result++ = i;
+                *result++ = first;
                 seen.insert(*first);
             }
             ++first;
@@ -52,13 +52,12 @@ namespace jwm
     O representative_element(I first, I last, O result)
     {
         typedef typename std::iterator_traits<I>::value_type value_type;
-        typedef typename std::iterator_traits<I>::difference_type N;
         std::unordered_set<value_type> seen;
-        for(N n = 0; first != last; ++first, ++n)
+        for(; first != last; ++first)
         {
             if(seen.find(*first) == std::end(seen))
             {
-                *result++ = n;
+                *result++ = first;
                 seen.insert(*first);
             }
             ++first;

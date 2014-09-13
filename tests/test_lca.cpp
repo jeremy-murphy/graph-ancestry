@@ -24,8 +24,8 @@ struct Bender_2005_2
     Graph g;
     std::vector<vertex_descriptor> E = {0, 1, 4, 9, 4, 10, 17, 10, 18, 10, 4, 11, 19, 11, 4, 1, 5, 12, 5, 1, 0, 2, 6, 13, 6, 2, 0, 3, 7, 14, 7, 15, 7, 16, 7, 3, 8, 3, 0};
     index_vector L = {0, 1, 2, 3, 2, 3, 4, 3, 4, 3, 2, 3, 4, 3, 2, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 3, 2, 3, 2, 1, 2, 1, 0};
-    index_vector R;
     typedef typename index_vector::const_iterator const_iterator;
+    index_vector R;
     std::vector<const_iterator> T;
     
     
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE(empty)
     boost::adjacency_list<> const empty;
     std::vector<vertex_descriptor> E;
     index_vector L;
-    index_vector R;
     typedef typename index_vector::const_iterator const_iterator;
+    std::vector<const_iterator> R;
     std::vector<const_iterator> T;
     preprocess(empty, E, L, back_inserter(R), T);
 }
@@ -80,8 +80,8 @@ BOOST_AUTO_TEST_CASE(basic)
 {
     std::vector<vertex_descriptor> E;
     index_vector L;
-    index_vector R;
     typedef typename index_vector::const_iterator const_iterator;
+    std::vector<const_iterator> R;
     std::vector<const_iterator> T;
     preprocess(g, E, L, back_inserter(R), T);
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
