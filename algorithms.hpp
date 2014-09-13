@@ -29,7 +29,7 @@
 namespace jwm
 {
     template <typename I, typename N, typename O>
-    // requires: InputIterator(I), I::DifferenceType(N), OutputIterator(O)
+    // requires: ForwardIterator(I), I::DifferenceType(N), OutputIterator(O)
     O representative_element(I first, N n, O result)
     {
         typedef typename std::iterator_traits<I>::value_type value_type;
@@ -48,12 +48,12 @@ namespace jwm
     
     
     template <typename I, typename O>
-    // requires: InputIterator(I), OutputIterator(O)
+    // requires: ForwardIterator(I), OutputIterator(O)
     O representative_element(I first, I last, O result)
     {
         typedef typename std::iterator_traits<I>::value_type value_type;
         std::unordered_set<value_type> seen;
-        for(; first != last; ++first)
+        while(first != last)
         {
             if(seen.find(*first) == std::end(seen))
             {
