@@ -14,12 +14,19 @@
 using namespace std;
 using namespace LCA;
 
+typedef std::vector<std::size_t> index_vector;
+
 template <typename Graph>
 struct Bender_2005_2
 {
     typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
     
     Graph g;
+    std::vector<vertex_descriptor> E = {0, 1, 4, 9, 4, 10, 17, 10, 18, 10, 4, 11, 19, 11, 4, 1, 5, 12, 5, 1, 0, 2, 6, 13, 6, 2, 0, 3, 7, 14, 7, 15, 7, 16, 7, 3, 8, 3, 0};
+    index_vector L = {0, 1, 2, 3, 2, 3, 4, 3, 4, 3, 2, 3, 4, 3, 2, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 1, 0, 1, 2, 3, 2, 3, 2, 3, 2, 1, 2, 1, 0};
+    index_vector R;
+    typedef typename index_vector::const_iterator const_iterator;
+    std::vector<const_iterator> T;
     
     
     Bender_2005_2()
@@ -52,7 +59,6 @@ struct Bender_2005_2
 
 BOOST_FIXTURE_TEST_SUITE(TEST_LCA, Bender_2005_2<boost::adjacency_list<>>)
 
-typedef std::vector<std::size_t> index_vector;
 
 BOOST_AUTO_TEST_CASE(empty)
 {
@@ -78,6 +84,8 @@ BOOST_AUTO_TEST_CASE(basic)
     typedef typename index_vector::const_iterator const_iterator;
     std::vector<const_iterator> T;
     preprocess(g, E, L, back_inserter(R), T);
+    BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
+    BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
 }
 
 
@@ -101,26 +109,6 @@ BOOST_AUTO_TEST_CASE(Eulerian_path)
     BOOST_CHECK_EQUAL(E.size(), expected.size());
     if(E.size() == expected.size())
         BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(expected), end(expected));
-}
-
-
-BOOST_AUTO_TEST_CASE(representative_element_all)
-{
-    vector<unsigned> a, b;
-    auto bi = back_inserter(b);
-    auto result = representative_element(begin(a), a.size(), bi);
-    BOOST_CHECK_EQUAL(b.size(), 0);
-    
-    for(unsigned i = 10; i < 20; i++)
-    {
-        a.push_back(i);
-        a.push_back(i);
-    }
-    
-    result = representative_element(begin(a), a.size(), bi);
-    vector<size_t> expected = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
-    BOOST_CHECK_EQUAL(expected.size(), b.size());
-    BOOST_CHECK_EQUAL_COLLECTIONS(begin(expected), end(expected), begin(b), end(b));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

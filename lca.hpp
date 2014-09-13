@@ -26,6 +26,7 @@
 #define LCA_HPP
 
 #include "RMQ.hpp"
+#include "algorithms.hpp"
 
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -109,34 +110,14 @@ namespace LCA
     }
     
     
-    template <typename I, typename N, typename O>
-    // requires: InputIterator(I), I::DifferenceType(N), OutputIterator(O)
-    O representative_element(I first, N n, O result)
-    {
-        typedef typename std::iterator_traits<I>::value_type value_type;
-        std::unordered_set<value_type> seen;
-        for(N i = 0; i < n; ++i)
-        {
-            if(seen.find(*first) == std::end(seen))
-            {
-                *result++ = i;
-                seen.insert(*first);
-            }
-            ++first;
-        }
-        return result;
-    }
-    
-    
     template <typename Graph, typename DescriptorSequence, typename LevelSequence, typename IndexOutputIterator, typename IteratorSequence>
     // requires: VertexListGraph(Graph)
-    //           OGraph is mutable
     void preprocess(Graph const &input, DescriptorSequence &E, LevelSequence &L, IndexOutputIterator R, IteratorSequence &T)
     {
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
         boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L)))); // Θ(n)
-        representative_element(std::begin(E), E.size(), R); // Θ(n)
+        jwm::representative_element(std::begin(E), E.size(), R); // Θ(n)
         RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // Θ(n lg n)
     }
 }
