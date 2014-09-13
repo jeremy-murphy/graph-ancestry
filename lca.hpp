@@ -66,7 +66,7 @@ namespace LCA
             }
         };
         
-        // Convenience function for making the visitor.
+        
         template <typename T, typename O>
         eulerian_path<T, O> make_eulerian_path(O output)
         {
@@ -117,7 +117,7 @@ namespace LCA
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
         boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L)))); // Θ(n)
-        jwm::representative_element(std::begin(E), E.size(), R); // Θ(n)
+        jwm::representative_element(std::begin(E), std::end(E), R); // Θ(n)
         RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // Θ(n lg n)
     }
 }
