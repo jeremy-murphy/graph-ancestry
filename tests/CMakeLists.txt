@@ -1,4 +1,4 @@
-find_package(Boost 1.49 REQUIRED graph test_exec_monitor)
+find_package(Boost 1.49 REQUIRED graph system test_exec_monitor timer)
 include_directories(".." ${Boost_INCLUDE_DIRS})
 add_executable(test_lca test_lca.cpp)
 target_link_libraries(test_lca ${Boost_LIBRARIES})
