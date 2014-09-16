@@ -43,7 +43,6 @@ BOOST_FIXTURE_TEST_SUITE(TEST_RMQ, basic_8)
 
 BOOST_AUTO_TEST_CASE(test_basic)
 {
-    typedef typename vector<unsigned>::const_iterator const_iterator;
     vector<const_iterator> B;
     RMQ::preprocess_sparse_table(begin(Q), end(Q), B);
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
