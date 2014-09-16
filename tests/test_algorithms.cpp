@@ -26,7 +26,10 @@ BOOST_AUTO_TEST_CASE(empty_input)
     vector<const_iterator> b;
     auto bi = back_inserter(b);
     representative_element(begin(empty), empty.size(), bi);
-    BOOST_CHECK_EQUAL(empty.size(), 0);
+    BOOST_CHECK(b.empty());
+
+    representative_element(begin(empty), end(empty), bi);
+    BOOST_CHECK(b.empty());
 }
 
 
@@ -37,7 +40,6 @@ BOOST_AUTO_TEST_CASE(test_basic_n)
     vector<const_iterator> b;
     auto bi = back_inserter(b);
     representative_element(begin(a), a.size(), bi);
-    BOOST_CHECK_EQUAL(expected.size(), b.size());
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(expected)), boost::make_indirect_iterator(end(expected)), boost::make_indirect_iterator(begin(b)), boost::make_indirect_iterator(end(b)));
 }
 
@@ -47,11 +49,13 @@ BOOST_AUTO_TEST_CASE(test_basic_range)
     vector<const_iterator> b;
     auto bi = back_inserter(b);
     representative_element(begin(a), end(a), bi);
-    BOOST_CHECK_EQUAL(expected.size(), b.size());
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(expected)), boost::make_indirect_iterator(end(expected)), boost::make_indirect_iterator(begin(b)), boost::make_indirect_iterator(end(b)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+
+/*      And now... unit measurements!    */
 
 #ifdef NDEBUG
 
