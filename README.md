@@ -11,7 +11,7 @@ And their supporting general algorithms.
 
 #### Contents
 1. Graph algorithms
-  1. **lowest common single ancestor** (LSCA) - *incomplete*
+  1. **lowest single common ancestor** (LSCA) - *incomplete*
 2. Tree algorithms
  1. **lowest common ancestor** (LCA), <Θ(*n* lg *n*), Θ(1)>
    * By reduction to the RMQ problem.
