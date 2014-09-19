@@ -65,7 +65,6 @@ BOOST_AUTO_TEST_SUITE_END()
 #include <boost/timer/timer.hpp>
 #include <fstream>
 #include <string>
-#include <iostream>
 
 struct huge_random
 {
@@ -75,7 +74,7 @@ struct huge_random
     
     huge_random() : d(0, (1ul << 32) - 1)
     {
-        fill_n(back_inserter(a), 1ul << 28, d(engine));
+        fill_n(back_inserter(a), 1ul << 20, d(engine));
     }
 };
 
@@ -84,26 +83,29 @@ BOOST_FIXTURE_TEST_SUITE(measure_representative_element, huge_random)
 BOOST_AUTO_TEST_CASE(measure_sequence)
 {
     auto null_output = boost::make_function_output_iterator([](const_iterator){});
-    boost::timer::auto_cpu_timer timer;
-    representative_element(begin(a), end(a), null_output);
+    auto const j = 1u << 8;
+    boost::timer::cpu_timer timer;
+    for(unsigned i = 0; i < j; i++)
+        representative_element(begin(a), end(a), null_output);
     timer.stop();
-    auto const t = timer.elapsed().user + timer.elapsed().system;
+    double const t = timer.elapsed().user + timer.elapsed().system;
+    auto const t_n = t / a.size() / j;
+    BOOST_MESSAGE(t_n << " ns^-1");
     string const data_file(string(".") + string(boost::unit_test::framework::current_test_case().p_name));
     ifstream foo(data_file);
     if(foo.is_open())
     {
-        boost::timer::nanosecond_type t0;
+        double t0;
         foo >> t0;
-        auto const r = double(t) / double(t0);
-        cerr << "r: " << r << "\n";
-        BOOST_REQUIRE_MESSAGE(r < 1.10, (r - 1) * 100.0 << "% regression!");
-        BOOST_WARN_MESSAGE(r < 1.05, (r - 1) * 100.0 << "% regression (just a warning).");
+        auto const r = t_n / t0 - 1.0;  // regression, as a fraction of 100.
+        BOOST_REQUIRE_MESSAGE(r < 0.10, r * 100.0 << "% regression!");
+        BOOST_WARN_MESSAGE(r < 0.05, r * 100.0 << "% regression.");
     }
     else
     {
-        BOOST_MESSAGE(data_file << ": not found; starting anew with " << t << ".");
-        ofstream foo(data_file);
-        foo << t << "\n";
+        BOOST_MESSAGE(data_file << ": not found; starting anew with " << t_n << ".");
+        ofstream output(data_file);
+        output << t_n << "\n";
     }
 }
 

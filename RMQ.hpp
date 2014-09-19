@@ -116,11 +116,19 @@ namespace RMQ
         
         
         template <typename N>
+        // requires:    UnsignedIntegral(N)
         I query(N i, N j)
         {
             return query_sparse_table(i, j, M);
         }
     };
+    
+    
+    template <typename I>
+    sparse_table<I> make_sparse_table(I first, I last)
+    {
+        return sparse_table<I>(first, last);
+    }
 }
 
 #endif
