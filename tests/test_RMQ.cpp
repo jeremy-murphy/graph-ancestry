@@ -7,8 +7,18 @@
 #include <vector>
 #include <iterator>
 #include <boost/iterator/indirect_iterator.hpp>
+#include <locale>
+#include <iostream>
 
 using namespace std;
+
+
+struct enable_locale
+{
+    enable_locale() { cout.imbue(locale("")); }
+};
+
+BOOST_GLOBAL_FIXTURE(enable_locale);
 
 struct basic_8
 {
@@ -138,7 +148,7 @@ BOOST_AUTO_TEST_CASE(measure_preprocess)
     auto const t_n = t / a.size() / j;
     string const test_name = string(boost::unit_test::framework::current_test_case().p_name);
     string const data_file(string(".") + test_name);
-    BOOST_MESSAGE(test_name << ": " << t_n << " ns^-1");
+    BOOST_MESSAGE(test_name << "[" << j << " × " << a.size() << "]: " << t_n << " ns per element");
     ifstream foo(data_file);
     if(foo.is_open())
     {

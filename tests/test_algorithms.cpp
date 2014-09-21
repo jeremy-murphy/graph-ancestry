@@ -6,10 +6,18 @@
 
 #include <vector>
 #include <boost/iterator/indirect_iterator.hpp>
-
+#include <locale>
+#include <iostream>
 
 using namespace std;
 using namespace jwm;
+
+struct enable_locale
+{
+    enable_locale() { cout.imbue(locale("")); }
+};
+
+BOOST_GLOBAL_FIXTURE(enable_locale);
 
 typedef typename vector<unsigned>::const_iterator const_iterator;
 
@@ -32,6 +40,14 @@ BOOST_AUTO_TEST_CASE(empty_input)
     BOOST_CHECK(b.empty());
 }
 
+
+BOOST_AUTO_TEST_CASE(test_log2)
+{
+    vector<unsigned> const q = {1, 2, 3, 100, 1000, 10000};
+    vector<unsigned> const a = {0, 1, 1, 6, 9, 13};
+    for(unsigned i = 0; i < q.size(); i++)
+        BOOST_CHECK_EQUAL(jwm::log2(q[i]), a[i]);
+}
 
 BOOST_FIXTURE_TEST_SUITE(test_representative_element, basic)
 
@@ -78,9 +94,9 @@ struct huge_random
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(measure_representative_element, huge_random)
+BOOST_FIXTURE_TEST_SUITE(measure_algorithms, huge_random)
 
-BOOST_AUTO_TEST_CASE(measure_sequence)
+BOOST_AUTO_TEST_CASE(measure_representative_element)
 {
     auto null_output = boost::make_function_output_iterator([](const_iterator){});
     auto const j = 1u << 8;
@@ -90,8 +106,9 @@ BOOST_AUTO_TEST_CASE(measure_sequence)
     timer.stop();
     double const t = timer.elapsed().user + timer.elapsed().system;
     auto const t_n = t / a.size() / j;
-    BOOST_MESSAGE(t_n << " ns^-1");
-    string const data_file(string(".") + string(boost::unit_test::framework::current_test_case().p_name));
+    string const test_name = string(boost::unit_test::framework::current_test_case().p_name);
+    string const data_file(string(".") + test_name);
+    BOOST_MESSAGE(test_name << "[" << j << " × " << a.size() << "]: " << t_n << " ns per element");
     ifstream foo(data_file);
     if(foo.is_open())
     {

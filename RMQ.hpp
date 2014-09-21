@@ -26,19 +26,13 @@
 #include <iterator>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+
+#include "algorithms.hpp"
 
 
 namespace RMQ
 {
-    template <typename N>
-    // requires: UnsignedIntegral(N)
-    inline
-    unsigned long pow2(N n)
-    {
-        return 1ul << n;
-    }
-    
-    
     template <typename I, typename OSequence>
     // requires: ForwardIterator(I)
     //           RandomAccessSequence(OSequence)
@@ -50,17 +44,19 @@ namespace RMQ
                 M.push_back(*first <= *second ? first : second);
             
             auto const n = M.size() + 1u;
-            char unsigned const lowerlogn = std::log2(n);
+            auto const lowerlogn = jwm::log2(n);
+            
             for(char unsigned j = 2; j <= lowerlogn; j++)
             {
-                auto const block_length = pow2(j), block_length_2 = block_length / 2u;
-                auto const offset = n - block_length_2 + 1u;
-                auto Mi = M.size() - offset; // Use index because of iterator invalidation.
+                auto const block_length = jwm::pow2(j);
+                auto const block_length_2 = block_length / 2u;
+                auto const last_pos = n - block_length + 1u;
+                auto Mi = M.size() - (n - block_length_2 + 1u); // Use index because of iterator invalidation.
 
-                for(std::size_t i = 0; i != n - block_length + 1u; ++i)
+                for(std::size_t i = 0; i != last_pos; i++)
                 {
                     auto const &M1 = M[Mi], &M2 = M[Mi + block_length_2];
-                    M.push_back(*M1 <= *M2 ? M1 : M2);
+                    M.push_back(*M2 < *M1 ? M2 : M1);
                     ++Mi;
                 }
             }
@@ -73,7 +69,7 @@ namespace RMQ
     inline
     auto translate_sparse_table(N0 i, N1 j, N2 n) -> decltype(j * n + i)
     {
-        return j == N1(1) ? i : ((j - N1(1)) * n) - (pow2(j) - j - N1(1)) + i;
+        return j == N1(1) ? i : ((j - N1(1)) * n) - (jwm::pow2(j) - j - N1(1)) + i;
     }
     
     
@@ -86,10 +82,10 @@ namespace RMQ
         assert(j < n);
         if(i == j)
             return M[i];
-        char unsigned const k = std::log2(j - i + 1);
-        auto const block_size = pow2(k);
-        auto const x = translate_sparse_table(i, k, n), 
-                   y = translate_sparse_table(i + (j - i) - block_size + N0(1), k, n);
+
+        char unsigned const k = jwm::log2(j - i + 1);
+        auto const  x = translate_sparse_table(i, k, n), 
+                    y = translate_sparse_table(j - jwm::pow2(k) + N0(1), k, n);
         auto const &Mx = M[x], &My = M[y];
         return *My < *Mx ? My : Mx;
     }

@@ -25,9 +25,36 @@
 
 #include <unordered_set>
 #include <iterator>
+#include <cassert>
 
 namespace jwm
 {
+    template <typename N>
+    // requires: UnsignedIntegral(N)
+    inline
+    long unsigned pow2(N n)
+    {
+        return 1ul << n;
+    }
+    
+    
+    template <typename N>
+    // requires: UnsignedIntegral(N)
+    inline
+    char unsigned log2(N n)
+    {
+        assert(n != 0);
+        char unsigned result = 0;
+        
+        while(n >>= 1u)
+        {
+            result++;
+        }
+        
+        return result;
+    }
+    
+    
     template <typename I, typename N, typename O>
     // requires: ForwardIterator(I), I::DifferenceType(N), OutputIterator(O)
     O representative_element(I first, N n, O result)
