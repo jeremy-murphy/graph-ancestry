@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(basic)
 BOOST_AUTO_TEST_CASE(vertex_height)
 {
     vector<size_t> L;
-    boost::depth_first_search(g, boost::visitor(detail::make_vertex_level(back_inserter(L))));
+    boost::depth_first_search(g, boost::visitor(detail::make_vertex_depth(back_inserter(L))));
     BOOST_CHECK_EQUAL(L.size(), this->L.size());
     if(L.size() == this->L.size())
         BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));

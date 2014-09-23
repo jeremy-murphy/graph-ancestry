@@ -75,13 +75,13 @@ namespace LCA
         
         
         template <typename O>
-        struct vertex_level : public boost::default_dfs_visitor
+        struct vertex_depth : public boost::default_dfs_visitor
         {
             O result;
             std::size_t depth;
             std::size_t previous;
             
-            vertex_level(O result) : result(result), depth(0), previous(1) {}
+            vertex_depth(O result) : result(result), depth(0), previous(1) {}
             
             template <typename Edge, typename Graph>
             void tree_edge(Edge const &, Graph const &)
@@ -103,20 +103,22 @@ namespace LCA
         
         
         template <typename O>
-        vertex_level<O> make_vertex_level(O result)
+        vertex_depth<O> make_vertex_depth(O result)
         {
-            return vertex_level<O>(result);
+            return vertex_depth<O>(result);
         }
-    }
+    } // namespace detail
     
     
     template <typename Graph, typename DescriptorSequence, typename LevelSequence, typename IndexOutputIterator, typename IteratorSequence>
-    // requires: VertexListGraph(Graph)
+    // requires: VertexListGraph(Graph) && Directed(Graph)
     void preprocess(Graph const &input, DescriptorSequence &E, LevelSequence &L, IndexOutputIterator R, IteratorSequence &T)
     {
+        // requires: acyclic(input)
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        
         boost::depth_first_search(input, boost::visitor(detail::make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
-        boost::depth_first_search(input, boost::visitor(detail::make_vertex_level(std::back_inserter(L)))); // Θ(n)
+        boost::depth_first_search(input, boost::visitor(detail::make_vertex_depth(std::back_inserter(L)))); // Θ(n)
         jwm::representative_element(std::begin(E), std::end(E), R); // Θ(n)
         RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // Θ(n lg n)
     }
