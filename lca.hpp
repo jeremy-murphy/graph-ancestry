@@ -32,17 +32,25 @@
 
 namespace graph_algorithms
 {
-    template <typename Graph, typename DescriptorSequence, typename LevelSequence, typename IndexOutputIterator, typename IteratorSequence>
+    template <typename Graph, typename VertexSequence, typename LevelSequence, typename OIterator, typename IteratorSequence>
     // requires: VertexListGraph(Graph) && Directed(Graph)
-    void preprocess(Graph const &input, DescriptorSequence &E, LevelSequence &L, IndexOutputIterator R, IteratorSequence &T)
+    void lca_preprocess(Graph const &input, VertexSequence &E, LevelSequence &L, OIterator R, IteratorSequence &T)
     {
         // requires: acyclic(input)
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         
         boost::depth_first_search(input, boost::visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
         boost::depth_first_search(input, boost::visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
-        jwm::representative_element(std::begin(E), std::end(E), R); // Θ(n)
-        RMQ::preprocess_sparse_table(std::begin(L), std::end(L), T); // Θ(n lg n)
+        general::representative_element(std::begin(E), std::end(E), R); // Θ(n)
+        general::preprocess_sparse_table(std::begin(L), std::end(L), T); // Θ(n lg n)
+    }
+
+
+    template <typename N, typename LevelSequence, typename VertexSequence>
+    typename VertexSequence::value_type lca_query(N u, N v, LevelSequence L, VertexSequence E)
+    {
+        auto const minimum = general::query_sparse_table(u, v, L.size(), L);
+        return E[minimum];
     }
 }
 

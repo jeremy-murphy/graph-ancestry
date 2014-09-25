@@ -11,7 +11,7 @@
 #include <iostream>
 
 using namespace std;
-
+using namespace general;
 
 struct enable_locale
 {
@@ -54,7 +54,7 @@ BOOST_FIXTURE_TEST_SUITE(TEST_RMQ, basic_8)
 BOOST_AUTO_TEST_CASE(test_basic)
 {
     vector<const_iterator> B;
-    RMQ::preprocess_sparse_table(begin(Q), end(Q), B);
+    preprocess_sparse_table(begin(Q), end(Q), B);
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
 }
 
@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_CASE(test_7, basic_7)
 {
     typedef typename vector<unsigned>::const_iterator const_iterator;
     vector<const_iterator> B;
-    RMQ::preprocess_sparse_table(begin(Q), end(Q), B);
+    preprocess_sparse_table(begin(Q), end(Q), B);
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
 }
 
@@ -71,39 +71,39 @@ BOOST_FIXTURE_TEST_CASE(test_16, basic_16)
 {
     typedef typename vector<unsigned>::const_iterator const_iterator;
     vector<const_iterator> B;
-    RMQ::preprocess_sparse_table(begin(Q), end(Q), B);
+    preprocess_sparse_table(begin(Q), end(Q), B);
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
 }
 
 
 BOOST_AUTO_TEST_CASE(basic_query)
 {
-    auto q = RMQ::translate_sparse_table(1, 2, Q.size());
+    auto q = translate_sparse_table(1, 2, Q.size());
     BOOST_CHECK_EQUAL(q, 8);
 
-    q = RMQ::translate_sparse_table(1, 3, Q.size());
+    q = translate_sparse_table(1, 3, Q.size());
     BOOST_CHECK_EQUAL(q, 13);
 
-    auto foo = RMQ::query_sparse_table(1, 5, Q.size(), A);
+    auto foo = query_sparse_table(1, 5, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 4);
 
-    foo = RMQ::query_sparse_table(0, 7, Q.size(), A);
+    foo = query_sparse_table(0, 7, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 1);
 
-    foo = RMQ::query_sparse_table(0, 0, Q.size(), A);
+    foo = query_sparse_table(0, 0, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
 
-    foo = RMQ::query_sparse_table(0, 6, Q.size(), A);
+    foo = query_sparse_table(0, 6, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
 }
 
 
 BOOST_FIXTURE_TEST_CASE(query_16, basic_16)
 {
-    auto foo = RMQ::query_sparse_table(0, 5, Q.size(), A);
+    auto foo = query_sparse_table(0, 5, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
 
-    foo = RMQ::query_sparse_table(0, 15, Q.size(), A);
+    foo = query_sparse_table(0, 15, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 1);
 }
 
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(measure_preprocess)
     for(unsigned i = 0; i < j; i++)
     {
         vector<const_iterator> B;
-        RMQ::preprocess_sparse_table(begin(a), end(a), B);
+        preprocess_sparse_table(begin(a), end(a), B);
     }
     timer.stop();
     double const t = timer.elapsed().user + timer.elapsed().system;

@@ -27,7 +27,7 @@
 #include <iterator>
 #include <cassert>
 
-namespace jwm
+namespace general
 {
     template <typename N>
     // requires: UnsignedIntegral(N)

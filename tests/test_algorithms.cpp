@@ -4,13 +4,15 @@
 
 #include "algorithms.hpp"
 
-#include <vector>
 #include <boost/iterator/indirect_iterator.hpp>
+
+#include <vector>
 #include <locale>
 #include <iostream>
+#include <list>
 
 using namespace std;
-using namespace jwm;
+using namespace general;
 
 struct enable_locale
 {
@@ -46,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_log2)
     vector<unsigned> const q = {1, 2, 3, 100, 1000, 10000};
     vector<unsigned> const a = {0, 1, 1, 6, 9, 13};
     for(unsigned i = 0; i < q.size(); i++)
-        BOOST_CHECK_EQUAL(jwm::log2(q[i]), a[i]);
+        BOOST_CHECK_EQUAL(general::log2(q[i]), a[i]);
 }
 
 BOOST_FIXTURE_TEST_SUITE(test_representative_element, basic)
@@ -67,6 +69,18 @@ BOOST_AUTO_TEST_CASE(test_basic_range)
     representative_element(begin(a), end(a), bi);
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(expected)), boost::make_indirect_iterator(end(expected)), boost::make_indirect_iterator(begin(b)), boost::make_indirect_iterator(end(b)));
 }
+
+
+BOOST_AUTO_TEST_CASE(test_representative_element_list)
+{
+    typedef list<unsigned> input_type;
+    input_type const input(begin(a), end(a));
+    vector<typename input_type::const_iterator> b;
+    auto bi = back_inserter(b);
+    representative_element(begin(input), end(input), bi);
+    BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(expected)), boost::make_indirect_iterator(end(expected)), boost::make_indirect_iterator(begin(b)), boost::make_indirect_iterator(end(b)));
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

@@ -31,7 +31,7 @@
 #include "algorithms.hpp"
 
 
-namespace RMQ
+namespace general
 {
     template <typename I, typename OSequence>
     // requires: ForwardIterator(I)
@@ -44,11 +44,11 @@ namespace RMQ
                 M.push_back(*first <= *second ? first : second);
             
             auto const n = M.size() + 1u;
-            auto const lowerlogn = jwm::log2(n);
+            auto const lowerlogn = general::log2(n);
             
             for(char unsigned j = 2; j <= lowerlogn; j++)
             {
-                auto const block_length = jwm::pow2(j);
+                auto const block_length = general::pow2(j);
                 auto const block_length_2 = block_length / 2u;
                 auto const last_pos = n - block_length + 1u;
                 auto Mi = M.size() - (n - block_length_2 + 1u); // Use index because of iterator invalidation.
@@ -69,24 +69,24 @@ namespace RMQ
     inline
     auto translate_sparse_table(N0 i, N1 j, N2 n) -> decltype(j * n + i)
     {
-        return j == N1(1) ? i : ((j - N1(1)) * n) - (jwm::pow2(j) - j - N1(1)) + i;
+        return j == N1(1) ? i : ((j - N1(1)) * n) - (general::pow2(j) - j - N1(1)) + i;
     }
     
     
     template <typename N0, typename N1, typename N2, typename Sequence>
     // requires: UnsignedIntegral(N0..N2)
-    typename Sequence::value_type query_sparse_table(N0 i, N1 j, N2 n, Sequence M)
+    typename Sequence::value_type query_sparse_table(N0 i, N1 j, N2 n, Sequence const &sparse_table)
     {
         // requires: [i, j] is a valid range.
         assert(i <= j);
         assert(j < n);
         if(i == j)
-            return M[i];
+            return sparse_table[i];
 
-        char unsigned const k = jwm::log2(j - i + 1);
+        char unsigned const k = general::log2(j - i + 1);
         auto const  x = translate_sparse_table(i, k, n), 
-                    y = translate_sparse_table(j - jwm::pow2(k) + N0(1), k, n);
-        auto const &Mx = M[x], &My = M[y];
+                    y = translate_sparse_table(j - general::pow2(k) + N0(1), k, n);
+        auto const &Mx = sparse_table[x], &My = sparse_table[y];
         return *My < *Mx ? My : Mx;
     }
     
