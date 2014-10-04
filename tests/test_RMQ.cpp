@@ -4,6 +4,8 @@
 
 #include "RMQ.hpp"
 
+#include <boost/mpl/vector.hpp>
+
 #include <vector>
 #include <iterator>
 #include <boost/iterator/indirect_iterator.hpp>
@@ -20,7 +22,7 @@ struct enable_locale
 
 BOOST_GLOBAL_FIXTURE(enable_locale);
 
-struct basic_8
+struct iterator_8
 {
     vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1};
     typedef typename decltype(Q)::const_iterator const_iterator;
@@ -28,13 +30,13 @@ struct basic_8
 };
 
 
-struct basic_7
+struct iterator_7
 {
     vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9};
     vector<unsigned*> A = {&Q[0], &Q[2], &Q[2], &Q[4], &Q[4], &Q[5], &Q[0], &Q[4], &Q[4], &Q[4]};
 };
 
-struct basic_16
+struct iterator_16
 {
     vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1, 10, 11, 3, 7, 19, 4, 11, 16};
     typedef typename vector<unsigned>::const_iterator const_iterator;
@@ -49,7 +51,7 @@ struct basic_16
         };
 };
 
-BOOST_FIXTURE_TEST_SUITE(TEST_RMQ, basic_8)
+BOOST_FIXTURE_TEST_SUITE(RMQ_iterator, iterator_8)
 
 BOOST_AUTO_TEST_CASE(test_basic)
 {
@@ -58,7 +60,7 @@ BOOST_AUTO_TEST_CASE(test_basic)
     BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
 }
 
-BOOST_FIXTURE_TEST_CASE(test_7, basic_7)
+BOOST_FIXTURE_TEST_CASE(test_7, iterator_7)
 {
     typedef typename vector<unsigned>::const_iterator const_iterator;
     vector<const_iterator> B;
@@ -67,7 +69,7 @@ BOOST_FIXTURE_TEST_CASE(test_7, basic_7)
 }
 
 
-BOOST_FIXTURE_TEST_CASE(test_16, basic_16)
+BOOST_FIXTURE_TEST_CASE(test_16, iterator_16)
 {
     typedef typename vector<unsigned>::const_iterator const_iterator;
     vector<const_iterator> B;
@@ -98,7 +100,7 @@ BOOST_AUTO_TEST_CASE(basic_query)
 }
 
 
-BOOST_FIXTURE_TEST_CASE(query_16, basic_16)
+BOOST_FIXTURE_TEST_CASE(query_16, iterator_16)
 {
     auto foo = query_sparse_table(0, 5, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
@@ -108,6 +110,46 @@ BOOST_FIXTURE_TEST_CASE(query_16, basic_16)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+
+
+struct index_8
+{
+    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1};
+    vector<size_t> A = {0, 2, 2, 4, 4, 5, 7, 0, 4, 4, 4, 7, 7};
+};
+
+struct index_7
+{
+    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9};
+    vector<size_t> A = {0, 2, 2, 4, 4, 5, 0, 4, 4, 4};
+};
+
+struct index_16
+{
+    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1, 10, 11, 3, 7, 19, 4, 11, 16};
+    vector<size_t> A = {0, 2, 2, 4, 4, 5, 7, 7, 8, 10, 10, 11, 13, 13, 14, // 2
+                        0, 4, 4, 4, 7, 7, 7, 7, 10, 10, 10, 13, 13, // 4
+                        7, 7, 7, 7, 7, 7, 7, 7, 10, // 8
+                        7 // 16
+    };
+};
+
+
+BOOST_AUTO_TEST_SUITE(RMQ_index)
+
+typedef boost::mpl::vector<index_8, index_7, index_16> test_fixtures;
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_basic, fixture_type, test_fixtures)
+{
+    auto const fixture = fixture_type();
+    vector<size_t> B;
+    preprocess_sparse_table(fixture.Q, B);
+    BOOST_CHECK_EQUAL_COLLECTIONS(begin(fixture.A), end(fixture.A), begin(B), end(B));
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 
 
 #ifdef NDEBUG

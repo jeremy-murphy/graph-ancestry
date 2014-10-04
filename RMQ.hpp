@@ -33,6 +33,51 @@
 
 namespace general
 {
+    /**
+     * @defgroup RMQ_algorithms Range minimum query
+     * @ingroup non_mutating_algorithms
+     */
+    
+    
+    
+    /**
+     * @brief Create a Sparse Table for RMQ from the range [first, last).
+     * @ingroup RMQ_algorithms
+     * @param first     Start of range.
+     * @param last      End of range.
+     */
+    template <typename ISequence, typename OSequence>
+    // requires: Sequence(ISequence)
+    //           Sequence(OSequence)
+    void preprocess_sparse_table(ISequence const &A, OSequence &M)
+    {
+        if(A.size() >= 2)
+        {
+            typedef typename ISequence::size_type size_type;
+            for(size_type i = 0; i < A.size() - 1; i++)
+                M.push_back(A[i] <= A[i + 1] ? i : i + 1);
+            
+            auto const n = M.size() + 1u;
+            auto const lowerlogn = general::log2(n);
+            
+            for(char unsigned j = 2; j <= lowerlogn; j++)
+            {
+                auto const block_length = general::pow2(j);
+                auto const block_length_2 = block_length / 2u;
+                auto const last_pos = n - block_length + 1u;
+                auto Mi = M.size() - (n - block_length_2 + 1u);
+                
+                for(std::size_t i = 0; i != last_pos; i++)
+                {
+                    auto const &M1 = M[Mi], &M2 = M[Mi + block_length_2];
+                    M.push_back(A[M2] < A[M1] ? M2 : M1);
+                    ++Mi;
+                }
+            }
+        }
+    }
+    
+    
     template <typename I, typename OSequence>
     // requires: ForwardIterator(I)
     //           RandomAccessSequence(OSequence)
