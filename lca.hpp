@@ -29,13 +29,18 @@
 #include "algorithms.hpp"
 #include "graph_visitors.hpp"
 
+#include <boost/concept_check.hpp>
+#include <boost/concept/assert.hpp>
+
 
 namespace graph_algorithms
 {
+    
     template <typename Graph, typename VertexSequence, typename LevelSequence, typename OIterator, typename IteratorSequence>
-    // requires: VertexListGraph(Graph) && Directed(Graph)
+    // requires: Directed(Graph)
     void lca_preprocess(Graph const &input, VertexSequence &E, LevelSequence &L, OIterator R, IteratorSequence &T)
     {
+        BOOST_CONCEPT_ASSERT((boost::VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.
         // requires: acyclic(input)
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         
@@ -46,9 +51,13 @@ namespace graph_algorithms
     }
 
 
-    template <typename N, typename LevelSequence, typename VertexSequence>
-    typename VertexSequence::value_type lca_query(N u, N v, LevelSequence L, VertexSequence E)
+    template <typename N, typename C0, typename C1>
+    typename C1::value_type lca_query(N u, N v, C0 L, C1 E)
     {
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C1>));
+        
         auto const minimum = general::query_sparse_table(u, v, L.size(), L);
         return E[minimum];
     }
