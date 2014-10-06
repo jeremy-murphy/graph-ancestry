@@ -1,14 +1,21 @@
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
+#include <boost/concept_check.hpp>
+#include <boost/concept/assert.hpp>
+
+#include <set>
+
 
 namespace graph_algorithms
 {
     /// DFS visitor calculates Eulerian path of a graph.
-    template <typename T, typename O>
+    template <typename Vertex, typename O>
     struct eulerian_path : public boost::default_dfs_visitor
     {
-        T previous;
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, Vertex>));
+
+        Vertex previous;
         O result;
         bool start;
         
@@ -23,7 +30,7 @@ namespace graph_algorithms
             *result++ = previous = boost::target(e, g);
         }
         
-        template <typename Vertex, typename Graph>
+        template <typename Graph>
         void finish_vertex(Vertex const &v, Graph const &)
         {
             if(v != previous)
@@ -32,16 +39,18 @@ namespace graph_algorithms
     };
     
     
-    template <typename T, typename O>
-    eulerian_path<T, O> make_eulerian_path(O output)
+    template <typename Vertex, typename O>
+    eulerian_path<Vertex, O> make_eulerian_path(O output)
     {
-        return eulerian_path<T, O>(output);
+        return eulerian_path<Vertex, O>(output);
     }
     
     
     template <typename O>
     struct vertex_depth : public boost::default_dfs_visitor
     {
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, std::size_t>));
+
         O result;
         std::size_t depth;
         std::size_t previous;
@@ -71,5 +80,37 @@ namespace graph_algorithms
     vertex_depth<O> make_vertex_depth(O result)
     {
         return vertex_depth<O>(result);
+    }
+    
+    
+    template <typename Edge, typename O>
+    struct cycle_detector : public boost::default_dfs_visitor
+    {
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, Edge>));
+        
+        std::set<Edge> predecessors;
+        O result;
+
+        cycle_detector(O result) : result(result) {}
+        
+        template <typename Graph>
+        void back_edge(Edge const &E, Graph&)
+        {
+            if(predecessors.find(E) == std::end(predecessors))
+                *result++ = E;
+        }
+        
+        template <typename Graph>
+        void tree_edge(Edge const &E, Graph &)
+        {
+            predecessors.insert(E);
+        }
+    };
+    
+    
+    template <typename Edge, typename O>
+    cycle_detector<Edge, O> make_cycle_detector(O &&result)
+    {
+        return cycle_detector<Edge, O>(std::forward<O>(result));
     }
 }

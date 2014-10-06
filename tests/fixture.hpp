@@ -11,6 +11,7 @@ template <typename Graph>
 struct Bender_2005_2
 {
     typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+    typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
     typedef typename index_vector::const_iterator const_iterator;
 
     Graph g;
