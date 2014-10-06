@@ -80,32 +80,32 @@ BOOST_FIXTURE_TEST_CASE(test_16, iterator_16)
 
 BOOST_AUTO_TEST_CASE(basic_query)
 {
-    auto q = translate_sparse_table(1, 2, Q.size());
+    auto q = translate_sparse_table(1u, 2u, Q.size());
     BOOST_CHECK_EQUAL(q, 8);
 
-    q = translate_sparse_table(1, 3, Q.size());
+    q = translate_sparse_table(1u, 3u, Q.size());
     BOOST_CHECK_EQUAL(q, 13);
 
-    auto foo = query_sparse_table(1, 5, Q.size(), A);
+    auto foo = query_sparse_table(1u, 5u, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 4);
 
-    foo = query_sparse_table(0, 7, Q.size(), A);
+    foo = query_sparse_table(0u, 7u, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 1);
 
-    foo = query_sparse_table(0, 0, Q.size(), A);
+    foo = query_sparse_table(0u, 0u, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
 
-    foo = query_sparse_table(0, 6, Q.size(), A);
+    foo = query_sparse_table(0u, 6u, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
 }
 
 
 BOOST_FIXTURE_TEST_CASE(query_16, iterator_16)
 {
-    auto foo = query_sparse_table(0, 5, Q.size(), A);
+    auto foo = query_sparse_table(0u, 5u, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 2);
 
-    foo = query_sparse_table(0, 15, Q.size(), A);
+    foo = query_sparse_table(0u, 15u, Q.size(), A);
     BOOST_CHECK_EQUAL(*foo, 1);
 }
 

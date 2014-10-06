@@ -23,6 +23,10 @@
 #ifndef RMQ_HPP
 #define RMQ_HPP
 
+#include <boost/concept_check.hpp>
+#include <boost/concept/requires.hpp>
+#include <boost/concept/assert.hpp>
+
 #include <iterator>
 #include <algorithm>
 #include <cassert>
@@ -39,21 +43,21 @@ namespace general
      */
     
     
-    
     /**
-     * @brief Create a Sparse Table for RMQ from the range [first, last).
-     * @ingroup RMQ_algorithms
-     * @param first     Start of range.
-     * @param last      End of range.
+     * @brief           Create a Sparse Table for RMQ from the input container A.
+     * @ingroup         RMQ_algorithms
+     * @tparam C0       Read-only random-access container.
+     * @tparam C1       Mutable random-access container.
+     * @param A         Input array.
+     * @param M         Sparse Table of A.
      */
-    template <typename ISequence, typename OSequence>
-    // requires: Sequence(ISequence)
-    //           Sequence(OSequence)
-    void preprocess_sparse_table(ISequence const &A, OSequence &M)
+    template <typename C0, typename C1>
+        BOOST_CONCEPT_REQUIRES(((boost::RandomAccessContainer<C0>))((boost::Mutable_RandomAccessContainer<C1>)),
+    (void)) preprocess_sparse_table(C0 const &A, C1 &M)
     {
         if(A.size() >= 2)
         {
-            typedef typename ISequence::size_type size_type;
+            typedef typename C0::size_type size_type;
             for(size_type i = 0; i < A.size() - 1; i++)
                 M.push_back(A[i] <= A[i + 1] ? i : i + 1);
             
@@ -78,10 +82,17 @@ namespace general
     }
     
     
-    template <typename I, typename OSequence>
-    // requires: ForwardIterator(I)
-    //           RandomAccessSequence(OSequence)
-    void preprocess_sparse_table(I first, I last, OSequence &M)
+    /**
+     * @brief           Create a Sparse Table for RMQ from the range [first, last).
+     * @ingroup         RMQ_algorithms
+     * @tparam I        Forward Iterator.
+     * @tparam C        Mutable random-access container.
+     * @param first     Beginning of range.
+     * @param last      End of range.
+     */
+    template <typename I, typename C>
+        BOOST_CONCEPT_REQUIRES(((boost::ForwardIterator<I>))((boost::Mutable_RandomAccessContainer<C>)),
+    (void)) preprocess_sparse_table(I first, I last, C &M)
     {
         if(first != last && std::next(first) != last)
         {
@@ -110,17 +121,19 @@ namespace general
     
     
     template <typename N0, typename N1, typename N2>
-    // requires: UnsignedIntegral(N0) && UnsignedIntegral(N1) && UnsignedIntegral(N2)
     inline
     auto translate_sparse_table(N0 i, N1 j, N2 n) -> decltype(j * n + i)
     {
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N0>));
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N1>));
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N2>));
         return j == N1(1) ? i : ((j - N1(1)) * n) - (general::pow2(j) - j - N1(1)) + i;
     }
     
     
-    template <typename N0, typename N1, typename N2, typename Sequence>
-    // requires: UnsignedIntegral(N0..N2)
-    typename Sequence::value_type query_sparse_table(N0 i, N1 j, N2 n, Sequence const &sparse_table)
+    template <typename N0, typename N1, typename N2, typename C>
+        BOOST_CONCEPT_REQUIRES(((boost::UnsignedInteger<N0>))((boost::UnsignedInteger<N1>))((boost::UnsignedInteger<N2>))((boost::RandomAccessContainer<C>)), 
+    (typename C::value_type)) query_sparse_table(N0 i, N1 j, N2 n, C const &sparse_table)
     {
         // requires: [i, j] is a valid range.
         assert(i <= j);
@@ -137,9 +150,10 @@ namespace general
     
     
     template <typename I>
-    // requires: ForwardIterator(I)
     class sparse_table
     {
+        BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
+
         std::vector<I> M;
         
     public:
