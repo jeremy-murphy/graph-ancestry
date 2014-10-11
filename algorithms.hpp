@@ -104,6 +104,27 @@ namespace general
         }
         return result;
     }
+    
+    
+    template <typename C, typename O>
+    O representative_element(C const &A, O result)
+    {
+        typedef typename C::value_type value_type;
+        
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C>));
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, value_type>));
+        
+        std::unordered_set<value_type> seen;
+        for(auto first = std::begin(A); first != std::end(A); ++first)
+        {
+            if(seen.find(*first) == std::end(seen))
+            {
+                *result++ = std::distance(std::begin(A), first);
+                seen.insert(*first);
+            }
+        }
+        return result;
+    }
 }
 
 #endif
