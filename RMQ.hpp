@@ -44,7 +44,7 @@ namespace general
     
     
     /**
-     * @brief           Create a Sparse Table for RMQ from the input container A.
+     * @brief           Create a Sparse Table of indexes for RMQ from the input container A.
      * @ingroup         RMQ_algorithms
      * @tparam C0       Read-only random-access container.
      * @tparam C1       Mutable random-access container.
@@ -52,9 +52,11 @@ namespace general
      * @param M         Sparse Table of A.
      */
     template <typename C0, typename C1>
-        BOOST_CONCEPT_REQUIRES(((boost::RandomAccessContainer<C0>))((boost::Mutable_RandomAccessContainer<C1>)),
-    (void)) preprocess_sparse_table(C0 const &A, C1 &M)
+    void preprocess_sparse_table(C0 const &A, C1 &M)
     {
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        BOOST_CONCEPT_ASSERT((boost::Mutable_RandomAccessContainer<C1>));
+        
         if(A.size() >= 2)
         {
             typedef typename C0::size_type size_type;
@@ -83,7 +85,7 @@ namespace general
     
     
     /**
-     * @brief           Create a Sparse Table for RMQ from the range [first, last).
+     * @brief           Create a Sparse Table of iterators for RMQ from the range [first, last).
      * @ingroup         RMQ_algorithms
      * @tparam I        Forward Iterator.
      * @tparam C        Mutable random-access container.
@@ -91,9 +93,11 @@ namespace general
      * @param last      End of range.
      */
     template <typename I, typename C>
-        BOOST_CONCEPT_REQUIRES(((boost::ForwardIterator<I>))((boost::Mutable_RandomAccessContainer<C>)),
-    (void)) preprocess_sparse_table(I first, I last, C &M)
+    void preprocess_sparse_table(I first, I last, C &M)
     {
+        BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
+        BOOST_CONCEPT_ASSERT((boost::Mutable_RandomAccessContainer<C>));
+        
         if(first != last && std::next(first) != last)
         {
             for(auto second = std::next(first); second != last; ++first, ++second)
@@ -131,14 +135,28 @@ namespace general
     }
     
     
-    template <typename N0, typename N1, typename N2, typename C>
-        BOOST_CONCEPT_REQUIRES(((boost::UnsignedInteger<N0>))((boost::UnsignedInteger<N1>))((boost::UnsignedInteger<N2>))((boost::RandomAccessContainer<C>)), 
-    (typename C::value_type)) query_sparse_table(N0 i, N1 j, N2 n, C const &sparse_table)
+    /** @brief Perform range minimum query on a Sparse Table.
+     *  @ingroup RMQ_algorithms
+     *  @tparam N0 Index type
+     *  @tparam N1 Container size type (usually std::size_t)
+     *  @tparam C Container type
+     *  @param i Lower bound index of range query
+     *  @param j Upper bound index of range query
+     *  @param n Size of original input problem
+     *  @param sparse_table The Sparse Table to be queried
+     */
+    template <typename N0, typename N1, typename C>
+    typename C::value_type query_sparse_table(N0 i, N0 j, N1 n, C const &sparse_table)
     {
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N0>));
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N1>));
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C>));
+        
         // requires: [i, j] is a valid range.
         assert(i <= j);
         assert(j < n);
-        if(i == j)
+        
+        if (i == j)
             return sparse_table[i];
 
         char unsigned const k = general::log2(j - i + 1);

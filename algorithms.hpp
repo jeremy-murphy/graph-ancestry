@@ -27,22 +27,28 @@
 #include <iterator>
 #include <cassert>
 
+#include <boost/concept_check.hpp>
+#include <boost/concept/assert.hpp>
+
+
 namespace general
 {
     template <typename N>
-    // requires: UnsignedIntegral(N)
     inline
     long unsigned pow2(N n)
     {
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
+
         return 1ul << n;
     }
     
     
     template <typename N>
-    // requires: UnsignedIntegral(N)
     inline
     char unsigned log2(N n)
     {
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
+
         assert(n != 0);
         char unsigned result = 0;
         
@@ -56,10 +62,14 @@ namespace general
     
     
     template <typename I, typename N, typename O>
-    // requires: ForwardIterator(I), I::DifferenceType(N), OutputIterator(O)
     O representative_element(I first, N n, O result)
     {
+        BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>)); // size_type?
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, I>));
+
         typedef typename std::iterator_traits<I>::value_type value_type;
+
         std::unordered_set<value_type> seen;
         for(N i = 0; i < n; ++i)
         {
@@ -75,10 +85,13 @@ namespace general
     
     
     template <typename I, typename O>
-    // requires: ForwardIterator(I), OutputIterator(O)
     O representative_element(I first, I last, O result)
     {
+        BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, I>));
+
         typedef typename std::iterator_traits<I>::value_type value_type;
+
         std::unordered_set<value_type> seen;
         while(first != last)
         {
