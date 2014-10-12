@@ -159,7 +159,7 @@ namespace general
         if (i == j)
             return sparse_table[i];
 
-        char unsigned const k = general::log2(j - i + 1);
+        auto const k = general::log2(j - i + 1);
         auto const  x = translate_sparse_table(i, k, n), 
                     y = translate_sparse_table(j - general::pow2(k) + N0(1), k, n);
         auto const &Mx = sparse_table[x], &My = sparse_table[y];

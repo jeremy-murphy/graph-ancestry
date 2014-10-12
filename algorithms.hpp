@@ -61,69 +61,19 @@ namespace general
     }
     
     
-    template <typename I, typename N, typename O>
-    O representative_element(I first, N n, O result)
+    template <typename C0, typename C1>
+    void representative_element(C0 const &A, C1 &R)
     {
-        BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
-        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>)); // size_type?
-        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, I>));
-
-        typedef typename std::iterator_traits<I>::value_type value_type;
-
-        std::unordered_set<value_type> seen;
-        for(N i = 0; i < n; ++i)
-        {
-            if(seen.find(*first) == std::end(seen))
-            {
-                *result++ = first;
-                seen.insert(*first);
-            }
-            ++first;
-        }
-        return result;
-    }
-    
-    
-    template <typename I, typename O>
-    O representative_element(I first, I last, O result)
-    {
-        BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
-        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, I>));
-
-        typedef typename std::iterator_traits<I>::value_type value_type;
-
-        std::unordered_set<value_type> seen;
-        while(first != last)
-        {
-            if(seen.find(*first) == std::end(seen))
-            {
-                *result++ = first;
-                seen.insert(*first);
-            }
-            ++first;
-        }
-        return result;
-    }
-    
-    
-    template <typename C, typename O>
-    O representative_element(C const &A, O result)
-    {
-        typedef typename C::value_type value_type;
-        
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C>));
-        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, value_type>));
-        
-        std::unordered_set<value_type> seen;
+        // Requires: R[j] = i is valid for any j ∈ A.
+        std::unordered_set<std::size_t> seen;
         for(auto first = std::begin(A); first != std::end(A); ++first)
         {
             if(seen.find(*first) == std::end(seen))
             {
-                *result++ = std::distance(std::begin(A), first);
+                R[*first] = std::distance(std::begin(A), first);
                 seen.insert(*first);
             }
         }
-        return result;
     }
 }
 

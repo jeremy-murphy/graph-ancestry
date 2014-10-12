@@ -25,12 +25,9 @@ struct Bender_2005_2
                         0, 1, 2, 3, 2, 1, 0, 1, 2, 3,
                         2, 3, 2, 3, 2, 1, 2, 1, 0
                      };
-    std::vector<const_iterator> R = {std::begin(E), std::begin(E) + 1, std::begin(E) + 2, std::begin(E) + 3, std::begin(E) + 5, std::begin(E) + 6, std::begin(E) + 8, std::begin(E) + 11, std::begin(E) + 12, std::begin(E) + 16, std::begin(E) + 17, std::begin(E) + 21, std::begin(E) + 22, std::begin(E) + 23, std::begin(E) + 27, std::begin(E) + 28, std::begin(E) + 29, std::begin(E) + 31, std::begin(E) + 33, std::begin(E) + 36};
-    std::vector<std::size_t> R_indices = {0, 1, 2, 3, 5, 6, 8, 11, 12, 16, 17, 21, 22, 23, 27, 28, 29, 31, 33, 36};
+    std::vector<std::size_t> R_indices = {0, 1, 21, 27, 2, 16, 22, 28, 36, 3, 5, 11, 17, 23, 29, 31, 33, 6, 8, 12};
     // Manually entering iterators is tedious and they are confusing to read.
     std::vector<std::size_t> T_values = {0, 1, 2, 2, 2, 3, 3, 3, 3, 2, 2, 3, 3, 2, 1, 1, 2, 2, 1, 0, 0, 1, 2, 2, 1, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 1, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 2, 2, 2, 2, 1, 1, 1, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    std::vector<std::size_t> T_index = {0, 1, 2, 2, 2};
-    std::vector<const_iterator> T_iterator;
 
     Bender_2005_2()
     {

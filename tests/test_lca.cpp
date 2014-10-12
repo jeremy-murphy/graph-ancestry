@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(empty_preprocess)
     vector<size_t> L;
     vector<size_t> R;
     vector<const_iterator> T;
-    lca_preprocess(input, E, L, back_inserter(R), T);
+    lca_preprocess(input, E, L, R, T);
     BOOST_CHECK(E.empty());
     BOOST_CHECK(L.empty());
     BOOST_CHECK(R.empty());
@@ -52,13 +52,13 @@ BOOST_AUTO_TEST_CASE(basic_preprocess)
 {
     vector<vertex_descriptor> E;
     vector<size_t> L;
-    vector<size_t> R;
+    vector<size_t> R(boost::num_vertices(g));
     vector<const_iterator> T;
-    lca_preprocess(g, E, L, back_inserter(R), T);
+    lca_preprocess(g, E, L, R, T);
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
-    BOOST_CHECK_EQUAL_COLLECTIONS(begin(R), end(R), begin(this->R_indices), end(this->R_indices));
-    BOOST_CHECK_EQUAL_COLLECTIONS(make_indirect_iterator(begin(T)), make_indirect_iterator(end(T)), begin(this->T_values), end(this->T_values));
+    BOOST_CHECK_EQUAL_COLLECTIONS(begin(R), end(R), begin(R_indices), end(R_indices));
+    BOOST_CHECK_EQUAL_COLLECTIONS(make_indirect_iterator(begin(T)), make_indirect_iterator(end(T)), begin(T_values), end(T_values));
 }
 
 
@@ -66,9 +66,9 @@ BOOST_AUTO_TEST_CASE(basic_query)
 {
     vector<vertex_descriptor> E;
     vector<size_t> L;
-    vector<size_t> R;
+    vector<size_t> R(boost::num_vertices(g));
     vector<const_iterator> T;
-    lca_preprocess(g, E, L, back_inserter(R), T);
+    lca_preprocess(g, E, L, R, T);
     auto result = lca_query(0u, 0u, E, L, R, T);
     BOOST_CHECK_EQUAL(result, 0);
     result = lca_query(0u, 7u, E, L, R, T);

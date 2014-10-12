@@ -10,6 +10,7 @@
 #include <locale>
 #include <iostream>
 #include <list>
+#include <unordered_map>
 
 using namespace std;
 using namespace general;
@@ -26,22 +27,8 @@ typedef typename vector<unsigned>::const_iterator const_iterator;
 struct basic
 {
     vector<unsigned> a = {0, 0, 1, 0, 2, 1, 2, 1};
-    vector<size_t> expected_indices = {0, 2, 4};
-    vector<const_iterator> expected_iterators = {begin(a), begin(a) + 2, begin(a) + 4};
+    unordered_map<unsigned, size_t> expected_indices = {{0, 0}, {2, 4}, {1, 2}};
 };
-
-
-BOOST_AUTO_TEST_CASE(empty_input)
-{
-    vector<unsigned> empty;
-    vector<const_iterator> b;
-    auto bi = back_inserter(b);
-    representative_element(begin(empty), empty.size(), bi);
-    BOOST_CHECK(b.empty());
-
-    representative_element(begin(empty), end(empty), bi);
-    BOOST_CHECK(b.empty());
-}
 
 
 BOOST_AUTO_TEST_CASE(test_log2)
@@ -54,40 +41,11 @@ BOOST_AUTO_TEST_CASE(test_log2)
 
 BOOST_FIXTURE_TEST_SUITE(test_representative_element, basic)
 
-BOOST_AUTO_TEST_CASE(test_basic_n)
-{
-    vector<const_iterator> b;
-    auto bi = back_inserter(b);
-    representative_element(begin(a), a.size(), bi);
-    BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(expected_iterators)), boost::make_indirect_iterator(end(expected_iterators)), boost::make_indirect_iterator(begin(b)), boost::make_indirect_iterator(end(b)));
-}
-
-
-BOOST_AUTO_TEST_CASE(test_basic_range)
-{
-    vector<const_iterator> b;
-    auto bi = back_inserter(b);
-    representative_element(begin(a), end(a), bi);
-    BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(expected_iterators)), boost::make_indirect_iterator(end(expected_iterators)), boost::make_indirect_iterator(begin(b)), boost::make_indirect_iterator(end(b)));
-}
-
-
-BOOST_AUTO_TEST_CASE(test_representative_element_list)
-{
-    typedef list<unsigned> input_type;
-    input_type const input(begin(a), end(a));
-    vector<typename input_type::const_iterator> b;
-    representative_element(begin(input), end(input), back_inserter(b));
-    BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(expected_iterators)), boost::make_indirect_iterator(end(expected_iterators)), boost::make_indirect_iterator(begin(b)), boost::make_indirect_iterator(end(b)));
-}
-
-
 BOOST_AUTO_TEST_CASE(test_representative_element_array)
 {
-    typedef typename decltype(a)::difference_type difference_type;
-    std::vector<difference_type> result;
-    auto const foo = representative_element(a, back_inserter(result));
-    BOOST_CHECK_EQUAL_COLLECTIONS(begin(result), end(result), begin(expected_indices), end(expected_indices));
+    std::unordered_map<unsigned, size_t> result;
+    representative_element(a, result);
+    BOOST_CHECK(result == expected_indices);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -95,7 +53,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 /*      And now... unit measurements!    */
 
-#ifdef NDEBUG
+#if (0) // TODO: Needs fixing.
 
 #include <boost/function_output_iterator.hpp>
 #include <algorithm>
