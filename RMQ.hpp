@@ -167,6 +167,8 @@ namespace general
     }
     
     
+    // The beginnings of a convenience class to wrap it all up in, incomplete.
+    
     template <typename I>
     class sparse_table
     {

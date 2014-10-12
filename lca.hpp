@@ -72,6 +72,8 @@ namespace graph_algorithms
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<IteratorContainer>));
         
+        if (v < u)
+            std::swap(u, v);
         auto const minimum = general::query_sparse_table(R[u], R[v], L.size(), sparse_table);
         return E[std::distance(std::begin(L), minimum)];
     }
