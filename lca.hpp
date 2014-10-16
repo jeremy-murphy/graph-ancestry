@@ -64,6 +64,8 @@ namespace graph_algorithms
     /** @brief Query the lowest common ancestor of two vertices.
      *  @param u First descendent vertex
      *  @param u Second descendent vertex
+     * 
+     *  Note: First and second descendent vertices can be specified in either order.
      */
     template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IteratorContainer>
     typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IteratorContainer const &sparse_table)
