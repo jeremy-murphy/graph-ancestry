@@ -60,10 +60,39 @@ namespace general
         return result;
     }
     
+    /*  A note about parameter types.
+     * 
+     *  I encourage and practice the use of input and output iterators and 
+     *  frequently admonish those who pass and return vectors and sets, etc.
+     *  Sometimes, however, you really do need access to a container in a way
+     *  that iterators can't provide, such as by random-access.
+     * 
+     *  That is why several algorithms in this library take containers as input
+     *  and output parameters: it seems like the most reasonable way to do it.
+     */
     
+    
+    /** @brief Store in R the lowest index for each unique value in A.
+     *  @tparam C0 A random-access container of type T.
+     *  @tparam C1 A type that provides T& operator[](T const &).
+     *  @param A 
+     *  @param R The representatives
+     *  
+     *  Time complexity: worst-case Θ(n)
+     *  Space complexity: worst-case Θ(n), best-case Θ(1), average-case ?
+     *  C1 is typically either a random-access container or an associative map.
+     *  The choice of container for C1 is constrained by T: R[T()] must be valid.
+     *  E.g.: if UnsignedInteger<T> then C1 is unconstrained, but if String<T>
+     *  then C1 cannot be an array-like container.
+     *  Constraints aside, the density of values in A may also influence which
+     *  container is more efficient.  In general, high density will be better in
+     *  an array, low density better in a map.
+     */
     template <typename C0, typename C1>
     void representative_element(C0 const &A, C1 &R)
     {
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+
         // Requires: R[j] = i is valid for any j ∈ A.
         std::unordered_set<std::size_t> seen;
         for(auto first = std::begin(A); first != std::end(A); ++first)

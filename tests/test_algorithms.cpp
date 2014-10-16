@@ -24,10 +24,16 @@ BOOST_GLOBAL_FIXTURE(enable_locale);
 
 typedef typename vector<unsigned>::const_iterator const_iterator;
 
-struct basic
+struct basic_unordered_map
 {
     vector<unsigned> a = {0, 0, 1, 0, 2, 1, 2, 1};
     unordered_map<unsigned, size_t> expected_indices = {{0, 0}, {2, 4}, {1, 2}};
+};
+
+struct basic_vector
+{
+    vector<unsigned> a = {0, 0, 1, 0, 2, 1, 2, 1};
+    vector<unsigned> expected_indices = {0, 2, 4};
 };
 
 
@@ -39,16 +45,21 @@ BOOST_AUTO_TEST_CASE(test_log2)
         BOOST_CHECK_EQUAL(general::log2(q[i]), a[i]);
 }
 
-BOOST_FIXTURE_TEST_SUITE(test_representative_element, basic)
 
-BOOST_AUTO_TEST_CASE(test_representative_element_array)
+BOOST_FIXTURE_TEST_CASE(test_representative_element_map, basic_unordered_map)
 {
-    std::unordered_map<unsigned, size_t> result;
+    decltype(expected_indices) result;
     representative_element(a, result);
     BOOST_CHECK(result == expected_indices);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_FIXTURE_TEST_CASE(test_representative_element_vector, basic_vector)
+{
+    decltype(expected_indices) result(3);
+    representative_element(a, result);
+    BOOST_CHECK(result == expected_indices);
+}
 
 
 /*      And now... unit measurements!    */
