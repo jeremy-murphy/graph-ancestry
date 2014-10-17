@@ -72,34 +72,34 @@ namespace general
      */
     
     
-    /** @brief Store in R the lowest index for each unique value in A.
+    /** @brief Store in reps the lowest index for each unique value in a.
      *  @tparam C0 A random-access container of type T.
      *  @tparam C1 A type that provides T& operator[](T const &).
-     *  @param A 
-     *  @param R The representatives
+     *  @param a Input data.
+     *  @param reps The indices of the representatives.
      *  
-     *  Time complexity: worst-case Θ(n)
+     *  Time complexity: Θ(n)
      *  Space complexity: worst-case Θ(n), best-case Θ(1), average-case ?
      *  C1 is typically either a random-access container or an associative map.
      *  The choice of container for C1 is constrained by T: R[T()] must be valid.
      *  E.g.: if UnsignedInteger<T> then C1 is unconstrained, but if String<T>
      *  then C1 cannot be an array-like container.
-     *  Constraints aside, the density of values in A may also influence which
+     *  Constraints aside, the density of input values may also influence which
      *  container is more efficient.  In general, high density will be better in
      *  an array, low density better in a map.
      */
     template <typename C0, typename C1>
-    void representative_element(C0 const &A, C1 &R)
+    void representative_element(C0 const &a, C1 &reps)
     {
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
-
-        // Requires: R[j] = i is valid for any j ∈ A.
+        
+        // Requires: reps[j] = i is valid for all j ∈ a.
         std::unordered_set<std::size_t> seen;
-        for(auto first = std::begin(A); first != std::end(A); ++first)
+        for(auto first = std::begin(a); first != std::end(a); ++first)
         {
             if(seen.find(*first) == std::end(seen))
             {
-                R[*first] = std::distance(std::begin(A), first);
+                reps[*first] = std::distance(std::begin(a), first);
                 seen.insert(*first);
             }
         }

@@ -56,7 +56,7 @@ BOOST_FIXTURE_TEST_CASE(test_representative_element_map, basic_unordered_map)
 
 BOOST_FIXTURE_TEST_CASE(test_representative_element_vector, basic_vector)
 {
-    decltype(expected_indices) result(3);
+    decltype(expected_indices) result(3); // Need to allocate space in advance.
     representative_element(a, result);
     BOOST_CHECK(result == expected_indices);
 }
