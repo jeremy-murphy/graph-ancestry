@@ -64,58 +64,51 @@ BOOST_FIXTURE_TEST_CASE(test_representative_element_vector, basic_vector)
 
 /*      And now... unit measurements!    */
 
-#if (0) // TODO: Needs fixing.
+#ifdef NDEBUG
 
-#include <boost/function_output_iterator.hpp>
+#include "measurement.hpp"
+
 #include <algorithm>
 #include <random>
-#include <boost/timer/timer.hpp>
-#include <fstream>
-#include <string>
 
+template <size_t N>
 struct huge_random
 {
     mt19937 engine;
     uniform_int_distribution<unsigned> d;
     vector<unsigned> a;
+    vector<size_t> b;
     
-    huge_random() : d(0, (1ul << 32) - 1)
+    huge_random() : d(0, N - 1), b(N)
     {
-        fill_n(back_inserter(a), 1ul << 20, d(engine));
+        auto gen = bind(d, engine);
+        generate_n(back_inserter(a), 1ul << 20, gen);
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(measure_algorithms, huge_random)
+BOOST_FIXTURE_TEST_SUITE(measure_algorithms, huge_random<1ul << 10>)
 
-BOOST_AUTO_TEST_CASE(measure_representative_element)
+BOOST_AUTO_TEST_CASE(measure_representative_element_time)
 {
-    auto null_output = boost::make_function_output_iterator([](const_iterator){});
-    auto const j = 1u << 8;
-    boost::timer::cpu_timer timer;
-    for(unsigned i = 0; i < j; i++)
-        representative_element(begin(a), end(a), null_output);
-    timer.stop();
-    double const t = timer.elapsed().user + timer.elapsed().system;
-    auto const t_n = t / a.size() / j;
-    string const test_name = string(boost::unit_test::framework::current_test_case().p_name);
-    string const data_file(string(".") + test_name);
-    BOOST_MESSAGE(test_name << "[" << j << " × " << a.size() << "]: " << t_n << " ns per element");
-    ifstream foo(data_file);
-    if(foo.is_open())
+    auto f = bind(representative_element<decltype(a), decltype(b)>, a, b);
+    measure(a.size(), 1u << 8, f);
+}
+
+BOOST_AUTO_TEST_CASE(measure_representative_element_space)
+{
+    mt19937 engine;
+    uniform_int_distribution<unsigned> d;
+    auto gen = bind(d, engine);
+
+    for(unsigned long i = 1; i != 1ul << 20; i *= 2)
     {
-        double t0;
-        foo >> t0;
-        auto const r = t_n / t0 - 1.0;  // regression, as a fraction of 100.
-        BOOST_REQUIRE_MESSAGE(r < 0.10, r * 100.0 << "% regression!");
-        BOOST_WARN_MESSAGE(r < 0.05, r * 100.0 << "% regression.");
-    }
-    else
-    {
-        BOOST_MESSAGE(data_file << ": not found; starting anew with " << t_n << ".");
-        ofstream output(data_file);
-        output << t_n << "\n";
+        vector<char> a(i);
+        generate(begin(a), end(a), gen);
+        // auto const seen = representative_element(a, b);
+        // BOOST_MESSAGE(i << ": " << seen.size());
     }
 }
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

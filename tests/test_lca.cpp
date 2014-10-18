@@ -10,11 +10,13 @@
 #include <fstream>
 #endif
 
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <vector>
 #include <iostream>
 #include <locale>
+#include <functional>
 
 using namespace std;
 using namespace graph_algorithms;
@@ -79,6 +81,53 @@ BOOST_AUTO_TEST_CASE(basic_query)
     BOOST_CHECK_EQUAL(result, 4);
     result = lca_query(14u, 16u, E, L, R, T);
     BOOST_CHECK_EQUAL(result, 7);
+    result = lca_query(12u, 17u, E, L, R, T);
+    BOOST_CHECK_EQUAL(result, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+
+#ifdef NDEBUG
+
+#include "measurement.hpp"
+
+#include <boost/function_output_iterator.hpp>
+#include <algorithm>
+#include <random>
+#include <boost/timer/timer.hpp>
+#include <fstream>
+#include <string>
+
+
+BOOST_FIXTURE_TEST_SUITE(measure_LCA, Bender_2005_2<boost::adjacency_list<>>)
+
+BOOST_AUTO_TEST_CASE(measure_lca_preprocess)
+{
+    auto f = [&]()
+    {
+        vector<vertex_descriptor> E;
+        vector<size_t> L;
+        vector<size_t> R(boost::num_vertices(g));
+        vector<const_iterator> T;
+        return lca_preprocess(g, E, L, R, T);
+    };
+    measure(boost::num_vertices(g), 1u << 20, f);
+}
+
+
+BOOST_AUTO_TEST_CASE(measure_lca_query)
+{
+    vector<vertex_descriptor> E;
+    vector<size_t> L;
+    vector<size_t> R(boost::num_vertices(g));
+    vector<const_iterator> T;
+    lca_preprocess(g, E, L, R, T);
+    auto f = std::bind(lca_query<unsigned, vector<vertex_descriptor>, vector<size_t>, vector<size_t>, vector<const_iterator>>, 12u, 17u, E, L, R, T);
+    measure(1, 1ul << 30, f, "query");
+}
+
+
+BOOST_AUTO_TEST_SUITE_END()
+
+#endif
