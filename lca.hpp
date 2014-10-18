@@ -56,7 +56,7 @@ namespace graph_algorithms
         
         boost::depth_first_search(T, boost::visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
         boost::depth_first_search(T, boost::visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
-        general::representative_element(E, R); // Θ(n)
+        general::representative_element(std::begin(E), std::end(E), R); // Θ(n)
         general::preprocess_sparse_table(std::begin(L), std::end(L), sparse_table); // Θ(n lg n)
     }
 
@@ -68,7 +68,7 @@ namespace graph_algorithms
      *  Note: First and second descendent vertices can be specified in either order.
      */
     template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IteratorContainer>
-    typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IteratorContainer const &sparse_table)
+    typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer &R, IteratorContainer const &sparse_table)
     {
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));

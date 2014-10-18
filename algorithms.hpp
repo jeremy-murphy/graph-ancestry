@@ -74,7 +74,7 @@ namespace general
     
     /** @brief Store in reps the lowest index for each unique value in a.
      *  @tparam C0 A random-access container of type T.
-     *  @tparam C1 A type that provides T& operator[](T const &).
+     *  @tparam Map A type that provides T& operator[](T const &).
      *  @param a Input data.
      *  @param reps The indices of the representatives.
      *  
@@ -88,20 +88,19 @@ namespace general
      *  container is more efficient.  In general, high density will be better in
      *  an array, low density better in a map.
      */
-    template <typename C0, typename C1>
-    void representative_element(C0 const &a, C1 &reps)
+    template <typename I, typename Map>
+    void representative_element(I first, I last, Map &reps)
     {
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<I>));
+        // BOOST_CONCEPT_ASSERT((boost::PairAssociativeContainer<Map>));
         
         // Requires: reps[j] = i is valid for all j ∈ a.
-        std::unordered_set<std::size_t> seen;
-        for(auto first = std::begin(a); first != std::end(a); ++first)
+        auto const first_0 = first;
+        while(first != last)
         {
-            if(seen.find(*first) == std::end(seen))
-            {
-                reps[*first] = std::distance(std::begin(a), first);
-                seen.insert(*first);
-            }
+            if(reps.find(*first) == std::end(reps))
+                reps.insert({*first, std::distance(first_0, first)});
+            ++first;
         }
     }
 }

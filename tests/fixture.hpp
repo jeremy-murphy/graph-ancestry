@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <vector>
+#include <unordered_map>
 
 typedef std::vector<std::size_t> index_vector;
 
@@ -26,6 +27,7 @@ struct Bender_2005_2
                         2, 3, 2, 3, 2, 1, 2, 1, 0
                      };
     std::vector<std::size_t> R_indices = {0, 1, 21, 27, 2, 16, 22, 28, 36, 3, 5, 11, 17, 23, 29, 31, 33, 6, 8, 12};
+    // std::unordered_map<std::size_t, std::size_t> R = {{0, 0}, {1, 1}, {2, 21}, {3, 27}, 2, 16, 22, 28, 36, 3, 5, 11, 17, 23, 29, 31, 33, 6, 8, 12};
     // Manually entering iterators is tedious and they are confusing to read.
     std::vector<std::size_t> T_values = {0, 1, 2, 2, 2, 3, 3, 3, 3, 2, 2, 3, 3, 2, 1, 1, 2, 2, 1, 0, 0, 1, 2, 2, 1, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 1, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 2, 2, 2, 2, 1, 1, 1, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
