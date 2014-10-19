@@ -19,6 +19,6 @@ And their supporting general algorithms.
 3. General algorithms
   1. **range minimum query** (RMQ), <*Θ*(*n* lg *n*), *Θ*(1)>
     * The *Sparse Table* implementation.
-  2. **representative element**, average-case *Θ*(*n*)
-    * Returns an index to the first occurence of each distinct value in the input range.
-    * Requires the input value_type to be hashable.
+
+### Early results
+On large inputs (4 million integers) RMQ preprocesses in ~0.8 seconds and queries in ~15 nanoseconds on my humble Intel Core i5 mobile.
