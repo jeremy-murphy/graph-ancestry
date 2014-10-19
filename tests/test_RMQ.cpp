@@ -136,6 +136,7 @@ struct index_16
 };
 
 
+#if 0 // See comment in RMQ.hpp.
 BOOST_AUTO_TEST_SUITE(RMQ_index)
 
 typedef boost::mpl::vector<index_8, index_7, index_16> test_fixtures;
@@ -149,65 +150,54 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_basic, fixture_type, test_fixtures)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
+#endif
 
 
 #ifdef NDEBUG
 
-#include <boost/function_output_iterator.hpp>
+#include "measurement.hpp"
+
 #include <algorithm>
 #include <random>
-#include <boost/timer/timer.hpp>
-#include <fstream>
-#include <string>
 
-struct huge_random_RMQ
+struct random_RMQ
 {
     mt19937 engine;
     uniform_int_distribution<unsigned> d;
     vector<unsigned> a;
     typedef typename vector<unsigned>::const_iterator const_iterator;
     
-    huge_random_RMQ() : d(0, (1ul << 32) - 1)
+    random_RMQ() : d(0, (1ul << 32) - 1)
     {
         fill_n(back_inserter(a), 1ul << 17, d(engine));
     }
 };
 
-BOOST_FIXTURE_TEST_SUITE(measure_RMQ, huge_random_RMQ)
+BOOST_FIXTURE_TEST_SUITE(measure_RMQ, random_RMQ)
 
-BOOST_AUTO_TEST_CASE(measure_preprocess)
+BOOST_AUTO_TEST_CASE(measure_RMQ_preprocess)
 {
-    auto const j = 1u << 8;
-    boost::timer::cpu_timer timer;
-    for(unsigned i = 0; i < j; i++)
+    vector<const_iterator> B;
+    auto const f = [&]()
     {
-        vector<const_iterator> B;
         preprocess_sparse_table(begin(a), end(a), B);
-    }
-    timer.stop();
-    double const t = timer.elapsed().user + timer.elapsed().system;
-    auto const t_n = t / a.size() / j;
-    string const test_name = string(boost::unit_test::framework::current_test_case().p_name);
-    string const data_file(string(".") + test_name);
-    BOOST_MESSAGE(test_name << "[" << j << " × " << a.size() << "]: " << t_n << " ns per element");
-    ifstream foo(data_file);
-    if(foo.is_open())
-    {
-        double t0;
-        foo >> t0;
-        auto const r = t_n / t0 - 1.0;  // regression, as a fraction of 100.
-        BOOST_REQUIRE_MESSAGE(r < 0.10, r * 100.0 << "% regression!");
-        BOOST_WARN_MESSAGE(r < 0.05, r * 100.0 << "% regression.");
-    }
-    else
-    {
-        BOOST_MESSAGE(data_file << ": not found; starting anew with " << t_n << ".");
-        ofstream output(data_file);
-        output << t_n << "\n";
-    }
+        B.clear();
+    };
+    measure(a.size(), 1u << 9, f);
 }
 
+
+BOOST_AUTO_TEST_CASE(measure_RMQ_query)
+{
+    vector<const_iterator> B;
+    preprocess_sparse_table(begin(a), end(a), B);
+    auto const f = [&]()
+    {
+        preprocess_sparse_table(begin(a), end(a), B);
+        B.clear();
+    };
+    measure(a.size(), 1u << 9, f);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

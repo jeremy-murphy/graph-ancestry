@@ -43,6 +43,7 @@ namespace general
      */
     
     
+#if 0 // I suspect this version may be irrelevant: deprecated.
     /**
      * @brief           Create a Sparse Table of indexes for RMQ from the input container A.
      * @ingroup         RMQ_algorithms
@@ -82,13 +83,14 @@ namespace general
             }
         }
     }
-    
+#endif
+
     
     /**
      * @brief           Create a Sparse Table of iterators for RMQ from the range [first, last).
      * @ingroup         RMQ_algorithms
      * @tparam I        Forward Iterator.
-     * @tparam C        Mutable random-access container.
+     * @tparam C        Mutable random-access container of I.
      * @param first     Beginning of range.
      * @param last      End of range.
      */

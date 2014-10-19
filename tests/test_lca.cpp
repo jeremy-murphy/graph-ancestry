@@ -107,13 +107,18 @@ BOOST_FIXTURE_TEST_SUITE(measure_LCA, Bender_2005_2<boost::adjacency_list<>>)
 
 BOOST_AUTO_TEST_CASE(measure_lca_preprocess)
 {
+    vector<vertex_descriptor> E;
+    vector<size_t> L;
+    unordered_map<size_t, size_t> R;
+    vector<const_iterator> T;
+
     auto f = [&]()
     {
-        vector<vertex_descriptor> E;
-        vector<size_t> L;
-        unordered_map<size_t, size_t> R;
-        vector<const_iterator> T;
-        return lca_preprocess(g, E, L, inserter(R, end(R)), T);
+        lca_preprocess(g, E, L, inserter(R, end(R)), T);
+        E.clear();
+        L.clear();
+        R.clear();
+        T.clear();
     };
     measure(boost::num_vertices(g), 1u << 20, f);
 }
