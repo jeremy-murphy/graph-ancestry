@@ -56,26 +56,31 @@ namespace graph_algorithms
      *  @param L vertex 'level' (i.e. depth)
      *  @param R representative elements
      * 
+     *  Time complexity: Θ(n lg n)
+     * 
      *  The reason for the unconventional parameter names (T, E, etc) is to closely immitate the journal article.
      */ 
-    template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IteratorContainer>
+    template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexOutput, typename IteratorContainer>
     // requires: Directed(Graph)
-    void lca_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexContainer &R, IteratorContainer &sparse_table)
+    void lca_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexOutput R, IteratorContainer &sparse_table)
     {
         typedef typename VertexContainer::iterator vertex_iterator;
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        
+        typedef typename std::iterator_traits<vertex_iterator>::difference_type vertex_difference_type;
+        typedef std::pair<vertex_descriptor, vertex_difference_type> vertex_index_pair;
+
         BOOST_CONCEPT_ASSERT((boost::VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<IteratorContainer>));
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<IndexOutput, vertex_index_pair>));
         
         // requires: acyclic(T)
         
         boost::depth_first_search(T, boost::visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
         boost::depth_first_search(T, boost::visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
         // The key thing to realize here is that if R is a map, insert does not replace.
-        std::transform(std::begin(E), std::end(E), std::inserter(R, std::end(R)), general::element_index<vertex_iterator>()); // Θ(n)
+        std::transform(std::begin(E), std::end(E), R, general::element_index<vertex_iterator>()); // Θ(n)
         general::preprocess_sparse_table(std::begin(L), std::end(L), sparse_table); // Θ(n lg n)
     }
 
@@ -84,8 +89,12 @@ namespace graph_algorithms
      *  @param u First descendent vertex
      *  @param u Second descendent vertex
      * 
+     *  Time complexity: Θ(1)
+     * 
      *  Note: First and second descendent vertices can be specified in either order.
+     *  That is, lca_query(u, v, ...) == lca_query(v, u, ...).
      */
+    // TODO: Does R have to be a container?  Could it be a unary function?
     template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IteratorContainer>
     typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IteratorContainer const &sparse_table)
     {

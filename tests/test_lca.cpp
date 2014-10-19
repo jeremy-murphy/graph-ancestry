@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(empty_preprocess)
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     vector<const_iterator> T;
-    lca_preprocess(input, E, L, R, T);
+    lca_preprocess(input, E, L, inserter(R, end(R)), T);
     BOOST_CHECK(E.empty());
     BOOST_CHECK(L.empty());
     BOOST_CHECK(R.empty());
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(basic_preprocess)
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     vector<const_iterator> T;
-    lca_preprocess(g, E, L, R, T);
+    lca_preprocess(g, E, L, inserter(R, end(R)), T);
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
     // BOOST_CHECK_EQUAL_COLLECTIONS(begin(R), end(R), begin(R), end(R));
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(basic_query)
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     vector<const_iterator> T;
-    lca_preprocess(g, E, L, R, T);
+    lca_preprocess(g, E, L, inserter(R, end(R)), T);
     // We check just to make sure we did not make a mistake in the test.
     BOOST_REQUIRE_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
     BOOST_REQUIRE_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
