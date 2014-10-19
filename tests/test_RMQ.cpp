@@ -169,7 +169,7 @@ struct random_RMQ
     
     random_RMQ() : d(0, (1ul << 32) - 1)
     {
-        fill_n(back_inserter(a), 1ul << 17, d(engine));
+        fill_n(back_inserter(a), 1ul << 22, d(engine));
     }
 };
 
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(measure_RMQ_preprocess)
         preprocess_sparse_table(begin(a), end(a), B);
         B.clear();
     };
-    measure(a.size(), 1u << 9, f);
+    measure(a.size(), 1u << 4, f);
 }
 
 
@@ -191,12 +191,8 @@ BOOST_AUTO_TEST_CASE(measure_RMQ_query)
 {
     vector<const_iterator> B;
     preprocess_sparse_table(begin(a), end(a), B);
-    auto const f = [&]()
-    {
-        preprocess_sparse_table(begin(a), end(a), B);
-        B.clear();
-    };
-    measure(a.size(), 1u << 9, f);
+    auto const f = bind(query_sparse_table<size_t, size_t, decltype(B)>, 0, a.size() - 1, a.size(), B);
+    measure(1, 1ul << 29, f, "query");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
