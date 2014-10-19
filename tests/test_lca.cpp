@@ -63,8 +63,6 @@ BOOST_AUTO_TEST_CASE(basic_preprocess)
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
     // BOOST_CHECK_EQUAL_COLLECTIONS(begin(R), end(R), begin(R), end(R));
     BOOST_CHECK(R == this->R);
-    // auto const t = [](pair<size_t, size_t> const &x){ return "{" + to_string(x.first) + ", " + to_string(x.second) + "}"; };
-    // copy(boost::make_transform_iterator(begin(R), t), boost::make_transform_iterator(end(R), t), ostream_iterator<string>(cerr, ", ")); cerr << endl;
     BOOST_CHECK_EQUAL_COLLECTIONS(make_indirect_iterator(begin(T)), make_indirect_iterator(end(T)), begin(T_values), end(T_values));
 }
 
@@ -105,14 +103,6 @@ BOOST_AUTO_TEST_SUITE_END()
 
 #include "measurement.hpp"
 
-#include <boost/function_output_iterator.hpp>
-#include <algorithm>
-#include <random>
-#include <boost/timer/timer.hpp>
-#include <fstream>
-#include <string>
-
-
 BOOST_FIXTURE_TEST_SUITE(measure_LCA, Bender_2005_2<boost::adjacency_list<>>)
 
 BOOST_AUTO_TEST_CASE(measure_lca_preprocess)
@@ -123,7 +113,7 @@ BOOST_AUTO_TEST_CASE(measure_lca_preprocess)
         vector<size_t> L;
         unordered_map<size_t, size_t> R;
         vector<const_iterator> T;
-        return lca_preprocess(g, E, L, R, T);
+        return lca_preprocess(g, E, L, inserter(R, end(R)), T);
     };
     measure(boost::num_vertices(g), 1u << 20, f);
 }
@@ -135,14 +125,13 @@ BOOST_AUTO_TEST_CASE(measure_lca_query)
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     vector<const_iterator> T;
-    lca_preprocess(g, E, L, R, T);
+    lca_preprocess(g, E, L, inserter(R, end(R)), T);
     vector<size_t> R2(R.size());
-    for (auto it = begin(R); it != end(R); it != end(R))
-        R2[it->second] = it->first;
-    auto f = std::bind(lca_query<unsigned, decltype(E), decltype(L), decltype(R2), decltype(T)>, 12u, 17u, E, L, R2, T);
+    for (auto it = begin(R); it != end(R); ++it)
+        R2[it->first] = it->second;
+    auto f = bind(lca_query<unsigned, decltype(E), decltype(L), decltype(R2), decltype(T)>, 12u, 17u, E, L, R2, T);
     measure(1, 1ul << 30, f, "query");
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()
 
