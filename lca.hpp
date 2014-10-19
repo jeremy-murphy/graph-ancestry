@@ -26,12 +26,26 @@
 #define LCA_HPP
 
 #include "RMQ.hpp"
-#include "algorithms.hpp"
+#include "transformers.hpp"
 #include "graph_visitors.hpp"
 
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>
+#include <boost/integer.hpp>
 
+#include <algorithm>
+
+/*  A note about parameter types.
+ * 
+ *  I encourage and practice the use of input and output iterators and 
+ *  frequently admonish those who pass and return vectors and sets, etc.
+ *  Sometimes, however, you really do need access to a container in a way
+ *  that iterators can't provide, such as mixing random-access with back 
+ *  insertion.
+ * 
+ *  That is why several algorithms in this library take containers as input
+ *  and output parameters: it seemed like the most reasonable way to do it.
+ */
 
 namespace graph_algorithms
 {
@@ -41,22 +55,27 @@ namespace graph_algorithms
      *  @tparam OIndex Output iterator of container indices.
      *  @param L vertex 'level' (i.e. depth)
      *  @param R representative elements
+     * 
+     *  The reason for the unconventional parameter names (T, E, etc) is to closely immitate the journal article.
      */ 
     template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IteratorContainer>
     // requires: Directed(Graph)
     void lca_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexContainer &R, IteratorContainer &sparse_table)
     {
+        typedef typename VertexContainer::iterator vertex_iterator;
+        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        
         BOOST_CONCEPT_ASSERT((boost::VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<IteratorContainer>));
         
         // requires: acyclic(T)
-        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         
         boost::depth_first_search(T, boost::visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
         boost::depth_first_search(T, boost::visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
-        general::representative_element(std::begin(E), std::end(E), R); // Θ(n)
+        // The key thing to realize here is that if R is a map, insert does not replace.
+        std::transform(std::begin(E), std::end(E), std::inserter(R, std::end(R)), general::element_index<vertex_iterator>()); // Θ(n)
         general::preprocess_sparse_table(std::begin(L), std::end(L), sparse_table); // Θ(n lg n)
     }
 
@@ -68,7 +87,7 @@ namespace graph_algorithms
      *  Note: First and second descendent vertices can be specified in either order.
      */
     template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IteratorContainer>
-    typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer &R, IteratorContainer const &sparse_table)
+    typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IteratorContainer const &sparse_table)
     {
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));

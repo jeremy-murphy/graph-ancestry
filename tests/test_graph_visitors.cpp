@@ -35,7 +35,7 @@ using namespace std;
 
 struct enable_locale
 {
-    enable_locale() { cout.imbue(locale("")); }
+    enable_locale() { cout.imbue(locale("")); cerr.imbue(locale("")); }
 };
 
 typedef Bender_2005_2<boost::adjacency_list<>> test_graph_type;

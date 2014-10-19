@@ -11,13 +11,14 @@
 #include <iostream>
 #include <list>
 #include <unordered_map>
+#include <map>
 
 using namespace std;
 using namespace general;
 
 struct enable_locale
 {
-    enable_locale() { cout.imbue(locale("")); }
+    enable_locale() { cout.imbue(locale("")); cerr.imbue(locale("")); }
 };
 
 BOOST_GLOBAL_FIXTURE(enable_locale);
@@ -40,14 +41,6 @@ BOOST_AUTO_TEST_CASE(test_log2)
 }
 
 
-BOOST_FIXTURE_TEST_CASE(test_representative_element_map, basic_unordered_map)
-{
-    decltype(expected_indices) result;
-    representative_element(begin(a), end(a), result);
-    BOOST_CHECK(result == expected_indices);
-}
-
-
 /*      And now... unit measurements!    */
 
 #ifdef NDEBUG
@@ -65,7 +58,7 @@ struct huge_random
     vector<unsigned> a;
     unordered_map<unsigned, size_t> b;
     
-    huge_random() : d(0, N - 1), b(N)
+    huge_random() : d(0, N - 1)
     {
         auto gen = bind(d, engine);
         generate_n(back_inserter(a), 1ul << 20, gen);
@@ -83,15 +76,16 @@ BOOST_AUTO_TEST_CASE(measure_representative_element_time)
 BOOST_AUTO_TEST_CASE(measure_representative_element_space)
 {
     mt19937 engine;
-    uniform_int_distribution<unsigned> d;
+    geometric_distribution<unsigned> d;
     auto gen = bind(d, engine);
 
-    for(unsigned long i = 1; i != 1ul << 20; i *= 2)
+    for(unsigned long i = 1; i != 1ul << 22; i *= 2)
     {
-        vector<char> a(i);
+        vector<unsigned> a(i);
         generate(begin(a), end(a), gen);
-        // auto const seen = representative_element(a, b);
-        // BOOST_MESSAGE(i << ": " << seen.size());
+        unordered_map<unsigned, size_t> reps;
+        representative_element(begin(a), end(a), reps);
+        BOOST_MESSAGE(i << ": " << reps.size());
     }
 }
 
