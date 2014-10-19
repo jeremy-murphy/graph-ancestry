@@ -20,5 +20,5 @@ And their supporting general algorithms.
   1. **range minimum query** (RMQ), <*Θ*(*n* lg *n*), *Θ*(1)>
     * The *Sparse Table* implementation.
 
-### Early results
+#### Early results
 On large inputs (4 million integers) RMQ preprocesses in ~0.8 seconds and queries in ~15 nanoseconds on my humble Intel Core i5 mobile.
