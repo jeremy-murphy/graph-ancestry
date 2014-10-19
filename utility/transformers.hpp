@@ -25,6 +25,15 @@
 
 namespace general
 {
+    /**
+     * @brief Convert element => (element, index).
+     * @ingroup function_objects
+     * @tparam I Input iterator.
+     * 
+     * Starting from an initial index value, successive calls to element_index 
+     * will convert an element to an (element, index) pair such that index
+     * uniquely identifies each element.
+     */
     template <typename I>
     class element_index
     {
