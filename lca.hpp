@@ -64,24 +64,27 @@ namespace graph_algorithms
     // requires: Directed(Graph)
     void lca_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexOutput R, IteratorContainer &sparse_table)
     {
+        using namespace boost;
+        using namespace general;
+        
         typedef typename VertexContainer::iterator vertex_iterator;
-        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         typedef typename std::iterator_traits<vertex_iterator>::difference_type vertex_difference_type;
         typedef std::pair<vertex_descriptor, vertex_difference_type> vertex_index_pair;
 
-        BOOST_CONCEPT_ASSERT((boost::VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<IteratorContainer>));
-        BOOST_CONCEPT_ASSERT((boost::OutputIterator<IndexOutput, vertex_index_pair>));
+        BOOST_CONCEPT_ASSERT((VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.
+        BOOST_CONCEPT_ASSERT((RandomAccessContainer<VertexContainer>));
+        BOOST_CONCEPT_ASSERT((RandomAccessContainer<VertexDepthContainer>));
+        BOOST_CONCEPT_ASSERT((RandomAccessContainer<IteratorContainer>));
+        BOOST_CONCEPT_ASSERT((OutputIterator<IndexOutput, vertex_index_pair>));
         
         // requires: acyclic(T)
         
-        boost::depth_first_search(T, boost::visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
-        boost::depth_first_search(T, boost::visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
-        // The key thing to realize here is that if R is a map, insert does not replace.
-        std::transform(std::begin(E), std::end(E), R, general::element_index<vertex_iterator>()); // Θ(n)
-        general::preprocess_sparse_table(std::begin(L), std::end(L), sparse_table); // Θ(n lg n)
+        depth_first_search(T, visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
+        depth_first_search(T, visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
+        // The key thing to realize here is that if R outputs to a map, insert does not replace, thereby providing the representative element.
+        std::transform(std::begin(E), std::end(E), R, element_index<vertex_iterator>()); // Θ(n)
+        preprocess_sparse_table(std::begin(L), std::end(L), sparse_table); // Θ(n lg n)
     }
 
 
