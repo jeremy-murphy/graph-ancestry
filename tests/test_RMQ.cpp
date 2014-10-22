@@ -113,6 +113,7 @@ BOOST_AUTO_TEST_SUITE_END()
 
 
 
+#if 0 // See comment in RMQ.hpp.
 struct index_8
 {
     vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1};
@@ -136,7 +137,6 @@ struct index_16
 };
 
 
-#if 0 // See comment in RMQ.hpp.
 BOOST_AUTO_TEST_SUITE(RMQ_index)
 
 typedef boost::mpl::vector<index_8, index_7, index_16> test_fixtures;
