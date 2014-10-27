@@ -93,6 +93,8 @@ namespace general
      * @tparam C        Mutable random-access container of I.
      * @param first     Beginning of range.
      * @param last      End of range.
+     * 
+     * Time complexity: Θ(n lg n)
      */
     template <typename I, typename C>
     void preprocess_sparse_table(I first, I last, C &M)
@@ -108,14 +110,14 @@ namespace general
             auto const n = M.size() + 1u;
             auto const lowerlogn = general::log2(n);
             
-            for(char unsigned j = 2; j <= lowerlogn; j++)
+            for(char unsigned j = 2; j <= lowerlogn; j++) // Θ(lg n)
             {
                 auto const block_length = general::pow2(j);
                 auto const block_length_2 = block_length / 2u;
                 auto const last_pos = n - block_length + 1u;
                 auto Mi = M.size() - (n - block_length_2 + 1u); // Use index because of iterator invalidation.
 
-                for(std::size_t i = 0; i != last_pos; i++)
+                for(std::size_t i = 0; i != last_pos; i++) // Θ(n)
                 {
                     auto const &M1 = M[Mi], &M2 = M[Mi + block_length_2];
                     M.push_back(*M2 < *M1 ? M2 : M1);
@@ -133,6 +135,7 @@ namespace general
         BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N0>));
         BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N1>));
         BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N2>));
+
         return j == N1(1) ? i : ((j - N1(1)) * n) - (general::pow2(j) - j - N1(1)) + i;
     }
     
@@ -146,6 +149,8 @@ namespace general
      *  @param j Upper bound index of range query
      *  @param n Size of original input problem
      *  @param sparse_table The Sparse Table to be queried
+     * 
+     *  Time complexity: Θ(1)
      */
     template <typename N0, typename N1, typename C>
     typename C::value_type query_sparse_table(N0 i, N0 j, N1 n, C const &sparse_table)

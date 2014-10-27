@@ -109,7 +109,7 @@ namespace graph_algorithms
         if (j < i)
             std::swap(i, j);
         auto const minimum = general::query_sparse_table(i, j, L.size(), sparse_table);
-        return E[std::distance(std::begin(L), minimum)];
+        return E[minimum - std::begin(L)];
     }
 }
 
