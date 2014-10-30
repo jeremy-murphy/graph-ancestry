@@ -14,6 +14,8 @@
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
+#include <boost/lexical_cast.hpp>
+
 #include <vector>
 #include <iostream>
 #include <locale>
@@ -98,10 +100,55 @@ BOOST_AUTO_TEST_CASE(basic_query)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+template <size_t N, size_t K = 2>
+struct random_k_tree
+{
+    boost::adjacency_list<> g;
+    mt19937 engine;
+    uniform_int_distribution<size_t> d;
+    
+    random_k_tree() : d(0, N - 1)
+    {
+        boost::add_edge(0, 1, g);
+        do
+        {
+            auto const n = boost::num_vertices(g);
+            auto const src = d(engine) % n;
+            boost::add_edge(src, n, g);
+        }
+        while (boost::num_vertices(g) != N);
+    }
+};
+
+#include "measurement.hpp"
+
+BOOST_FIXTURE_TEST_CASE(measure_lca_preprocess_random, random_k_tree<1ul << 20>)
+{
+#ifndef NDEBUG
+    {
+        ofstream output("random_k_tree<" + boost::lexical_cast<string>(boost::num_vertices(g)) + ">.dot");
+        boost::write_graphviz(output, g);
+    }
+#endif
+    typedef typename vector<size_t>::const_iterator const_iterator;
+    vector<size_t> E;
+    vector<size_t> L;
+    unordered_map<size_t, size_t> R;
+    vector<const_iterator> T;
+    
+    auto f = [&]()
+    {
+        lca_preprocess(g, E, L, inserter(R, end(R)), T);
+        E.clear();
+        L.clear();
+        R.clear();
+        T.clear();
+    };
+    measure(boost::num_vertices(g), 1u << 5, f);
+}
 
 #ifdef NDEBUG
 
-#include "measurement.hpp"
 
 BOOST_FIXTURE_TEST_SUITE(measure_LCA, Bender_2005_2<boost::adjacency_list<>>)
 
