@@ -100,6 +100,8 @@ BOOST_AUTO_TEST_CASE(basic_query)
 
 BOOST_AUTO_TEST_SUITE_END()
 
+#ifdef NDEBUG
+
 template <size_t N, size_t K = 2>
 struct random_k_tree
 {
@@ -147,7 +149,6 @@ BOOST_FIXTURE_TEST_CASE(measure_lca_preprocess_random, random_k_tree<1ul << 20>)
     measure(boost::num_vertices(g), 1u << 5, f);
 }
 
-#ifdef NDEBUG
 
 
 BOOST_FIXTURE_TEST_SUITE(measure_LCA, Bender_2005_2<boost::adjacency_list<>>)
