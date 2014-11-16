@@ -113,7 +113,6 @@ BOOST_AUTO_TEST_SUITE_END()
 
 
 
-#if 0 // See comment in RMQ.hpp.
 struct index_8
 {
     vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1};
@@ -137,20 +136,24 @@ struct index_16
 };
 
 
+#include <boost/multi_array.hpp>
+
 BOOST_AUTO_TEST_SUITE(RMQ_index)
 
-typedef boost::mpl::vector<index_8, index_7, index_16> test_fixtures;
+// typedef boost::mpl::vector<index_8, index_7, index_16> test_fixtures;
 
-BOOST_AUTO_TEST_CASE_TEMPLATE(test_basic, fixture_type, test_fixtures)
+BOOST_AUTO_TEST_CASE(test_basic)
 {
-    auto const fixture = fixture_type();
-    vector<size_t> B;
-    preprocess_sparse_table(fixture.Q, B);
-    BOOST_CHECK_EQUAL_COLLECTIONS(begin(fixture.A), end(fixture.A), begin(B), end(B));
+    typedef boost::multi_array_types::extent_range range;
+    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1};
+    size_t const i = Q.size(), j = std::ceil(std::log2(Q.size()));
+    boost::multi_array<size_t, 2> B(boost::extents[i][range(1, j + 1)]);
+    index_preprocess_sparse_table(Q, B);
+    boost::multi_array<size_t, 2> C = {{}};
+    // BOOST_CHECK_EQUAL_COLLECTIONS(begin(fixture.A), end(fixture.A), begin(B), end(B));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-#endif
 
 
 #ifdef NDEBUG
