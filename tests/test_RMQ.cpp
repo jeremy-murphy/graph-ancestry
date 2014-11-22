@@ -127,18 +127,24 @@ struct index_8
 
 struct index_7
 {
-    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9};
-    vector<size_t> A = {0, 2, 2, 4, 4, 5, 0, 4, 4, 4};
+    vector<unsigned> A = {2, 7, 6, 8, 4, 5, 9};
+    vector<size_t> Z = {0, 2, 2, 4, 4, 5, 0, 4, 4, 4};
+    typedef boost::multi_array_types::extent_range range;
+    boost::multi_array<size_t, 2> M;
+    index_7() : M(boost::extents[range(1, 3)][7]) {}
 };
 
 struct index_16
 {
-    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1, 10, 11, 3, 7, 19, 4, 11, 16};
-    vector<size_t> A = {0, 2, 2, 4, 4, 5, 7, 7, 8, 10, 10, 11, 13, 13, 14, // 2
+    vector<unsigned> A = {2, 7, 6, 8, 4, 5, 9, 1, 10, 11, 3, 7, 19, 4, 11, 16};
+    vector<size_t> Z = {0, 2, 2, 4, 4, 5, 7, 7, 8, 10, 10, 11, 13, 13, 14, // 2
                         0, 4, 4, 4, 7, 7, 7, 7, 10, 10, 10, 13, 13, // 4
                         7, 7, 7, 7, 7, 7, 7, 7, 10, // 8
                         7 // 16
     };
+    typedef boost::multi_array_types::extent_range range;
+    boost::multi_array<size_t, 2> M;
+    index_16() : M(boost::extents[range(1, 4)][16]) {}
 };
 
 
@@ -178,7 +184,9 @@ BOOST_AUTO_TEST_CASE(test_preprocess)
     */
 }
 
-BOOST_FIXTURE_TEST_CASE(test_query, index_8)
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_FIXTURE_TEST_CASE(test_query8, index_8)
 {
     index_preprocess_sparse_table(A, M);
     auto minimum = index_query_sparse_table(1u, 5u, A, M);
@@ -194,7 +202,44 @@ BOOST_FIXTURE_TEST_CASE(test_query, index_8)
     BOOST_CHECK_EQUAL(minimum, 0);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_FIXTURE_TEST_CASE(test_query7, index_7)
+{
+    index_preprocess_sparse_table(A, M);
+    auto minimum = index_query_sparse_table(1u, 5u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 4);
+    
+    minimum = index_query_sparse_table(5u, 6u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 5);
+    
+    minimum = index_query_sparse_table(0u, 0u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 0);
+    
+    minimum = index_query_sparse_table(0u, 6u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_query16, index_16)
+{
+    index_preprocess_sparse_table(A, M);
+    auto minimum = index_query_sparse_table(1u, 5u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 4);
+    minimum = index_query_sparse_table(5u, 6u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 5);
+    minimum = index_query_sparse_table(0u, 0u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 0);
+    minimum = index_query_sparse_table(0u, 6u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 0);
+    minimum = index_query_sparse_table(2u, 3u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 2);
+    minimum = index_query_sparse_table(6u, 15u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 7);
+    minimum = index_query_sparse_table(8u, 12u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 10);
+    minimum = index_query_sparse_table(0u, 15u, A, M);
+    BOOST_CHECK_EQUAL(minimum, 7);
+    
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 
