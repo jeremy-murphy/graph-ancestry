@@ -55,18 +55,19 @@ namespace general
     void index_preprocess_sparse_table(C0 const &A, C1 &M)
     {
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
-        // BOOST_CONCEPT_ASSERT((boost::Mutable_RandomAccessContainer<C1>));
+        // require: C1 is a 2d array.
         
-        if(A.size() >= 2)
+        if(A.size() > 2)
         {
             typedef typename C0::size_type size_type;
             char unsigned j = 1;
             
             for(size_type i = 0; i < A.size() - 1; i++)
-                M[i][j] = A[i] <= A[i + 1] ? i : i + 1;
+                M[j][i] = A[i] <= A[i + 1] ? i : i + 1;
             
-            auto const n = M.size() + 1u;
-            auto const lowerlogn = log2(n);
+            auto const n = A.size();
+            auto const lowerlogn = lower_log2(n);
+            auto prev_block_length = 2u;
             
             for(j = 2; j <= lowerlogn; j++)
             {
@@ -75,10 +76,11 @@ namespace general
                 
                 for(std::size_t i = 0; i != last_pos; i++)
                 {
-                    auto const &M1 = M[i][j - 1u], 
-                                &M2 = M[i + pow2(j - 1u) - 1u][j - 1u];
-                    M[i][j] = A[M2] < A[M1] ? M2 : M1;
+                    auto const &M1 = M[j - 1u][i], 
+                                &M2 = M[j - 1u][i + prev_block_length];
+                    M[j][i] = A[M2] < A[M1] ? M2 : M1;
                 }
+                prev_block_length = block_length;
             }
         }
     }
@@ -173,20 +175,21 @@ namespace general
     }
     
 
-    template <typename N0, typename C0, typename C1>
-    typename C1::value_type index_query_sparse_table(N0 i, N0 j, C0 A, C1 const &M)
+    template <typename N, typename C0, typename C1>
+    typename C1::element index_query_sparse_table(N i, N j, C0 const &A, C1 const &M)
     {
-        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N0>));
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C1>));
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
         
         // requires: [i, j] is a valid range.
         assert(i <= j);
         
         if (i == j)
-            return M[i];
+            return i;
         
-        auto const k = std::ceil(log2(j - i + 1));
-        auto const x = M[i][k], y = M[j - pow2(k) + 1][k];
+        auto const r = j - i + 1;
+        auto const k = lower_log2(r);
+        auto const x = M[k][i], y = M[k][i + (r - 2 * k)];
         auto const &Mx = A[x], &My = A[y];
         return My < Mx ? y : x;
     }
