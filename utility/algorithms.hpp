@@ -45,7 +45,7 @@ namespace general
     
     template <typename N>
     inline
-    char unsigned log2(N n)
+    char unsigned lower_log2(N n)
     {
         BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
 
@@ -57,6 +57,20 @@ namespace general
             result++;
         }
         
+        return result;
+    }
+    
+    
+    template <typename N>
+    inline 
+    char unsigned upper_log2(N n)
+    {
+        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
+        
+        assert(n != 0);
+        auto result = lower_log2(n);
+        if (n & 1u)
+            result++;
         return result;
     }
 }

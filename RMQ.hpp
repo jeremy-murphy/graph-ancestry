@@ -102,18 +102,18 @@ namespace general
         BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
         BOOST_CONCEPT_ASSERT((boost::Mutable_RandomAccessContainer<C>));
         
-        if(first != last && std::next(first) != last)
+        if(first != last && std::next(first) != last && std::next(std::next(first)) != last)
         {
             for(auto second = std::next(first); second != last; ++first, ++second)
                 M.push_back(*first <= *second ? first : second);
             
             auto const n = M.size() + 1u;
-            auto const lowerlogn = general::log2(n);
+            auto const lowerlogn = general::lower_log2(n);
+            auto block_length_2 = 2ul;
             
             for(char unsigned j = 2; j <= lowerlogn; j++) // Θ(lg n)
             {
-                auto const block_length = general::pow2(j);
-                auto const block_length_2 = block_length / 2u;
+                auto const block_length = 2 * block_length_2;;
                 auto const last_pos = n - block_length + 1u;
                 auto Mi = M.size() - (n - block_length_2 + 1u); // Use index because of iterator invalidation.
 
@@ -123,6 +123,7 @@ namespace general
                     M.push_back(*M2 < *M1 ? M2 : M1);
                     ++Mi;
                 }
+                block_length_2 = block_length;
             }
         }
     }
@@ -166,7 +167,7 @@ namespace general
         if (i == j)
             return sparse_table[i];
 
-        auto const k = general::log2(j - i + 1);
+        auto const k = lower_log2(j - i + 1);
         auto const  x = translate_sparse_table(i, k, n), 
                     y = translate_sparse_table(j - general::pow2(k) + N0(1), k, n);
         auto const &Mx = sparse_table[x], &My = sparse_table[y];

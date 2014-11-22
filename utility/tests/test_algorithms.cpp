@@ -34,8 +34,8 @@ struct basic_unordered_map
 
 BOOST_AUTO_TEST_CASE(test_log2)
 {
-    vector<unsigned> const q = {1, 2, 3, 100, 1000, 10000};
-    vector<unsigned> const a = {0, 1, 1, 6, 9, 13};
+    vector<unsigned> const q = {1, 2, 3, 4, 100, 1000, 10000};
+    vector<unsigned> const a = {0, 1, 1, 2, 6, 9, 13};
     for(unsigned i = 0; i < q.size(); i++)
-        BOOST_CHECK_EQUAL(general::log2(q[i]), a[i]);
+        BOOST_CHECK_EQUAL(lower_log2(q[i]), a[i]);
 }
