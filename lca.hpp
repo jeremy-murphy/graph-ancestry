@@ -32,6 +32,7 @@
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>
 #include <boost/integer.hpp>
+#include <boost/multi_array/concept_checks.hpp>
 
 #include <algorithm>
 
@@ -60,9 +61,9 @@ namespace graph_algorithms
      * 
      *  The reason for the unconventional parameter names (T, E, etc) is to closely immitate the journal article.
      */ 
-    template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexOutput, typename IteratorContainer>
+    template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexOutput, typename IndexMultiArray>
     // requires: Directed(Graph)
-    void lca_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexOutput R, IteratorContainer &sparse_table)
+    void lca_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexOutput R, IndexMultiArray &M)
     {
         using namespace boost;
         using namespace general;
@@ -75,16 +76,16 @@ namespace graph_algorithms
         BOOST_CONCEPT_ASSERT((VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.
         BOOST_CONCEPT_ASSERT((RandomAccessContainer<VertexContainer>));
         BOOST_CONCEPT_ASSERT((RandomAccessContainer<VertexDepthContainer>));
-        BOOST_CONCEPT_ASSERT((RandomAccessContainer<IteratorContainer>));
         BOOST_CONCEPT_ASSERT((OutputIterator<IndexOutput, vertex_index_pair>));
+        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<IndexMultiArray, 2>));
         
         // requires: acyclic(T)
         
         depth_first_search(T, visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
         depth_first_search(T, visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
-        // The key thing to realize here is that if R outputs to a map, insert does not replace, thereby providing the representative element.
+        // The key realization here is that if R outputs to a map, insert does not replace, thereby providing the representative element.
         std::transform(std::begin(E), std::end(E), R, element_index<vertex_iterator>()); // Θ(n)
-        preprocess_sparse_table(std::begin(L), std::end(L), sparse_table); // Θ(n lg n)
+        preprocess_sparse_table(L, M); // Θ(n lg n)
     }
 
 
@@ -98,18 +99,18 @@ namespace graph_algorithms
      *  That is, lca_query(u, v, ...) == lca_query(v, u, ...).
      */
     // TODO: Does R have to be a container?  Could it be a unary function?
-    template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IteratorContainer>
-    typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IteratorContainer const &sparse_table)
+    template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IndexMultiArray>
+    typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IndexMultiArray const &M)
     {
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<IteratorContainer>));
+        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::ConstMultiArrayConcept<IndexMultiArray, 2>));
         
         auto i = R[u], j = R[v];
         if (j < i)
             std::swap(i, j);
-        auto const minimum = general::query_sparse_table(i, j, L.size(), sparse_table);
-        return E[minimum - std::begin(L)];
+        auto const minimum = general::query_sparse_table(i, j, L, M); // Θ(1)
+        return E[minimum];
     }
 }
 

@@ -5,11 +5,11 @@
 #include "RMQ.hpp"
 
 #include <boost/mpl/vector.hpp>
+#include <boost/multi_array.hpp>
 
 #include <array>
 #include <vector>
 #include <iterator>
-#include <boost/iterator/indirect_iterator.hpp>
 #include <locale>
 #include <iostream>
 
@@ -23,97 +23,6 @@ struct enable_locale
 
 BOOST_GLOBAL_FIXTURE(enable_locale);
 
-struct iterator_8
-{
-    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1};
-    typedef typename decltype(Q)::const_iterator const_iterator;
-    vector<const_iterator> A = {begin(Q), begin(Q) + 2, begin(Q) + 2, begin(Q) + 4, begin(Q) + 4, begin(Q) + 5, begin(Q) + 7, begin(Q), begin(Q) + 4, begin(Q) + 4, begin(Q) + 4, begin(Q) + 7, begin(Q) + 7};
-};
-
-
-struct iterator_7
-{
-    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9};
-    vector<unsigned*> A = {&Q[0], &Q[2], &Q[2], &Q[4], &Q[4], &Q[5], &Q[0], &Q[4], &Q[4], &Q[4]};
-};
-
-struct iterator_16
-{
-    vector<unsigned> Q = {2, 7, 6, 8, 4, 5, 9, 1, 10, 11, 3, 7, 19, 4, 11, 16};
-    typedef typename vector<unsigned>::const_iterator const_iterator;
-    vector<const_iterator> A = {
-        begin(Q), begin(Q) + 2, begin(Q) + 2, begin(Q) + 4, begin(Q) + 4, begin(Q) + 5, begin(Q) + 7, begin(Q) + 7, begin(Q) + 8, begin(Q) + 10, begin(Q) + 10, begin(Q) + 11, begin(Q) + 13, begin(Q) + 13, begin(Q) + 14,
-        // 4
-        begin(Q), begin(Q) + 4, begin(Q) + 4, begin(Q) + 4, begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 10, begin(Q) + 10, begin(Q) + 10, begin(Q) + 13, begin(Q) + 13,
-        // 8
-        begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 7, begin(Q) + 10,
-        // 16
-        begin(Q) + 7
-        };
-};
-
-BOOST_FIXTURE_TEST_SUITE(RMQ_iterator, iterator_8)
-
-BOOST_AUTO_TEST_CASE(test_basic)
-{
-    vector<const_iterator> B;
-    preprocess_sparse_table(begin(Q), end(Q), B);
-    BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
-}
-
-BOOST_FIXTURE_TEST_CASE(test_7, iterator_7)
-{
-    typedef typename vector<unsigned>::const_iterator const_iterator;
-    vector<const_iterator> B;
-    preprocess_sparse_table(begin(Q), end(Q), B);
-    BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
-}
-
-
-BOOST_FIXTURE_TEST_CASE(test_16, iterator_16)
-{
-    typedef typename vector<unsigned>::const_iterator const_iterator;
-    vector<const_iterator> B;
-    preprocess_sparse_table(begin(Q), end(Q), B);
-    BOOST_CHECK_EQUAL_COLLECTIONS(boost::make_indirect_iterator(begin(A)), boost::make_indirect_iterator(end(A)), boost::make_indirect_iterator(begin(B)), boost::make_indirect_iterator(end(B)));
-}
-
-
-BOOST_AUTO_TEST_CASE(basic_query)
-{
-    auto q = translate_sparse_table(1u, 2u, Q.size());
-    BOOST_CHECK_EQUAL(q, 8);
-
-    q = translate_sparse_table(1u, 3u, Q.size());
-    BOOST_CHECK_EQUAL(q, 13);
-
-    auto foo = query_sparse_table(1u, 5u, Q.size(), A);
-    BOOST_CHECK_EQUAL(*foo, 4);
-
-    foo = query_sparse_table(0u, 7u, Q.size(), A);
-    BOOST_CHECK_EQUAL(*foo, 1);
-
-    foo = query_sparse_table(0u, 0u, Q.size(), A);
-    BOOST_CHECK_EQUAL(*foo, 2);
-
-    foo = query_sparse_table(0u, 6u, Q.size(), A);
-    BOOST_CHECK_EQUAL(*foo, 2);
-}
-
-
-BOOST_FIXTURE_TEST_CASE(query_16, iterator_16)
-{
-    auto foo = query_sparse_table(0u, 5u, Q.size(), A);
-    BOOST_CHECK_EQUAL(*foo, 2);
-
-    foo = query_sparse_table(0u, 15u, Q.size(), A);
-    BOOST_CHECK_EQUAL(*foo, 1);
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-
-#include <boost/multi_array.hpp>
 
 struct index_8
 {
@@ -144,7 +53,7 @@ struct index_16
     };
     typedef boost::multi_array_types::extent_range range;
     boost::multi_array<size_t, 2> M;
-    index_16() : M(boost::extents[range(1, 4)][16]) {}
+    index_16() : M(boost::extents[range(1, 5)][16]) {}
 };
 
 
@@ -155,13 +64,13 @@ BOOST_AUTO_TEST_CASE(test_empty_preprocess)
     vector<unsigned> Q;
     boost::multi_array<size_t, 2> B(boost::extents[0][0]);
     boost::multi_array<size_t, 2> const C(B);
-    index_preprocess_sparse_table(Q, B);
+    preprocess_sparse_table(Q, B);
     BOOST_CHECK(B == C);
     Q.push_back(0);
-    index_preprocess_sparse_table(Q, B);
+    preprocess_sparse_table(Q, B);
     BOOST_CHECK(B == C);
     Q.push_back(1);
-    index_preprocess_sparse_table(Q, B);
+    preprocess_sparse_table(Q, B);
     BOOST_CHECK(B == C);
 }
 
@@ -173,7 +82,7 @@ BOOST_FIXTURE_TEST_SUITE(RMQ_index_8, index_8)
 BOOST_AUTO_TEST_CASE(test_preprocess)
 {
     boost::multi_array<size_t, 2> C(M);
-    index_preprocess_sparse_table(A, M);
+    preprocess_sparse_table(A, M);
     /*
     for (auto q = 1u; q <=j; q++)
     {
@@ -188,56 +97,49 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_FIXTURE_TEST_CASE(test_query8, index_8)
 {
-    index_preprocess_sparse_table(A, M);
-    auto minimum = index_query_sparse_table(1u, 5u, A, M);
+    preprocess_sparse_table(A, M);
+    auto minimum = query_sparse_table(1u, 5u, A, M);
     BOOST_CHECK_EQUAL(minimum, 4);
-    
-    minimum = index_query_sparse_table(0u, 7u, A, M);
+    minimum = query_sparse_table(0u, 7u, A, M);
     BOOST_CHECK_EQUAL(minimum, 7);
-    
-    minimum = index_query_sparse_table(0u, 0u, A, M);
+    minimum = query_sparse_table(0u, 0u, A, M);
     BOOST_CHECK_EQUAL(minimum, 0);
-    
-    minimum = index_query_sparse_table(0u, 6u, A, M);
+    minimum = query_sparse_table(0u, 6u, A, M);
     BOOST_CHECK_EQUAL(minimum, 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query7, index_7)
 {
-    index_preprocess_sparse_table(A, M);
-    auto minimum = index_query_sparse_table(1u, 5u, A, M);
+    preprocess_sparse_table(A, M);
+    auto minimum = query_sparse_table(1u, 5u, A, M);
     BOOST_CHECK_EQUAL(minimum, 4);
-    
-    minimum = index_query_sparse_table(5u, 6u, A, M);
+    minimum = query_sparse_table(5u, 6u, A, M);
     BOOST_CHECK_EQUAL(minimum, 5);
-    
-    minimum = index_query_sparse_table(0u, 0u, A, M);
+    minimum = query_sparse_table(0u, 0u, A, M);
     BOOST_CHECK_EQUAL(minimum, 0);
-    
-    minimum = index_query_sparse_table(0u, 6u, A, M);
+    minimum = query_sparse_table(0u, 6u, A, M);
     BOOST_CHECK_EQUAL(minimum, 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query16, index_16)
 {
-    index_preprocess_sparse_table(A, M);
-    auto minimum = index_query_sparse_table(1u, 5u, A, M);
+    preprocess_sparse_table(A, M);
+    auto minimum = query_sparse_table(1u, 5u, A, M);
     BOOST_CHECK_EQUAL(minimum, 4);
-    minimum = index_query_sparse_table(5u, 6u, A, M);
+    minimum = query_sparse_table(5u, 6u, A, M);
     BOOST_CHECK_EQUAL(minimum, 5);
-    minimum = index_query_sparse_table(0u, 0u, A, M);
+    minimum = query_sparse_table(0u, 0u, A, M);
     BOOST_CHECK_EQUAL(minimum, 0);
-    minimum = index_query_sparse_table(0u, 6u, A, M);
+    minimum = query_sparse_table(0u, 6u, A, M);
     BOOST_CHECK_EQUAL(minimum, 0);
-    minimum = index_query_sparse_table(2u, 3u, A, M);
+    minimum = query_sparse_table(2u, 3u, A, M);
     BOOST_CHECK_EQUAL(minimum, 2);
-    minimum = index_query_sparse_table(6u, 15u, A, M);
+    minimum = query_sparse_table(6u, 15u, A, M);
     BOOST_CHECK_EQUAL(minimum, 7);
-    minimum = index_query_sparse_table(8u, 12u, A, M);
+    minimum = query_sparse_table(8u, 12u, A, M);
     BOOST_CHECK_EQUAL(minimum, 10);
-    minimum = index_query_sparse_table(0u, 15u, A, M);
+    minimum = query_sparse_table(0u, 15u, A, M);
     BOOST_CHECK_EQUAL(minimum, 7);
-    
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -267,22 +169,11 @@ BOOST_FIXTURE_TEST_SUITE(measure_RMQ, random_RMQ)
 
 BOOST_AUTO_TEST_CASE(measure_RMQ_preprocess)
 {
-    vector<const_iterator> B;
-    auto const f = [&]()
-    {
-        preprocess_sparse_table(begin(a), end(a), B);
-        B.clear();
-    };
-    measure(a.size(), 1u << 4, f);
-}
-
-BOOST_AUTO_TEST_CASE(measure_RMQ_index_preprocess)
-{
     typedef boost::multi_array_types::extent_range range;
     boost::multi_array<size_t, 2> M((boost::extents[range(1, 23)][1 << 22ul]));
     auto const f = [&]()
     {
-        index_preprocess_sparse_table(a, M);
+        preprocess_sparse_table(a, M);
     };
     measure(a.size(), 1u << 4, f);
 }
@@ -290,18 +181,10 @@ BOOST_AUTO_TEST_CASE(measure_RMQ_index_preprocess)
 
 BOOST_AUTO_TEST_CASE(measure_RMQ_query)
 {
-    vector<const_iterator> B;
-    preprocess_sparse_table(begin(a), end(a), B);
-    auto const f = bind(query_sparse_table<size_t, size_t, decltype(B)>, 0, a.size() - 1, a.size(), B);
-    measure(1, 1ul << 29, f, "query");
-}
-
-BOOST_AUTO_TEST_CASE(measure_RMQ_index_query)
-{
     typedef boost::multi_array_types::extent_range range;
     boost::multi_array<size_t, 2> M((boost::extents[range(1, 23)][1 << 22ul]));
-    index_preprocess_sparse_table(a, M);
-    auto const f = bind(index_query_sparse_table<size_t, decltype(a), decltype(M)>, 0, a.size() - 1, a, M);
+    preprocess_sparse_table(a, M);
+    auto const f = bind(query_sparse_table<size_t, decltype(a), decltype(M)>, 0, a.size() - 1, a, M);
     measure(1, 1ul << 29, f, "query");
 }
 
