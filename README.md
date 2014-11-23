@@ -6,16 +6,17 @@ And their supporting general algorithms.
 
 #### Requirements
 * Boost.
-  * Concept     - for concept checking
-  * Graph       - for graph/tree algorithms and data structures
-  * Test, Timer - for the tests
+  * Concept     - concept checking
+  * MultiArray  - Sparse Tree data structure
+  * Graph       - graph/tree algorithms and data structures
+  * Test, Timer - unit tests and measurements
 
 #### Contents
 1. Graph algorithms
   1. **lowest single common ancestor** (LSCA) - *incomplete*
 2. Tree algorithms
  1. **lowest common ancestor** (LCA), <*Θ*(*n* lg *n*), *Θ*(1)>
-   * By reduction to the RMQ problem.
+   * By reduction to RMQ.
 3. General algorithms
   1. **range minimum query** (RMQ), <*Θ*(*n* lg *n*), *Θ*(1)>
     * The *Sparse Table* implementation.

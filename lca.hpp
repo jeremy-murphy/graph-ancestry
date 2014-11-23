@@ -31,7 +31,7 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>
-#include <boost/integer.hpp>
+#include <boost/graph/depth_first_search.hpp>
 #include <boost/multi_array/concept_checks.hpp>
 
 #include <algorithm>

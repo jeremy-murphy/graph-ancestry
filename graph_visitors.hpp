@@ -19,15 +19,13 @@
  * @file graph_visitors.hpp
  * @brief Boost.Graph visitors for depth-first or breadth-first search.
  */
-#include <boost/graph/depth_first_search.hpp>
-#include <boost/graph/adjacency_list.hpp>
-
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>
 
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/adjacency_list.hpp>
+
 #include <set>
-
-
 
 namespace graph_algorithms
 {
