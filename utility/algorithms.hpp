@@ -69,7 +69,7 @@ namespace general
         
         assert(n != 0);
         auto result = lower_log2(n);
-        if (n & 1u)
+        if (n & 1u && n != 1u)
             result++;
         return result;
     }
