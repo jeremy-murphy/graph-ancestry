@@ -22,4 +22,10 @@ And their supporting general algorithms.
     * The *Sparse Table* implementation.
 
 #### Early results
-On large inputs (4 million integers) RMQ preprocesses in ~0.8 seconds and queries in ~15 nanoseconds on my humble Intel Core i5 mobile.
+On a moderately large input (4 million integers) RMQ preprocesses in ~0.402 seconds (96 ns per element).
+
+On a smaller input (1 million vertices), LCA preprocesses in ~0.883 seconds (842 ns per element).
+
+Queries for both are in ~7-16 nanoseconds.
+
+Measured on my humble Intel Core i5 mobile.
