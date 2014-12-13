@@ -118,44 +118,6 @@ namespace general
         auto const &Mx = A[x], &My = A[y];
         return My < Mx ? y : x;
     }
-    
-    // The beginnings of a convenience class to wrap it all up in, incomplete.
-    
-    template <typename I>
-    class sparse_table
-    {
-        BOOST_CONCEPT_ASSERT((boost::ForwardIterator<I>));
-
-        std::vector<I> M;
-        
-    public:
-        sparse_table(I first, I last)
-        {
-            preprocess_sparse_table(first, last, M);
-        }
-        
-        
-        void preprocess(I first, I last)
-        {
-            M.clear();
-            preprocess_sparse_table(first, last, M);
-        }
-        
-        
-        template <typename N>
-        // requires:    UnsignedIntegral(N)
-        I query(N i, N j)
-        {
-            return query_sparse_table(i, j, M);
-        }
-    };
-    
-    
-    template <typename I>
-    sparse_table<I> make_sparse_table(I first, I last)
-    {
-        return sparse_table<I>(first, last);
-    }
 }
 
 #endif

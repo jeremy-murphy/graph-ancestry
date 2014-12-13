@@ -9,6 +9,10 @@ add_executable(test_RMQ test_RMQ.cpp)
 target_link_libraries(test_RMQ ${Boost_LIBRARIES})
 add_test(test_RMQ test_RMQ)
 
+add_executable(test_RMQ_foo test_RMQ_foo.cpp)
+target_link_libraries(test_RMQ_foo ${Boost_LIBRARIES})
+add_test(test_RMQ_foo test_RMQ_foo)
+
 add_executable(test_graph_visitors test_graph_visitors.cpp)
 target_link_libraries(test_graph_visitors ${Boost_LIBRARIES})
 add_test(test_graph_visitors test_graph_visitors)
