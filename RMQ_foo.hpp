@@ -25,7 +25,6 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>
-#include <boost/core/ref.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/operators.hpp>
 
