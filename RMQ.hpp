@@ -27,6 +27,7 @@
 #include <boost/concept/requires.hpp>
 #include <boost/concept/assert.hpp>
 #include <boost/multi_array/concept_checks.hpp>
+#include <boost/multi_array.hpp>
 
 #include <iterator>
 #include <algorithm>
@@ -86,6 +87,40 @@ namespace general
         }
     }
 
+
+    template <typename C0, typename C1>
+    void initialize_sparse_table(C0 const &A, C1 &M)
+    {
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
+        typedef boost::multi_array_types::extent_range extent_range;
+
+        M = C1(boost::extents[extent_range(1, lower_log2(A.size()) + 1)][A.size()]);
+    }
+    
+    
+    // Custom initialization and preprocess.
+    template <typename C0, typename C1, typename F>
+    void create_sparse_table(C0 const &A, C1 &M, F initialize)
+    {
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
+        
+        initialize(A, M);
+        preprocess_sparse_table(A, M);
+    }
+    
+    
+    // Initialize and preprocess.
+    template <typename C0, typename C1>
+    void create_sparse_table(C0 const &A, C1 &M)
+    {
+        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
+
+        create_sparse_table(A, M, initialize_sparse_table<C0, C1>);
+    }
+    
     
     /** @brief Perform range minimum query on a Sparse Table.
      *  @ingroup RMQ_algorithms
