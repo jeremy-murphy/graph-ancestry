@@ -23,6 +23,14 @@ struct enable_locale
 
 BOOST_GLOBAL_FIXTURE(enable_locale);
 
+// Simple function to calculate RMQ in linear time.
+template <typename C, typename T>
+T rmq_linear(T i, T j, C const &A)
+{
+    BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C>));
+    
+    return min_element(begin(A) + i, begin(A) + j + 1) - begin(A);
+}
 
 struct index_8
 {
@@ -98,48 +106,34 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_FIXTURE_TEST_CASE(test_query8, index_8)
 {
     preprocess_sparse_table(A, M);
-    auto minimum = query_sparse_table(1u, 5u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 4);
-    minimum = query_sparse_table(0u, 7u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 7);
-    minimum = query_sparse_table(0u, 0u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 0);
-    minimum = query_sparse_table(0u, 6u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 0);
+    for(unsigned i = 0; i < A.size(); i++)
+        for(unsigned j = i; j < A.size(); j++)
+        {
+            auto minimum = query_sparse_table(i, j, A, M);
+            BOOST_CHECK_EQUAL(minimum, rmq_linear(i, j, A));
+        }
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query7, index_7)
 {
     preprocess_sparse_table(A, M);
-    auto minimum = query_sparse_table(1u, 5u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 4);
-    minimum = query_sparse_table(5u, 6u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 5);
-    minimum = query_sparse_table(0u, 0u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 0);
-    minimum = query_sparse_table(0u, 6u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 0);
+    for(unsigned i = 0; i < A.size(); i++)
+        for(unsigned j = i; j < A.size(); j++)
+        {
+            auto minimum = query_sparse_table(i, j, A, M);
+            BOOST_CHECK_EQUAL(minimum, rmq_linear(i, j, A));
+        }
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query16, index_16)
 {
     preprocess_sparse_table(A, M);
-    auto minimum = query_sparse_table(1u, 5u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 4);
-    minimum = query_sparse_table(5u, 6u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 5);
-    minimum = query_sparse_table(0u, 0u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 0);
-    minimum = query_sparse_table(0u, 6u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 0);
-    minimum = query_sparse_table(2u, 3u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 2);
-    minimum = query_sparse_table(6u, 15u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 7);
-    minimum = query_sparse_table(8u, 12u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 10);
-    minimum = query_sparse_table(0u, 15u, A, M);
-    BOOST_CHECK_EQUAL(minimum, 7);
+    for(unsigned i = 0; i < A.size(); i++)
+        for(unsigned j = i; j < A.size(); j++)
+        {
+            auto minimum = query_sparse_table(i, j, A, M);
+            BOOST_CHECK_EQUAL(minimum, rmq_linear(i, j, A));
+        }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

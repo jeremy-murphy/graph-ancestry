@@ -149,9 +149,10 @@ namespace general
         
         auto const r = j - i + 1;
         auto const k = lower_log2(r);
-        auto const x = M[k][i], y = M[k][j + 1 - 2 * k];
-        auto const &Mx = A[x], &My = A[y];
-        return My < Mx ? y : x;
+        auto const x = M[k][i], y = M[k][j - pow2(k) + 1];
+        assert(x >= i && x <= j);
+        assert(y >= i && y <= j);
+        return A[y] < A[x] ? y : x;
     }
 }
 
