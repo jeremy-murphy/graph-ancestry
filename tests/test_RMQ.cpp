@@ -24,9 +24,10 @@ struct enable_locale
 BOOST_GLOBAL_FIXTURE(enable_locale);
 
 // Simple function to calculate RMQ in linear time.
-template <typename C, typename T>
-T rmq_linear(T i, T j, C const &A)
+template <typename C, typename N>
+N rmq_linear(N i, N j, C const &A)
 {
+    BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
     BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C>));
     
     return min_element(begin(A) + i, begin(A) + j + 1) - begin(A);
@@ -82,26 +83,8 @@ BOOST_AUTO_TEST_CASE(test_empty_preprocess)
     BOOST_CHECK(B == C);
 }
 
-BOOST_FIXTURE_TEST_SUITE(RMQ_index_8, index_8)
 
 // typedef boost::mpl::vector<index_8, index_7, index_16> test_fixtures;
-
-
-BOOST_AUTO_TEST_CASE(test_preprocess)
-{
-    boost::multi_array<size_t, 2> C(M);
-    preprocess_sparse_table(A, M);
-    /*
-    for (auto q = 1u; q <=j; q++)
-    {
-        for (auto p = 0u; p < i; p++)
-            cerr << M[q][p] << " ";
-        cerr << endl;
-    }
-    */
-}
-
-BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_FIXTURE_TEST_CASE(test_query8, index_8)
 {
