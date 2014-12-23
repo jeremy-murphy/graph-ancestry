@@ -5,6 +5,10 @@ add_executable(test_lca test_lca.cpp)
 target_link_libraries(test_lca ${Boost_LIBRARIES})
 add_test(test_lca test_lca)
 
+add_executable(test_lsca test_lsca.cpp)
+target_link_libraries(test_lsca ${Boost_LIBRARIES})
+add_test(test_lsca test_lsca)
+
 add_executable(test_RMQ test_RMQ.cpp)
 target_link_libraries(test_RMQ ${Boost_LIBRARIES})
 add_test(test_RMQ test_RMQ)
