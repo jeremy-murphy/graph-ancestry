@@ -35,6 +35,7 @@
 #include <boost/multi_array/concept_checks.hpp>
 
 #include <algorithm>
+#include <tuple>
 
 /*  A note about parameter types.
  * 
@@ -63,7 +64,7 @@ namespace graph_algorithms
      */ 
     template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexOutput, typename IndexMultiArray>
     // requires: Directed(Graph)
-    void lca_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexOutput R, IndexMultiArray &M)
+    void LCA_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexOutput R, IndexMultiArray &M)
     {
         using namespace boost;
         using namespace general;
@@ -85,10 +86,19 @@ namespace graph_algorithms
         depth_first_search(T, visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
         // The key realization here is that if R outputs to a map, insert does not replace, thereby providing the representative element.
         std::transform(std::begin(E), std::end(E), R, element_index<vertex_iterator>()); // Θ(n)
-        preprocess_sparse_table(L, M); // Θ(n lg n)
+        RMQ_preprocess(L, M); // Θ(n lg n)
     }
 
 
+    // Convenience function.
+    template <typename Graph, typename Tuple>
+    void LCA_preprocess(Graph const &T, Tuple &x)
+    {
+        // NOTE: Can use ADL for get()?
+        LCA_preprocess(T, get<0>(x), get<1>(x), std::inserter(get<2>(x), std::end(get<2>(x))), get<3>(x));
+    }
+    
+    
     /** @brief Query the lowest common ancestor of two vertices.
      *  @param u First descendent vertex
      *  @param u Second descendent vertex
@@ -100,7 +110,7 @@ namespace graph_algorithms
      */
     // TODO: Does R have to be a container?  Could it be a unary function?
     template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IndexMultiArray>
-    typename VertexContainer::value_type lca_query(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IndexMultiArray const &M)
+    typename VertexContainer::value_type LCA(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IndexMultiArray const &M)
     {
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
@@ -109,8 +119,18 @@ namespace graph_algorithms
         auto i = R[u], j = R[v];
         if (j < i)
             std::swap(i, j);
-        auto const minimum = general::query_sparse_table(i, j, L, M); // Θ(1)
+        auto const minimum = general::RMQ(i, j, L, M); // Θ(1)
         return E[minimum];
+    }
+    
+    
+    // Convenience function.
+    template <typename Vertex, typename Tuple>
+    typename std::tuple_element<0, Tuple>::type::value_type
+    LCA(Vertex u, Vertex v, Tuple const &x)
+    {
+        // NOTE: Can use ADL for get()?
+        return LCA(u, v, get<0>(x), get<1>(x), get<2>(x), get<3>(x));
     }
 }
 

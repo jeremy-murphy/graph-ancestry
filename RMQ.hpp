@@ -54,7 +54,7 @@ namespace general
      * @param M         Sparse Table of A.
      */
     template <typename C0, typename C1>
-    void preprocess_sparse_table(C0 const &A, C1 &M)
+    void RMQ_preprocess(C0 const &A, C1 &M)
     {
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
         BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
@@ -107,7 +107,7 @@ namespace general
         BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
         
         initialize(A, M);
-        preprocess_sparse_table(A, M);
+        RMQ_preprocess(A, M);
     }
     
     
@@ -135,7 +135,7 @@ namespace general
      *  Time complexity: Θ(1)
      */
     template <typename N, typename C0, typename C1>
-    typename C1::element query_sparse_table(N i, N j, C0 const &A, C1 const &M)
+    typename C1::element RMQ(N i, N j, C0 const &A, C1 const &M)
     {
         BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
         BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));

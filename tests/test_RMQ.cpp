@@ -25,7 +25,7 @@ BOOST_GLOBAL_FIXTURE(enable_locale);
 
 // Simple function to calculate RMQ in linear time.
 template <typename C, typename N>
-N rmq_linear(N i, N j, C const &A)
+N RMQ_linear(N i, N j, C const &A)
 {
     BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
     BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C>));
@@ -73,13 +73,13 @@ BOOST_AUTO_TEST_CASE(test_empty_preprocess)
     vector<unsigned> Q;
     boost::multi_array<size_t, 2> B(boost::extents[0][0]);
     boost::multi_array<size_t, 2> const C(B);
-    preprocess_sparse_table(Q, B);
+    RMQ_preprocess(Q, B);
     BOOST_CHECK(B == C);
     Q.push_back(0);
-    preprocess_sparse_table(Q, B);
+    RMQ_preprocess(Q, B);
     BOOST_CHECK(B == C);
     Q.push_back(1);
-    preprocess_sparse_table(Q, B);
+    RMQ_preprocess(Q, B);
     BOOST_CHECK(B == C);
 }
 
@@ -88,34 +88,34 @@ BOOST_AUTO_TEST_CASE(test_empty_preprocess)
 
 BOOST_FIXTURE_TEST_CASE(test_query8, index_8)
 {
-    preprocess_sparse_table(A, M);
+    RMQ_preprocess(A, M);
     for(unsigned i = 0; i < A.size(); i++)
         for(unsigned j = i; j < A.size(); j++)
         {
-            auto minimum = query_sparse_table(i, j, A, M);
-            BOOST_CHECK_EQUAL(minimum, rmq_linear(i, j, A));
+            auto minimum = RMQ(i, j, A, M);
+            BOOST_CHECK_EQUAL(minimum, RMQ_linear(i, j, A));
         }
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query7, index_7)
 {
-    preprocess_sparse_table(A, M);
+    RMQ_preprocess(A, M);
     for(unsigned i = 0; i < A.size(); i++)
         for(unsigned j = i; j < A.size(); j++)
         {
-            auto minimum = query_sparse_table(i, j, A, M);
-            BOOST_CHECK_EQUAL(minimum, rmq_linear(i, j, A));
+            auto minimum = RMQ(i, j, A, M);
+            BOOST_CHECK_EQUAL(minimum, RMQ_linear(i, j, A));
         }
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query16, index_16)
 {
-    preprocess_sparse_table(A, M);
+    RMQ_preprocess(A, M);
     for(unsigned i = 0; i < A.size(); i++)
         for(unsigned j = i; j < A.size(); j++)
         {
-            auto minimum = query_sparse_table(i, j, A, M);
-            BOOST_CHECK_EQUAL(minimum, rmq_linear(i, j, A));
+            auto minimum = RMQ(i, j, A, M);
+            BOOST_CHECK_EQUAL(minimum, RMQ_linear(i, j, A));
         }
 }
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(measure_RMQ_preprocess)
     boost::multi_array<size_t, 2> M((boost::extents[range(1, 23)][1 << 22ul]));
     auto const f = [&]()
     {
-        preprocess_sparse_table(a, M);
+        RMQ_preprocess(a, M);
     };
     measure(a.size(), 1u << 4, f);
 }
@@ -160,8 +160,8 @@ BOOST_AUTO_TEST_CASE(measure_RMQ_query)
 {
     typedef boost::multi_array_types::extent_range range;
     boost::multi_array<size_t, 2> M((boost::extents[range(1, 23)][1 << 22ul]));
-    preprocess_sparse_table(a, M);
-    auto const f = bind(query_sparse_table<size_t, decltype(a), decltype(M)>, 0, a.size() - 1, a, M);
+    RMQ_preprocess(a, M);
+    auto const f = bind(RMQ<size_t, decltype(a), decltype(M)>, 0, a.size() - 1, a, M);
     measure(1, 1ul << 29, f, "query");
 }
 

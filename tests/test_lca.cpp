@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(empty_preprocess)
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     boost::multi_array<size_t, 2> M(boost::extents[0][0]);
-    lca_preprocess(input, E, L, inserter(R, end(R)), M);
+    LCA_preprocess(input, E, L, inserter(R, end(R)), M);
     BOOST_CHECK(E.empty());
     BOOST_CHECK(L.empty());
     BOOST_CHECK(R.empty());
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(basic_preprocess)
     unordered_map<size_t, size_t> R;
     auto const n = num_vertices(g);
     boost::multi_array<size_t, 2> M(boost::extents[range(1, general::lower_log2(2 * n - 1) + 1)][2 * n - 1]);
-    lca_preprocess(g, E, L, inserter(R, end(R)), M);
+    LCA_preprocess(g, E, L, inserter(R, end(R)), M);
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
     // BOOST_CHECK_EQUAL_COLLECTIONS(begin(R), end(R), begin(R), end(R));
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(basic_query)
     unordered_map<size_t, size_t> R;
     auto const n = num_vertices(g);
     boost::multi_array<size_t, 2> M(boost::extents[range(1, general::lower_log2(2 * n - 1) + 1)][2 * n - 1]);
-    lca_preprocess(g, E, L, inserter(R, end(R)), M);
+    LCA_preprocess(g, E, L, inserter(R, end(R)), M);
     // We check just to make sure we did not make a mistake in the test.
     BOOST_REQUIRE_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
     BOOST_REQUIRE_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
@@ -89,17 +89,17 @@ BOOST_AUTO_TEST_CASE(basic_query)
     vector<size_t> R2(R.size());
     for (auto it = begin(R); it != end(R); ++it)
         R2[it->first] = it->second;
-    auto result = lca_query(0u, 0u, E, L, R2, M);
+    auto result = LCA(0u, 0u, E, L, R2, M);
     BOOST_CHECK_EQUAL(result, 0);
-    result = lca_query(0u, 7u, E, L, R2, M);
+    result = LCA(0u, 7u, E, L, R2, M);
     BOOST_CHECK_EQUAL(result, 0);
-    result = lca_query(11u, 12u, E, L, R2, M);
+    result = LCA(11u, 12u, E, L, R2, M);
     BOOST_CHECK_EQUAL(result, 1);
-    result = lca_query(17u, 19u, E, L, R2, M);
+    result = LCA(17u, 19u, E, L, R2, M);
     BOOST_CHECK_EQUAL(result, 4);
-    result = lca_query(14u, 16u, E, L, R2, M);
+    result = LCA(14u, 16u, E, L, R2, M);
     BOOST_CHECK_EQUAL(result, 7);
-    result = lca_query(12u, 17u, E, L, R2, M);
+    result = LCA(12u, 17u, E, L, R2, M);
     BOOST_CHECK_EQUAL(result, 1);
 }
 
@@ -129,7 +129,7 @@ struct random_k_tree
 
 #include "measurement.hpp"
 
-BOOST_FIXTURE_TEST_CASE(measure_lca_preprocess_random, random_k_tree<1ul << 20>)
+BOOST_FIXTURE_TEST_CASE(measure_LCA_preprocess_random, random_k_tree<1ul << 20>)
 {
 #ifndef NDEBUG
     {
@@ -145,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE(measure_lca_preprocess_random, random_k_tree<1ul << 20>)
     
     auto f = [&]()
     {
-        lca_preprocess(g, E, L, inserter(R, end(R)), M);
+        LCA_preprocess(g, E, L, inserter(R, end(R)), M);
         E.clear();
         L.clear();
         R.clear();
@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE(measure_lca_preprocess_random, random_k_tree<1ul << 20>)
 
 BOOST_FIXTURE_TEST_SUITE(measure_LCA, Bender_2005_2<boost::adjacency_list<>>)
 
-BOOST_AUTO_TEST_CASE(measure_lca_preprocess)
+BOOST_AUTO_TEST_CASE(measure_LCA_preprocess)
 {
     vector<vertex_descriptor> E;
     vector<size_t> L;
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(measure_lca_preprocess)
 
     auto f = [&]()
     {
-        lca_preprocess(g, E, L, inserter(R, end(R)), M);
+        LCA_preprocess(g, E, L, inserter(R, end(R)), M);
         E.clear();
         L.clear();
         R.clear();
@@ -178,18 +178,18 @@ BOOST_AUTO_TEST_CASE(measure_lca_preprocess)
 }
 
 
-BOOST_AUTO_TEST_CASE(measure_lca_query)
+BOOST_AUTO_TEST_CASE(measure_LCA)
 {
     vector<vertex_descriptor> E;
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     auto const n = num_vertices(g);
     boost::multi_array<size_t, 2> M(boost::extents[range(1, general::lower_log2(2 * n - 1) + 1)][2 * n - 1]);
-    lca_preprocess(g, E, L, inserter(R, end(R)), M);
+    LCA_preprocess(g, E, L, inserter(R, end(R)), M);
     vector<size_t> R2(R.size());
     for (auto it = begin(R); it != end(R); ++it)
         R2[it->first] = it->second;
-    auto f = bind(lca_query<unsigned, decltype(E), decltype(L), decltype(R2), decltype(M)>, 12u, 17u, E, L, R2, M);
+    auto f = bind(LCA<unsigned, decltype(E), decltype(L), decltype(R2), decltype(M)>, 12u, 17u, E, L, R2, M);
     measure(1, 1ul << 30, f, "query");
 }
 
