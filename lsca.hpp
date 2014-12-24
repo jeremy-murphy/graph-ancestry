@@ -25,21 +25,65 @@
 #ifndef LSCA_HPP
 #define LSCA_HPP
 
+#include "lca.hpp"
+
 #include <boost/graph/topological_sort.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/depth_first_search.hpp>
 
 #include <vector>
 #include <iterator>
 #include <algorithm>
 
-namespace LSCA
+namespace graph_algorithms
 {
+    template <typename Vertex, typename Graph>
+    Vertex LMA(Vertex v, Graph const &g);
+    // TODO: Unfinished.
+    
+    
+    template <typename Graph0, typename MarkingMap, typename Graph1, typename Tuple, typename OGraph>
+    void construct_LCA_skeleton_tree(Graph0 const &W, MarkingMap marking_W, Graph1 const &T, Tuple const &LCA_T, OGraph &S)
+    {
+        using namespace boost;
+        typedef typename graph_traits<Graph0>::vertex_descriptor vertex_descriptor;
+        
+        auto first = std::begin(W);
+        auto l = *first;
+        add_vertex(l, S);
+        put(marking_W, l, true);
+        std::for_each(++first, std::end(W), [&](vertex_descriptor v)
+        {
+            if (!get(marking_W, v))
+            {
+                add_vertex(v, S);
+                put(marking_W, v, true);
+                auto const lca_lv = LCA(l, v, LCA_T);
+                // This actually appears to be the simpler question of
+                // "Is v a descendent of l?" but we happen to have the LCA.
+                if (lca_lv != l)
+                {
+                    add_edge(lca_lv, l, S);
+                    add_edge(lca_lv, v, S);
+                    put(marking_W, lca_lv, true);
+                    l = lca_lv;
+                }
+                else
+                {
+                    auto const m = LMA(v, T);
+                    // auto const child_m = 
+                }
+            }
+        });
+    }
+    
+    
     template <typename Graph, typename OGraph>
     // requires: VertexListGraph(Graph)
     //           OGraph is mutable
-    void preprocess_lsca(Graph const &G, OGraph &output)
+    void LSCA_preprocess(Graph const &G, OGraph &output)
     {
         // requires: input is a dag.
         //           output is empty.
@@ -62,7 +106,6 @@ namespace LSCA
         boost::topological_sort(G, std::back_inserter(L));
         std::reverse(std::begin(L), std::end(L));
         OGraph T_G;
-        
     }
 }
 

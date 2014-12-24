@@ -14,7 +14,7 @@
 #endif
 
 using namespace std;
-
+using namespace graph_algorithms;
 
 struct enable_locale
 {
@@ -53,5 +53,5 @@ BOOST_FIXTURE_TEST_CASE(empty_preprocess, Fischer_2010_fig1)
     boost::write_graphviz(output, g);
 #endif
     boost::adjacency_list<> h;
-    LSCA::preprocess_lsca(g, h);
+    LSCA_preprocess(g, h);
 }
