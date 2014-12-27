@@ -35,6 +35,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 
 namespace graph_algorithms
 {
@@ -59,15 +60,58 @@ namespace graph_algorithms
     };
     
     
-    template <typename Graph, typename OGraph>
-    void common_ancestor_existence_graph(Graph const &G, OGraph &F)
+    template <typename Graph>
+    struct CAE_builder : boost::default_bfs_visitor
     {
-        using namespace std::placeholders;
-        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+        typedef typename boost::graph_traits<Graph>::vertices_size_type vertices_size_type;
+        
+        Graph *g;
+        vertices_size_type offset;
+        
+        CAE_builder(Graph &g, vertices_size_type offset) : g(&g), offset(offset) {}
+        
+        void examine_edge(edge_descriptor e, Graph const &h) const
+        {
+            using namespace boost;
+            add_edge(target(e, h) + offset, source(e, h) + offset, *g);
+        }
+    };
 
-        std::vector<vertex_descriptor> sources;
-        auto it = boost::vertices(G);
-        std::copy_if(it.first, it.second, std::back_inserter(sources), std::bind(is_source(), _1, G));
+    
+    /** @brief Transform a graph G by adding its reversed reflection at the sources.
+     *  @ingroup graph_algorithms
+     *  @tparam Graph A directed Graph type.
+     *  @param G A Graph.
+     * 
+     *  Time complexity: Θ(n)
+     * 
+     */ 
+    template <typename Graph>
+    void common_ancestor_existence_graph(Graph &G)
+    {
+        using namespace std;
+        using namespace std::placeholders;
+        using boost::target;
+        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+        
+        vector<vertex_descriptor> sources;
+        auto const it = boost::vertices(G);
+        copy_if(it.first, it.second, back_inserter(sources), bind(is_source(), _1, G));
+        auto const offset = boost::num_vertices(G) - sources.size();
+        auto const builder = CAE_builder<Graph>(G, offset);
+        for_each(begin(sources), end(sources), [&](vertex_descriptor u)
+        {
+            auto const edges = boost::out_edges(u, G);
+            for_each(edges.first, edges.second, [&](edge_descriptor e)
+            {
+                boost::add_edge(target(e, G) + offset, u, G);
+                // NOTE: This could be made faster by marking the visited nodes 
+                // and not revisiting them on subsequent calls to bfs.
+                boost::breadth_first_search(G, target(e, G), boost::visitor(builder));
+            });
+        });
     }
 }
 
