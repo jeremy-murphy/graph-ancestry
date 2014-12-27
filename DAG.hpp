@@ -29,6 +29,7 @@
 #include <vector>
 #include <iterator>
 #include <functional>
+#include <unordered_map>
 
 #include <boost/concept/assert.hpp>
 
@@ -36,6 +37,7 @@
 #include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/breadth_first_search.hpp>
+
 
 namespace graph_algorithms
 {
@@ -101,6 +103,11 @@ namespace graph_algorithms
         copy_if(it.first, it.second, back_inserter(sources), bind(is_source(), _1, G));
         auto const offset = boost::num_vertices(G) - sources.size();
         auto const builder = CAE_builder<Graph>(G, offset);
+        unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
+        boost::associative_property_map< decltype(vertex_color) > color_map(vertex_color);
+        // transform(it.first, it.second, inserter(vertex_color, end(vertex_color)), bind(make_pair<vertex_descriptor, boost::default_color_type>, _1, boost::white_color));
+        for_each(it.first, it.second, [&](vertex_descriptor u){ color_map[u] = boost::white_color; });
+        boost::queue<vertex_descriptor> buffer;
         for_each(begin(sources), end(sources), [&](vertex_descriptor u)
         {
             auto const edges = boost::out_edges(u, G);
@@ -109,7 +116,9 @@ namespace graph_algorithms
                 boost::add_edge(target(e, G) + offset, u, G);
                 // NOTE: This could be made faster by marking the visited nodes 
                 // and not revisiting them on subsequent calls to bfs.
-                boost::breadth_first_search(G, target(e, G), boost::visitor(builder));
+                // boost::breadth_first_search(G, target(e, G), boost::visitor(builder));
+                assert(buffer.empty());
+                boost::breadth_first_visit(G, target(e, G), buffer, builder, color_map);
             });
         });
     }
