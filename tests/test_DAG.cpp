@@ -27,8 +27,15 @@
 #include "DAG.hpp"
 #include "fixture.hpp"
 
+#ifndef NDEBUG
+#include <boost/graph/graphviz.hpp>
+#include <fstream>
+#endif
+
 #include <iostream>
 #include <locale>
+
+#include <boost/graph/adjacency_list.hpp>
 
 using namespace graph_algorithms;
 using namespace std;
@@ -38,8 +45,19 @@ struct enable_locale
     enable_locale() { cout.imbue(locale("")); cerr.imbue(locale("")); }
 };
 
-BOOST_AUTO_TEST_CASE(test_foo)
+BOOST_FIXTURE_TEST_CASE(test_foo, Bender_2005_4<>)
 {
-    boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> g;
-    common_ancestor_existence_graph(g, g);
+#ifndef NDEBUG
+    {
+        ofstream output("Bender_2005_4.dot");
+        boost::write_graphviz(output, g);
+    }
+#endif
+    common_ancestor_existence_graph(g);
+#ifndef NDEBUG
+    {
+        ofstream output("Bender_2005_4_F.dot");
+        boost::write_graphviz(output, g);
+    }
+#endif
 }

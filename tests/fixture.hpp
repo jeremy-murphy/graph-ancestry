@@ -60,3 +60,28 @@ struct Bender_2005_2
 };
 
 
+template <typename Graph = boost::adjacency_list<boost::hash_setS, boost::vecS, boost::bidirectionalS>>
+struct Bender_2005_4
+{
+    typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+    typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+    
+    Graph g;
+    
+    Bender_2005_4()
+    {
+        using boost::add_edge;
+        add_edge(0, 5, g);
+        add_edge(1, 6, g);
+        add_edge(5, 8, g);
+        add_edge(6, 8, g);
+        add_edge(2, 9, g);
+        add_edge(2, 5, g);
+        add_edge(3, 7, g);
+        add_edge(4, 7, g);
+        add_edge(7, 6, g); // weird horizontal arrow
+        add_edge(6, 9, g);
+        add_edge(7, 10, g);
+        add_edge(10, 9, g);
+    }
+};

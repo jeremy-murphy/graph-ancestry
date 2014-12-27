@@ -16,3 +16,7 @@ add_test(test_RMQ test_RMQ)
 add_executable(test_graph_visitors test_graph_visitors.cpp)
 target_link_libraries(test_graph_visitors ${Boost_LIBRARIES})
 add_test(test_graph_visitors test_graph_visitors)
+
+add_executable(test_DAG test_DAG.cpp)
+target_link_libraries(test_DAG ${Boost_LIBRARIES})
+add_test(test_DAG test_DAG)
