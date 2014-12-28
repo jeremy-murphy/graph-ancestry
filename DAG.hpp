@@ -65,6 +65,7 @@ namespace graph_algorithms
     template <typename Graph>
     struct CAE_builder : boost::default_bfs_visitor
     {
+        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
         typedef typename boost::graph_traits<Graph>::vertices_size_type vertices_size_type;
         
@@ -105,6 +106,7 @@ namespace graph_algorithms
         auto const builder = CAE_builder<Graph>(G, offset);
         unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
         boost::associative_property_map< decltype(vertex_color) > color_map(vertex_color);
+        // Grrr, why did this not work?
         // transform(it.first, it.second, inserter(vertex_color, end(vertex_color)), bind(make_pair<vertex_descriptor, boost::default_color_type>, _1, boost::white_color));
         for_each(it.first, it.second, [&](vertex_descriptor u){ color_map[u] = boost::white_color; });
         boost::queue<vertex_descriptor> buffer;
@@ -113,12 +115,13 @@ namespace graph_algorithms
             auto const edges = boost::out_edges(u, G);
             for_each(edges.first, edges.second, [&](edge_descriptor e)
             {
-                boost::add_edge(target(e, G) + offset, u, G);
-                // NOTE: This could be made faster by marking the visited nodes 
-                // and not revisiting them on subsequent calls to bfs.
-                // boost::breadth_first_search(G, target(e, G), boost::visitor(builder));
-                assert(buffer.empty());
-                boost::breadth_first_visit(G, target(e, G), buffer, builder, color_map);
+                auto const new_vertex = target(e, G) + offset;
+                boost::add_edge(new_vertex, u, G);
+                if (boost::in_degree(new_vertex, G) == 0)
+                {
+                    assert(buffer.empty());
+                    boost::breadth_first_visit(G, target(e, G), buffer, builder, color_map);
+                }
             });
         });
     }
