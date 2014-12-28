@@ -38,6 +38,10 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/breadth_first_search.hpp>
 
+#ifndef NDEBUG
+#include <iostream>
+#include <typeinfo>
+#endif
 
 namespace graph_algorithms
 {
@@ -87,8 +91,12 @@ namespace graph_algorithms
      *  @tparam Graph A directed Graph type.
      *  @param G A Graph.
      * 
-     *  Time complexity: Θ(n)
+     *  Transform G into F such that if G' is G with all the edges reversed,
+     *  F is the graph that results from merging the sources of G with the sinks
+     *  of G'.
      * 
+     *  Time complexity: transitive-closure
+     *  Space complexity: queue used by BFS.
      */ 
     template <typename Graph>
     void common_ancestor_existence_graph(Graph &G)
@@ -106,14 +114,12 @@ namespace graph_algorithms
         auto const builder = CAE_builder<Graph>(G, offset);
         unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
         boost::associative_property_map< decltype(vertex_color) > color_map(vertex_color);
-        // Grrr, why did this not work?
-        // transform(it.first, it.second, inserter(vertex_color, end(vertex_color)), bind(make_pair<vertex_descriptor, boost::default_color_type>, _1, boost::white_color));
         for_each(it.first, it.second, [&](vertex_descriptor u){ color_map[u] = boost::white_color; });
         boost::queue<vertex_descriptor> buffer;
-        for_each(begin(sources), end(sources), [&](vertex_descriptor u)
+        for_each(begin(sources), end(sources), [&](vertex_descriptor u) // O(V) = s
         {
             auto const edges = boost::out_edges(u, G);
-            for_each(edges.first, edges.second, [&](edge_descriptor e)
+            for_each(edges.first, edges.second, [&](edge_descriptor e) // O(E)
             {
                 auto const new_vertex = target(e, G) + offset;
                 boost::add_edge(new_vertex, u, G);

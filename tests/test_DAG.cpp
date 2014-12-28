@@ -45,7 +45,7 @@ struct enable_locale
     enable_locale() { cout.imbue(locale("")); cerr.imbue(locale("")); }
 };
 
-BOOST_FIXTURE_TEST_CASE(test_foo, Bender_2005_4<>)
+BOOST_FIXTURE_TEST_CASE(test_CAE, Bender_2005_4<>)
 {
 #ifndef NDEBUG
     {
@@ -60,4 +60,8 @@ BOOST_FIXTURE_TEST_CASE(test_foo, Bender_2005_4<>)
         boost::write_graphviz(output, g);
     }
 #endif
+    Bender_2005_4_F h;
+    BOOST_CHECK_EQUAL(boost::num_vertices(g), boost::num_vertices(h.g));
+    BOOST_CHECK_EQUAL(boost::num_edges(g), boost::num_edges(h.g));
+    // TODO: And now to check for actual isomorphism!
 }

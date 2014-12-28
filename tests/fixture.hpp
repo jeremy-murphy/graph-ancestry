@@ -5,6 +5,11 @@
 #include <vector>
 #include <unordered_map>
 
+#ifndef NDEBUG
+#include <iostream>
+#include <typeinfo>
+#endif
+
 typedef std::vector<std::size_t> index_vector;
 
 /// Figure 2 from the paper cited in lca.hpp.
@@ -34,28 +39,29 @@ struct Bender_2005_2
 
     Bender_2005_2()
     {
+        using boost::add_edge;
         for(auto i = 0u; i < 19u; ++i)
             boost::add_vertex(g);
 
-        boost::add_edge(0, 1, g);
-        boost::add_edge(0, 2, g);
-        boost::add_edge(0, 3, g);
-        boost::add_edge(1, 4, g);
-        boost::add_edge(1, 5, g);
-        boost::add_edge(2, 6, g);
-        boost::add_edge(3, 7, g);
-        boost::add_edge(3, 8, g);
-        boost::add_edge(4, 9, g);
-        boost::add_edge(4, 10, g);
-        boost::add_edge(4, 11, g);
-        boost::add_edge(5, 12, g);
-        boost::add_edge(6, 13, g);
-        boost::add_edge(7, 14, g);
-        boost::add_edge(7, 15, g);
-        boost::add_edge(7, 16, g);
-        boost::add_edge(10, 17, g);
-        boost::add_edge(10, 18, g);
-        boost::add_edge(11, 19, g);
+        add_edge(0, 1, g);
+        add_edge(0, 2, g);
+        add_edge(0, 3, g);
+        add_edge(1, 4, g);
+        add_edge(1, 5, g);
+        add_edge(2, 6, g);
+        add_edge(3, 7, g);
+        add_edge(3, 8, g);
+        add_edge(4, 9, g);
+        add_edge(4, 10, g);
+        add_edge(4, 11, g);
+        add_edge(5, 12, g);
+        add_edge(6, 13, g);
+        add_edge(7, 14, g);
+        add_edge(7, 15, g);
+        add_edge(7, 16, g);
+        add_edge(10, 17, g);
+        add_edge(10, 18, g);
+        add_edge(11, 19, g);
     }
 };
 
@@ -79,9 +85,30 @@ struct Bender_2005_4
         add_edge(2, 5, g);
         add_edge(3, 7, g);
         add_edge(4, 7, g);
-        add_edge(7, 6, g); // weird horizontal arrow
+        add_edge(7, 6, g);
         add_edge(6, 9, g);
         add_edge(7, 10, g);
         add_edge(10, 9, g);
+    }
+};
+
+
+struct Bender_2005_4_F : public Bender_2005_4<>
+{
+    Bender_2005_4_F()
+    {
+        using boost::add_edge;
+        add_edge(11, 0, g);
+        add_edge(11, 2, g);
+        add_edge(12, 1, g);
+        add_edge(12, 13, g);
+        add_edge(13, 3, g);
+        add_edge(13, 4, g);
+        add_edge(14, 11, g);
+        add_edge(14, 12, g);
+        add_edge(15, 2, g);
+        add_edge(15, 12, g);
+        add_edge(15, 16, g);
+        add_edge(16, 13, g);
     }
 };
