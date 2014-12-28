@@ -60,7 +60,7 @@ struct Bender_2005_2
 };
 
 
-template <typename Graph = boost::adjacency_list<boost::hash_setS, boost::vecS, boost::bidirectionalS>>
+template <typename Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS>>
 struct Bender_2005_4
 {
     typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
