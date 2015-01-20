@@ -97,6 +97,11 @@ namespace graph_algorithms
      * 
      *  Time complexity: transitive-closure
      *  Space complexity: queue used by BFS.
+     * 
+     *  Requires: source vertices are the lowest-numbered vertices. I.e. for n
+     *  source vertices, they are numbered 0 to n-1 in the graph.
+     * 
+     *  Unknowns: number of source vertices.
      */ 
     template <typename Graph>
     void common_ancestor_existence_graph(Graph &G)
@@ -107,22 +112,22 @@ namespace graph_algorithms
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
         
-        vector<vertex_descriptor> sources;
         auto const it = boost::vertices(G);
-        copy_if(it.first, it.second, back_inserter(sources), bind(is_source(), _1, G));
-        auto const offset = boost::num_vertices(G) - sources.size();
+        auto const source_last = find_if_not(it.first, it.second, bind(is_source(), _1, G));
+        auto const offset = std::distance(source_last, it.second);
         auto const builder = CAE_builder<Graph>(G, offset);
         unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
         boost::associative_property_map< decltype(vertex_color) > color_map(vertex_color);
         for_each(it.first, it.second, [&](vertex_descriptor u){ color_map[u] = boost::white_color; });
         boost::queue<vertex_descriptor> buffer;
-        for_each(begin(sources), end(sources), [&](vertex_descriptor u) // O(V) = s
+        for_each(it.first, source_last, [&](vertex_descriptor u) // O(V) = s
         {
             auto const edges = boost::out_edges(u, G);
             for_each(edges.first, edges.second, [&](edge_descriptor e) // O(E)
             {
                 auto const new_vertex = target(e, G) + offset;
-                boost::add_edge(new_vertex, u, G);
+                auto const tmp = boost::add_edge(new_vertex, u, G);
+                assert(tmp.second);
                 if (boost::in_degree(new_vertex, G) == 0)
                 {
                     assert(buffer.empty());
