@@ -118,7 +118,7 @@ namespace graph_algorithms
         auto const builder = CAE_builder<Graph>(G, offset);
         unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
         boost::associative_property_map< decltype(vertex_color) > color_map(vertex_color);
-        for_each(it.first, it.second, [&](vertex_descriptor u){ color_map[u] = boost::white_color; });
+        for_each(it.first, it.second, [&](vertex_descriptor u){ put(color_map, u, boost::white_color); });
         boost::queue<vertex_descriptor> buffer;
         for_each(it.first, source_last, [&](vertex_descriptor u) // O(V) = s
         {
