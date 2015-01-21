@@ -32,10 +32,11 @@
 #include <fstream>
 #endif
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/isomorphism.hpp>
+
 #include <iostream>
 #include <locale>
-
-#include <boost/graph/adjacency_list.hpp>
 
 using namespace graph_algorithms;
 using namespace std;
@@ -62,6 +63,6 @@ BOOST_FIXTURE_TEST_CASE(test_CAE, Bender_2005_4<>)
 #endif
     Bender_2005_4_F h;
     BOOST_CHECK_EQUAL(boost::num_vertices(g), boost::num_vertices(h.g));
-    BOOST_CHECK_EQUAL(boost::num_edges(g), boost::num_edges(h.g));
-    // TODO: And now to check for actual isomorphism!
+    BOOST_REQUIRE_EQUAL(boost::num_edges(g), boost::num_edges(h.g));
+    BOOST_REQUIRE(boost::isomorphism(g, h.g));
 }
