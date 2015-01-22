@@ -1,6 +1,6 @@
 ### graph-algorithms
 
-Generic graph (and tree) algorithms.
+Generic graph algorithms.
 
 And their supporting general algorithms.
 
@@ -13,10 +13,14 @@ And their supporting general algorithms.
 
 #### Contents
 1. Graph algorithms
-  1. **lowest single common ancestor** (LSCA) - *incomplete*
-2. Tree algorithms
  1. **lowest common ancestor** (LCA), <*Θ*(*n* lg *n*), *Θ*(1)>
    * By reduction to RMQ.
+ 2. **common ancestor existence**, <*transitive-closure*, *O*(*n*)>
+   * Efficient when querying multiple vertices for a static graph. 
+2. Graph visitors
+   1. **bfs_find** is equivalent to std::find for BFS.
+   2. **eulerian_path** outputs Eulerian path of a graph.
+   3. **vertex_depth** outputs vertex depth (for same sequence as Eulerian path).
 3. General algorithms
   1. **range minimum query** (RMQ), <*Θ*(*n* lg *n*), *Θ*(1)>
     * The *Sparse Table* implementation.
