@@ -25,6 +25,8 @@
 #ifndef DAG_HPP
 #define DAG_HPP
 
+#include "graph_visitors.hpp"
+
 #include <algorithm>
 #include <vector>
 #include <iterator>
@@ -149,6 +151,26 @@ namespace graph_algorithms
         for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
         boost::queue<vertex_descriptor> q;
         common_ancestor_existence_graph(G, colour, q, n_sources);
+    }
+    
+    
+    template <typename Graph, typename Vertex, typename N, typename Buffer, typename ColourMap>
+    bool have_common_ancestor(Vertex u, Vertex v, Graph const &F, N offset, Buffer &q, ColourMap colour)
+    {
+        // u and v are vertices from G.
+        assert(offset < boost::num_vertices(F));
+        assert(u < boost::num_vertices(F) - offset);
+        assert(v < boost::num_vertices(F) - offset);
+        
+        try
+        {
+            boost::breadth_first_visit(F, u + offset, q, make_bfs_find(v), colour);
+        }
+        catch (found_target const &)
+        {
+            return true;
+        }
+        return false;
     }
 }
 

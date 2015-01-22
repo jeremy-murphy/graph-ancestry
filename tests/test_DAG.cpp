@@ -66,3 +66,55 @@ BOOST_FIXTURE_TEST_CASE(test_CAE, Bender_2005_4<>)
     BOOST_REQUIRE_EQUAL(boost::num_edges(g), boost::num_edges(h.g));
     BOOST_REQUIRE(boost::isomorphism(g, h.g));
 }
+
+
+BOOST_FIXTURE_TEST_CASE(test_CAE_query, Bender_2005_4<>)
+{
+    Bender_2005_4_F const F;
+    auto const V = boost::vertices(F.g);
+    boost::queue<vertex_descriptor> p, q;
+    unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
+    boost::associative_property_map< decltype(vertex_color) > colour(vertex_color);
+    auto const offset = boost::num_vertices(F.g) - boost::num_vertices(g);
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(have_common_ancestor(6u, 7u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(!have_common_ancestor(5u, 6u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(!have_common_ancestor(5u, 7u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(!have_common_ancestor(5u, 10u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(have_common_ancestor(6u, 10u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(have_common_ancestor(7u, 6u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(!have_common_ancestor(6u, 5u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(!have_common_ancestor(7u, 5u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(!have_common_ancestor(10u, 5u, F.g, offset, q, colour));
+    q = p;
+    
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(have_common_ancestor(5u, 9u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(have_common_ancestor(9u, 5u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(have_common_ancestor(8u, 10u, F.g, offset, q, colour));
+    q = p;
+    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    BOOST_CHECK(have_common_ancestor(10u, 8u, F.g, offset, q, colour));
+    q = p;
+    
+}

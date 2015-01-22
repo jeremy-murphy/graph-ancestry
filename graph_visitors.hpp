@@ -23,12 +23,39 @@
 #include <boost/concept/assert.hpp>
 
 #include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
 #include <set>
+#include <stdexcept>
 
 namespace graph_algorithms
 {
+    struct found_target : public std::exception {};
+    
+    // Graph-based visitor equivalent of std::find.
+    template <typename Vertex>
+    struct bfs_find : public boost::default_bfs_visitor
+    {
+        Vertex target;
+        
+        bfs_find(Vertex target) : target(target) {}
+        
+        template <typename Graph>
+        void discover_vertex(Vertex const &v, Graph const &) const
+        {
+            if(target == v)
+                throw found_target();
+        }
+    };
+
+    
+    template <typename Vertex>
+    bfs_find<Vertex> make_bfs_find(Vertex u)
+    {
+        return bfs_find<Vertex>(u);
+    }
+    
     /* LCA visitor awkwardness.
      * 
      * Whilst Boost.Graph provides many useful methods on the visitor for pre-,
