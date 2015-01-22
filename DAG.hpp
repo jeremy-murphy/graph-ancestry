@@ -103,38 +103,53 @@ namespace graph_algorithms
      * 
      *  Unknowns: number of source vertices.
      */ 
-    template <typename Graph>
-    void common_ancestor_existence_graph(Graph &G)
+    template <typename Graph, typename ColourMap, typename Buffer, typename N>
+    void common_ancestor_existence_graph(Graph &G, ColourMap colour, Buffer &q, N n_sources)
     {
         using namespace std;
-        using namespace std::placeholders;
         using boost::target;
+        
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
         
-        auto const it = boost::vertices(G);
-        auto const source_last = find_if_not(it.first, it.second, bind(is_source(), _1, G));
-        auto const offset = std::distance(source_last, it.second);
+        auto const offset = boost::num_vertices(G) - n_sources;
         auto const builder = CAE_builder<Graph>(G, offset);
-        unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
-        boost::associative_property_map< decltype(vertex_color) > color_map(vertex_color);
-        for_each(it.first, it.second, [&](vertex_descriptor u){ put(color_map, u, boost::white_color); });
-        boost::queue<vertex_descriptor> buffer;
-        for_each(it.first, source_last, [&](vertex_descriptor u) // O(V) = s
+        auto V = boost::vertices(G);
+        for (N i = 0; i < n_sources; i++) // O(V) = s
         {
-            auto const edges = boost::out_edges(u, G);
-            for_each(edges.first, edges.second, [&](edge_descriptor e) // O(E)
+            vertex_descriptor const u = *V.first++;
+            auto const E_u = boost::out_edges(u, G);
+            for_each(E_u.first, E_u.second, [&](edge_descriptor e) // O(E)
             {
                 auto const new_vertex = target(e, G) + offset;
                 auto const tmp = boost::add_edge(new_vertex, u, G);
                 assert(tmp.second);
                 if (boost::in_degree(new_vertex, G) == 0)
                 {
-                    assert(buffer.empty());
-                    boost::breadth_first_visit(G, target(e, G), buffer, builder, color_map);
+                    assert(q.empty());
+                    boost::breadth_first_visit(G, target(e, G), q, builder, colour);
                 }
             });
-        });
+        }
+    }
+    
+    
+    template <typename Graph>
+    void common_ancestor_existence_graph(Graph &G)
+    {
+        using namespace std;
+        using namespace std::placeholders;
+
+        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+
+        auto const V = boost::vertices(G);
+        auto const source_last = find_if_not(V.first, V.second, bind(is_source(), _1, G));
+        auto const n_sources = std::distance(V.first, source_last);
+        unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
+        boost::associative_property_map< decltype(vertex_color) > colour(vertex_color);
+        for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+        boost::queue<vertex_descriptor> q;
+        common_ancestor_existence_graph(G, colour, q, n_sources);
     }
 }
 

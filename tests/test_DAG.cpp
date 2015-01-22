@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_CASE(test_CAE, Bender_2005_4<>)
         boost::write_graphviz(output, g);
     }
 #endif
-    Bender_2005_4_F h;
+    Bender_2005_4_F const h;
     BOOST_CHECK_EQUAL(boost::num_vertices(g), boost::num_vertices(h.g));
     BOOST_REQUIRE_EQUAL(boost::num_edges(g), boost::num_edges(h.g));
     BOOST_REQUIRE(boost::isomorphism(g, h.g));
