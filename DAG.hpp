@@ -106,28 +106,27 @@ namespace graph_algorithms
     template <typename Graph, typename ColourMap, typename Buffer, typename N>
     void common_ancestor_existence_graph(Graph &G, ColourMap colour, Buffer &q, N n_sources)
     {
-        using namespace std;
-        using boost::target;
+        using namespace boost;
         
-        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+        typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef typename graph_traits<Graph>::edge_descriptor edge_descriptor;
         
-        auto const offset = boost::num_vertices(G) - n_sources;
+        auto const offset = num_vertices(G) - n_sources;
         auto const builder = CAE_builder<Graph>(G, offset);
-        auto V = boost::vertices(G);
+        auto V = vertices(G);
         for (N i = 0; i < n_sources; i++) // O(V) = s
         {
             vertex_descriptor const u = *V.first++;
-            auto const E_u = boost::out_edges(u, G);
-            for_each(E_u.first, E_u.second, [&](edge_descriptor e) // O(E)
+            auto const E_u = out_edges(u, G);
+            std::for_each(E_u.first, E_u.second, [&](edge_descriptor e) // O(E)
             {
                 auto const new_vertex = target(e, G) + offset;
-                auto const tmp = boost::add_edge(new_vertex, u, G);
+                auto const tmp = add_edge(new_vertex, u, G);
                 assert(tmp.second);
-                if (boost::in_degree(new_vertex, G) == 0)
+                if (in_degree(new_vertex, G) == 0)
                 {
                     assert(q.empty());
-                    boost::breadth_first_visit(G, target(e, G), q, builder, colour);
+                    breadth_first_visit(G, target(e, G), q, builder, colour);
                 }
             });
         }
@@ -144,7 +143,7 @@ namespace graph_algorithms
 
         auto const V = boost::vertices(G);
         auto const source_last = find_if_not(V.first, V.second, bind(is_source(), _1, G));
-        auto const n_sources = std::distance(V.first, source_last);
+        auto const n_sources = distance(V.first, source_last);
         unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
         boost::associative_property_map< decltype(vertex_color) > colour(vertex_color);
         for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
