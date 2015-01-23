@@ -16,7 +16,7 @@
  */
 
 /**
- * @file lca.hpp
+ * @file LCA.hpp
  * @brief Berkman and Vishkin’s lowest common ancestor (LCA) algorithm.
  * M.A. Bender et al., Lowest common ancestors in trees and directed acyclic 
  * graphs, J. Algorithms 57 (2005) 75-94.

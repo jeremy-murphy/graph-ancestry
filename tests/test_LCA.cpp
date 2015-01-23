@@ -2,7 +2,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "lca.hpp"
+#include "LCA.hpp"
 #include "fixture.hpp"
 
 #ifndef NDEBUG

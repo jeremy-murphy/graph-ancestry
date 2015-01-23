@@ -12,7 +12,7 @@
 
 typedef std::vector<std::size_t> index_vector;
 
-/// Figure 2 from the paper cited in lca.hpp.
+/// Figure 2 from the paper cited in LCA.hpp.
 template <typename Graph>
 struct Bender_2005_2
 {
