@@ -17,9 +17,7 @@
 
 /**
  * @file DAG.hpp
- * @brief Operations on directed acyclic graphs (DAG).
- * M.A. Bender et al., Lowest common ancestors in trees and directed acyclic 
- * graphs, J. Algorithms 57 (2005) 75-94.
+ * @brief Algorithms for the directed acyclic graph (DAG).
  */
 
 #ifndef DAG_HPP
@@ -36,9 +34,9 @@
 #include <boost/concept/assert.hpp>
 
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/adjacency_iterator.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/reverse_graph.hpp>
 
 #ifndef NDEBUG
 #include <iostream>
@@ -47,130 +45,84 @@
 
 namespace graph_algorithms
 {
-    struct is_source
-    {
-        template <typename Vertex, typename Graph>
-        bool operator()(Vertex u, Graph const &G) const
-        {
-            BOOST_CONCEPT_ASSERT(( boost::BidirectionalGraphConcept<Graph> ));
-            return boost::in_degree(u, G) == 0;
-        }
-    };
-
-
-    struct is_sink
-    {
-        template <typename Vertex, typename Graph>
-        bool operator()(Vertex u, Graph const &G) const
-        {
-            return boost::out_degree(u, G) == 0;
-        }
-    };
-    
-    
-    template <typename Graph>
-    struct CAE_builder : boost::default_bfs_visitor
-    {
-        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
-        typedef typename boost::graph_traits<Graph>::vertices_size_type vertices_size_type;
-        
-        Graph *g;
-        vertices_size_type offset;
-        
-        CAE_builder(Graph &g, vertices_size_type offset) : g(&g), offset(offset) {}
-        
-        void examine_edge(edge_descriptor e, Graph const &h) const
-        {
-            using namespace boost;
-            add_edge(target(e, h) + offset, source(e, h) + offset, *g);
-        }
-    };
-
-    
-    /** @brief Transform a graph G by adding its reversed reflection at the sources.
-     *  @ingroup graph_algorithms
-     *  @tparam Graph A directed Graph type.
-     *  @param G A Graph.
+    /**
+     *  @brief Finds the first vertex that has a common ancestor with u.
+     *  @ingroup non_mutating_algorithms
+     *  @param  G       Directed acyclic graph.
+     *  @param  u       Vertex to find common ancestor with.
+     *  @param  first   Beginning of vertices to search.
+     *  @param  last    End of vertices to search.
+     *  @param  target  Which vertices are ancestors of u.
+     *  @param  searched    Which vertices have been searched for a common ancestor.
+     *  @param  q       Additional (?) vertices to search.
      * 
-     *  Transform G into F such that if G' is G with all the edges reversed,
-     *  F is the graph that results from merging the sources of G with the sinks
-     *  of G'.
-     * 
-     *  Time complexity: transitive-closure
-     *  Space complexity: queue used by BFS.
-     * 
-     *  Requires: source vertices are the lowest-numbered vertices. I.e. for n
-     *  source vertices, they are numbered 0 to n-1 in the graph.
-     * 
-     *  Unknowns: number of source vertices.
-     */ 
-    template <typename Graph, typename ColourMap, typename Buffer, typename N>
-    void common_ancestor_existence_graph(Graph &G, ColourMap colour, Buffer &q, N n_sources)
+     */
+    template <typename IncidenceGraph, typename Vertex, typename VertexInputIterator, typename VertexColourMap, typename VertexQueue>
+    VertexInputIterator find_common_ancestor_existence(IncidenceGraph const &G, Vertex u, VertexInputIterator first, VertexInputIterator last, VertexColourMap target, VertexColourMap searched, VertexQueue &q)
     {
         using namespace boost;
-        
-        typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef typename graph_traits<Graph>::edge_descriptor edge_descriptor;
-        
-        auto const offset = num_vertices(G) - n_sources;
-        auto const builder = CAE_builder<Graph>(G, offset);
-        auto V = vertices(G);
-        for (N i = 0; i < n_sources; i++) // O(V) = s
-        {
-            vertex_descriptor const u = *V.first++;
-            auto const E_u = out_edges(u, G);
-            std::for_each(E_u.first, E_u.second, [&](edge_descriptor e) // O(E)
-            {
-                auto const new_vertex = target(e, G) + offset;
-                auto const tmp = add_edge(new_vertex, u, G);
-                assert(tmp.second);
-                if (in_degree(new_vertex, G) == 0)
-                {
-                    assert(q.empty());
-                    breadth_first_visit(G, target(e, G), q, builder, colour);
-                }
-            });
-        }
-    }
-    
-    
-    template <typename Graph>
-    void common_ancestor_existence_graph(Graph &G)
-    {
-        using namespace std;
         using namespace std::placeholders;
+        
+        BOOST_CONCEPT_ASSERT((IncidenceGraphConcept<IncidenceGraph>));
+        BOOST_CONCEPT_ASSERT((InputIterator<VertexInputIterator>));
+        
+        auto const H = make_reverse_graph(G);
+        typedef decltype(H) ReversedGraph;
+        breadth_first_visit(H, u, q, default_bfs_visitor(), target); // Update target_map.
 
-        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-
-        auto const V = boost::vertices(G);
-        auto const source_last = find_if_not(V.first, V.second, bind(is_source(), _1, G));
-        auto const n_sources = distance(V.first, source_last);
-        unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
-        boost::associative_property_map< decltype(vertex_color) > colour(vertex_color);
-        for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-        boost::queue<vertex_descriptor> q;
-        common_ancestor_existence_graph(G, colour, q, n_sources);
-    }
-    
-    
-    template <typename Graph, typename Vertex, typename N, typename Buffer, typename ColourMap>
-    bool have_common_ancestor(Vertex u, Vertex v, Graph const &F, N offset, Buffer &q, ColourMap colour)
-    {
-        // u and v are vertices from G.
-        assert(offset < boost::num_vertices(F));
-        assert(u < boost::num_vertices(F) - offset);
-        assert(v < boost::num_vertices(F) - offset);
+        // TODO: Make a decision about how best to do this.
+        typedef std::equal_to<default_color_type> PropRelation;
+        auto const r = PropRelation();
+        auto const stop_if_black_vertex = make_stop_on_discover_vertex_if(std::bind(prop_relation_wrapper<Vertex, ReversedGraph, VertexColourMap, default_color_type, PropRelation>, _1, _2, target, black_color, r));
+        // auto const stop_if_black_vertex = make_stop_on_discover_vertex_if([&](Vertex v, ReversedGraph const &){ return get(target, v) == black_color; });
         
         try
         {
-            boost::breadth_first_visit(F, u + offset, q, make_bfs_find(v), colour);
+            for (; first != last; ++first)
+            {
+                Vertex const v = *first;
+                // BGL does not check source vertex colour, so we do.
+                if (get(searched, v) != black_color)
+                    breadth_first_visit(H, v, q, stop_if_black_vertex, searched);
+            }
         }
         catch (found_target const &)
         {
-            return true;
+            return first;
         }
-        return false;
+        return last;
+    }
+    
+    
+    /**
+     *  @brief Finds the first vertex that has a common ancestor with u.
+     *  @ingroup non_mutating_algorithms
+     *  @param  G       Directed acyclic graph.
+     *  @param  u       Vertex to find common ancestor with.
+     *  @param  first   Beginning of vertices to search.
+     *  @param  last    End of vertices to search.
+     */
+    template <typename IncidenceGraph, typename Vertex, typename VertexInputIterator>
+    VertexInputIterator find_common_ancestor_existence(IncidenceGraph const &G, Vertex u, VertexInputIterator first, VertexInputIterator last)
+    {
+        using namespace boost;
+
+        BOOST_CONCEPT_ASSERT((IncidenceGraphConcept<IncidenceGraph>));
+        BOOST_CONCEPT_ASSERT((InputIterator<VertexInputIterator>));
+
+        typedef typename graph_traits<IncidenceGraph>::vertex_descriptor vertex_descriptor;
+        
+        auto const V = vertices(G);
+        std::unordered_map<vertex_descriptor, default_color_type> target_colour, search_colour;
+        typedef associative_property_map<decltype(target_colour)> ColourPropertyMap;
+        ColourPropertyMap target_map(target_colour), search_map(search_colour);
+        std::for_each(V.first, V.second, [&](vertex_descriptor u)
+        {
+            put(target_map, u, white_color);
+            put(search_map, u, white_color);
+        });
+        queue<vertex_descriptor> q;
+        return find_common_ancestor_existence(G, u, first, last, target_map, search_map, q);
     }
 }
 

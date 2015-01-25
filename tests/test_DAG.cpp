@@ -46,75 +46,22 @@ struct enable_locale
     enable_locale() { cout.imbue(locale("")); cerr.imbue(locale("")); }
 };
 
-BOOST_FIXTURE_TEST_CASE(test_CAE, Bender_2005_4<>)
-{
-#ifndef NDEBUG
-    {
-        ofstream output("Bender_2005_4.dot");
-        boost::write_graphviz(output, g);
-    }
-#endif
-    common_ancestor_existence_graph(g);
-#ifndef NDEBUG
-    {
-        ofstream output("Bender_2005_4_F.dot");
-        boost::write_graphviz(output, g);
-    }
-#endif
-    Bender_2005_4_F const h;
-    BOOST_CHECK_EQUAL(boost::num_vertices(g), boost::num_vertices(h.g));
-    BOOST_REQUIRE_EQUAL(boost::num_edges(g), boost::num_edges(h.g));
-    BOOST_REQUIRE(boost::isomorphism(g, h.g));
-}
 
 
-BOOST_FIXTURE_TEST_CASE(test_CAE_query, Bender_2005_4<>)
+BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_existence, Bender_2005_4<>)
 {
-    Bender_2005_4_F const F;
-    auto const V = boost::vertices(F.g);
-    boost::queue<vertex_descriptor> p, q;
-    unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
-    boost::associative_property_map< decltype(vertex_color) > colour(vertex_color);
-    auto const offset = boost::num_vertices(F.g) - boost::num_vertices(g);
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(have_common_ancestor(6u, 7u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(!have_common_ancestor(5u, 6u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(!have_common_ancestor(5u, 7u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(!have_common_ancestor(5u, 10u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(have_common_ancestor(6u, 10u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(have_common_ancestor(7u, 6u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(!have_common_ancestor(6u, 5u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(!have_common_ancestor(7u, 5u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(!have_common_ancestor(10u, 5u, F.g, offset, q, colour));
-    q = p;
-    
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(have_common_ancestor(5u, 9u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(have_common_ancestor(9u, 5u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(have_common_ancestor(8u, 10u, F.g, offset, q, colour));
-    q = p;
-    for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
-    BOOST_CHECK(have_common_ancestor(10u, 8u, F.g, offset, q, colour));
-    q = p;
-    
+    auto const V = boost::vertices(g);
+    auto result = find_common_ancestor_existence(g, 0u, std::next(V.first, 6), V.second);
+    BOOST_CHECK(result == std::next(V.first, 8));
+    result = find_common_ancestor_existence(g, 5u, std::next(V.first, 6), V.second);
+    BOOST_CHECK(result == std::next(V.first, 8));
+    result = find_common_ancestor_existence(g, 5u, std::next(V.first, 3), V.second);
+    BOOST_CHECK(result == std::next(V.first, 5));
+    result = find_common_ancestor_existence(g, 1u, std::next(V.first, 2), V.second);
+    BOOST_CHECK(result == std::next(V.first, 6));
+    result = find_common_ancestor_existence(g, 8u, std::next(V.first, 0), V.second);
+    BOOST_CHECK(result == std::next(V.first, 0));
+    result = find_common_ancestor_existence(g, 8u, std::next(V.first, 5), V.second);
+    BOOST_CHECK(result == std::next(V.first, 5));
 }
+

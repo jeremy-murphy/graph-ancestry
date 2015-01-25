@@ -148,15 +148,15 @@ namespace graph_algorithms
     
     
     /// Outputs an edge from each cycle in a graph.
-    template <typename Edge, typename O>
+    template <typename Edge, typename OutputIterator>
     struct cycle_detector : public boost::default_dfs_visitor
     {
-        BOOST_CONCEPT_ASSERT((boost::OutputIterator<O, Edge>));
+        BOOST_CONCEPT_ASSERT((boost::OutputIterator<OutputIterator, Edge>));
         
         std::set<Edge> predecessors;
-        O result;
+        OutputIterator result;
 
-        cycle_detector(O result) : result(result) {}
+        cycle_detector(OutputIterator result) : result(result) {}
         
         template <typename Graph>
         void back_edge(Edge const &E, Graph&)
@@ -173,9 +173,40 @@ namespace graph_algorithms
     };
     
     
-    template <typename Edge, typename O>
-    cycle_detector<Edge, O> make_cycle_detector(O &&result)
+    template <typename Edge, typename OutputIterator>
+    cycle_detector<Edge, OutputIterator> make_cycle_detector(OutputIterator &&result)
     {
-        return cycle_detector<Edge, O>(std::forward<O>(result));
+        return cycle_detector<Edge, OutputIterator>(std::forward<OutputIterator>(result));
+    }
+    
+
+    template <typename Vertex, typename Graph, typename KeyValueMap, typename Value, typename Relation>
+    bool prop_relation_wrapper(Vertex u, Graph const &, KeyValueMap m, Value x, Relation r)
+    {
+        return r(get(m, u), x);
+    }
+    
+    
+    template <typename BinaryPredicate>
+    class stop_on_discover_vertex_if : public boost::default_bfs_visitor
+    {
+        BinaryPredicate p;
+        
+    public:
+        stop_on_discover_vertex_if(BinaryPredicate p) : p(p) {}
+        
+        template <typename Graph, typename Vertex>
+        void discover_vertex(Vertex u, Graph const &G)
+        {
+            if (p(u, G))
+                throw found_target();
+        }
+    };
+    
+    
+    template <typename Predicate>
+    stop_on_discover_vertex_if<Predicate> make_stop_on_discover_vertex_if(Predicate p)
+    {
+        return stop_on_discover_vertex_if<Predicate>(p);
     }
 }
