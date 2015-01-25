@@ -51,16 +51,27 @@
 
 namespace graph_algorithms
 {
+    /**
+     * @defgroup LCA_algorithms Lowest common ancestor
+     * @ingroup graph_algorithms
+     */
+
     /** @brief Preprocess a directed acyclic graph for LCA querying.
-     *  @ingroup graph_algorithms
+     *  @ingroup LCA_algorithms
      *  @tparam Graph A Graph that satisfies the VertexListGraph concept.
-     *  @tparam OIndex Output iterator of container indices.
-     *  @param L vertex 'level' (i.e. depth)
-     *  @param R representative elements
+     *  @tparam VertexContainer Random-access container of vertices.
+     *  @tparam VertexDepthContainer Random-access container of vertex depth.
+     *  @tparam IndexOutput Output iterator of container index.
+     *  @tparam IndexMultiArray Mutable 2d array.
+     *  @param T Tree.
+     *  @param E Eulerian sequence of vertices.
+     *  @param L Eulerian sequence of vertex depths.
+     *  @param R Representative vertices.
+     *  @param M Sparse table.
      * 
      *  Time complexity: Θ(n lg n)
      * 
-     *  The reason for the unconventional parameter names (T, E, etc) is to closely immitate the journal article.
+     *  The reason for the unconventional parameter names (T, E, etc) is to closely immitate the journal article upon which it is based.
      */ 
     template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexOutput, typename IndexMultiArray>
     // requires: Directed(Graph)
@@ -91,6 +102,7 @@ namespace graph_algorithms
 
 
     // Convenience function.
+    /// @ingroup LCA_algorithms
     template <typename Graph, typename Tuple>
     void LCA_preprocess(Graph const &T, Tuple &x)
     {
@@ -102,6 +114,7 @@ namespace graph_algorithms
     /** @brief Query the lowest common ancestor of two vertices.
      *  @param u First descendent vertex
      *  @param u Second descendent vertex
+     *  @ingroup LCA_algorithms
      * 
      *  Time complexity: Θ(1)
      * 
@@ -124,7 +137,9 @@ namespace graph_algorithms
     }
     
     
-    // Convenience function.
+    /** Convenience function.
+     *  @ingroup LCA_algorithms
+     */
     template <typename Vertex, typename Tuple>
     typename std::tuple_element<0, Tuple>::type::value_type
     LCA(Vertex u, Vertex v, Tuple const &x)
