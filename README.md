@@ -15,8 +15,8 @@ And their supporting general algorithms.
 1. Graph algorithms
  1. **lowest common ancestor** (LCA), <*Θ*(*n* lg *n*), *Θ*(1)>
    * By reduction to RMQ.
- 2. **common ancestor existence**, <*transitive-closure*, *O*(*n*)>
-   * Efficient when querying multiple vertices for a static graph. 
+ 2. **common ancestor existence**, *O*(*|V|⋅|E|*)
+   * Efficient when querying multiple vertices.
 2. Graph visitors
    1. **bfs_find** is equivalent to std::find for BFS.
    2. **eulerian_path** outputs Eulerian path of a graph.
