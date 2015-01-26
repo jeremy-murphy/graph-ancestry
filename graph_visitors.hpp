@@ -33,6 +33,14 @@ namespace graph_algorithms
 {
     struct found_target : public std::exception {};
     
+    template <typename Vertex>
+    struct found_something : public std::exception
+    {
+        Vertex thing;
+        
+        found_something(Vertex u) : thing(u) {}
+    };
+    
     // Graph-based visitor equivalent of std::find.
     template <typename Vertex>
     struct bfs_find : public boost::default_bfs_visitor
@@ -187,26 +195,28 @@ namespace graph_algorithms
     }
     
     
-    template <typename BinaryPredicate>
-    class stop_on_discover_vertex_if : public boost::default_bfs_visitor
+    template <typename BinaryPredicate, typename Tag>
+    class stop_on_vertex : public boost::base_visitor<stop_on_vertex<BinaryPredicate, Tag>>
     {
         BinaryPredicate p;
         
     public:
-        stop_on_discover_vertex_if(BinaryPredicate p) : p(p) {}
+        typedef Tag event_filter;
+        
+        stop_on_vertex(BinaryPredicate p) : p(p) {}
         
         template <typename Graph, typename Vertex>
-        void discover_vertex(Vertex u, Graph const &G)
+        void operator()(Vertex u, Graph const &G) const
         {
             if (p(u, G))
-                throw found_target();
+                throw found_something<Vertex>(u);
         }
     };
     
     
-    template <typename Predicate>
-    stop_on_discover_vertex_if<Predicate> make_stop_on_discover_vertex_if(Predicate p)
+    template <typename BinaryPredicate, typename Tag>
+    stop_on_vertex<BinaryPredicate, Tag> make_stop_on_vertex(BinaryPredicate p, Tag)
     {
-        return stop_on_discover_vertex_if<Predicate>(p);
+        return stop_on_vertex<BinaryPredicate, Tag>(p);
     }
 }
