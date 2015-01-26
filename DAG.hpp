@@ -99,6 +99,13 @@ namespace graph_algorithms
                 put(searched, x.first, white_color);
             });
             put(searched, v, white_color);
+            
+            for (auto u = e.thing; u != v; )
+            {
+                u = predecessor[u];
+                put(ancestors, u, black_color);
+            }
+            
             predecessor.clear();
             return first;
         }
