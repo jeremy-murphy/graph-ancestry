@@ -16,3 +16,7 @@ add_test(test_graph_visitors test_graph_visitors)
 add_executable(test_DAG test_DAG.cpp)
 target_link_libraries(test_DAG ${Boost_LIBRARIES})
 add_test(test_DAG test_DAG)
+
+add_executable(test_reflect test_reflect.cpp)
+target_link_libraries(test_reflect ${Boost_LIBRARIES})
+add_test(test_reflect test_reflect)
