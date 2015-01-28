@@ -32,7 +32,6 @@
 #include <fstream>
 #endif
 
-#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/isomorphism.hpp>
 
 #include <iostream>

@@ -33,9 +33,9 @@
 
 #include <boost/concept/assert.hpp>
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/graph_concepts.hpp>
+#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/reverse_graph.hpp>
 
 #ifndef NDEBUG
@@ -48,13 +48,13 @@ namespace graph_algorithms
     /**
      *  @brief Finds the first vertex that has a common ancestor 
      *  @ingroup non_mutating_algorithms
-     *  @param  G       Directed acyclic graph.
-     *  @param  u       Vertex to find common ancestor with.
-     *  @param  first   Beginning of vertices to search.
-     *  @param  last    End of vertices to search.
-     *  @param  target  Which vertices are ancestors of u.
+     *  @param  G           Directed acyclic graph.
+     *  @param  u           Vertex to find common ancestor with.
+     *  @param  first       Beginning of vertices to search.
+     *  @param  last        End of vertices to search.
+     *  @param  target      Which vertices are ancestors of u.
      *  @param  searched    Which vertices have been searched for a common ancestor.
-     *  @param  q       Additional (?) vertices to search.
+     *  @param  q           Additional (?) vertices to search.
      *  @param  predecessor Vertex predecessors seen during search.
      * 
      */

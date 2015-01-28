@@ -24,7 +24,6 @@
 
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/breadth_first_search.hpp>
-#include <boost/graph/adjacency_list.hpp>
 
 #include <set>
 #include <stdexcept>
@@ -94,10 +93,10 @@ namespace graph_algorithms
         template <typename Edge, typename Graph>
         void tree_edge(Edge const &e, Graph const &g)
         {
-            if(start || boost::source(e, g) != previous)
-                *result++ = boost::source(e, g);
+            if(start || source(e, g) != previous)
+                *result++ = source(e, g);
             start = false;
-            *result++ = previous = boost::target(e, g);
+            *result++ = previous = target(e, g);
         }
         
         template <typename Graph>
