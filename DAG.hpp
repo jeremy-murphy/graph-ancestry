@@ -46,7 +46,7 @@
 namespace graph_algorithms
 {
     /**
-     *  @brief Finds the first vertex that has a common ancestor with u.
+     *  @brief Finds the first vertex that has a common ancestor 
      *  @ingroup non_mutating_algorithms
      *  @param  G       Directed acyclic graph.
      *  @param  u       Vertex to find common ancestor with.
@@ -59,7 +59,7 @@ namespace graph_algorithms
      * 
      */
     template <typename IncidenceGraph, typename VertexInputIterator, typename VertexColourMap, typename VertexQueue, typename PredecessorMap>
-    VertexInputIterator find_common_ancestor_existence_impl(IncidenceGraph const &H, VertexInputIterator first, VertexInputIterator last, VertexColourMap const ancestors, VertexColourMap searched, VertexQueue &q, PredecessorMap &predecessor)
+    VertexInputIterator find_common_ancestor_existence_impl(IncidenceGraph const &H, VertexInputIterator first, VertexInputIterator last, VertexColourMap const ancestors, VertexColourMap searched, VertexQueue &q, PredecessorMap predecessor)
     {
         using namespace boost;
         using namespace std::placeholders;
