@@ -46,28 +46,28 @@ struct enable_locale
 
 
 
-BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_existence_single_use, Bender_2005_4<>)
+BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_single_use, Bender_2005_4<>)
 {
 #ifndef NDEBUG
     std::ofstream output("Bender_2005_4.dot");
     boost::write_graphviz(output, g);
 #endif
     auto const V = boost::vertices(g);
-    auto result = find_common_ancestor_existence(g, 0u, std::next(V.first, 6), V.second);
-    BOOST_CHECK_EQUAL(std::distance(V.first, result), 8);
-    result = find_common_ancestor_existence(g, 5u, std::next(V.first, 6), V.second);
-    BOOST_CHECK_EQUAL(std::distance(V.first, result), 8);
-    result = find_common_ancestor_existence(g, 5u, std::next(V.first, 3), V.second);
-    BOOST_CHECK_EQUAL(std::distance(V.first, result), 5);
-    result = find_common_ancestor_existence(g, 1u, std::next(V.first, 2), V.second);
-    BOOST_CHECK_EQUAL(std::distance(V.first, result), 6);
-    result = find_common_ancestor_existence(g, 8u, std::next(V.first, 0), V.second);
-    BOOST_CHECK_EQUAL(std::distance(V.first, result), 0);
-    result = find_common_ancestor_existence(g, 8u, std::next(V.first, 5), V.second);
-    BOOST_CHECK_EQUAL(std::distance(V.first, result), 5);
+    auto result = find_common_ancestor(g, 0u, std::next(V.first, 6), V.second);
+    BOOST_CHECK_EQUAL(std::distance(V.first, result.first), 8);
+    result = find_common_ancestor(g, 5u, std::next(V.first, 6), V.second);
+    BOOST_CHECK_EQUAL(std::distance(V.first, result.first), 8);
+    result = find_common_ancestor(g, 5u, std::next(V.first, 3), V.second);
+    BOOST_CHECK_EQUAL(std::distance(V.first, result.first), 5);
+    result = find_common_ancestor(g, 1u, std::next(V.first, 2), V.second);
+    BOOST_CHECK_EQUAL(std::distance(V.first, result.first), 6);
+    result = find_common_ancestor(g, 8u, std::next(V.first, 0), V.second);
+    BOOST_CHECK_EQUAL(std::distance(V.first, result.first), 0);
+    result = find_common_ancestor(g, 8u, std::next(V.first, 5), V.second);
+    BOOST_CHECK_EQUAL(std::distance(V.first, result.first), 5);
 }
 
-BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_existence_repeat_use, Bender_2005_4<>)
+BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_repeat_use, Bender_2005_4<>)
 {
     using namespace boost;
     
@@ -87,14 +87,14 @@ BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_existence_repeat_use, Bender_2
     auto const H = make_reverse_graph(g);
     breadth_first_visit(H, 6u, q, default_bfs_visitor(), ancestors);
 
-    auto relative = find_common_ancestor_existence_impl(H, std::next(V.first, 5), V.second, ancestors, searched, q, predecessor);
-    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative), 6);
-    relative = find_common_ancestor_existence_impl(H, std::next(relative), V.second, ancestors, searched, q, predecessor);
-    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative), 7);
-    relative = find_common_ancestor_existence_impl(H, std::next(relative), V.second, ancestors, searched, q, predecessor);
-    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative), 8);
-    relative = find_common_ancestor_existence_impl(H, std::next(relative), V.second, ancestors, searched, q, predecessor);
-    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative), 9);
+    auto relative = find_common_ancestor_impl(H, std::next(V.first, 5), V.second, ancestors, searched, q, predecessor);
+    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative.first), 6);
+    relative = find_common_ancestor_impl(H, std::next(relative.first), V.second, ancestors, searched, q, predecessor);
+    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative.first), 7);
+    relative = find_common_ancestor_impl(H, std::next(relative.first), V.second, ancestors, searched, q, predecessor);
+    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative.first), 8);
+    relative = find_common_ancestor_impl(H, std::next(relative.first), V.second, ancestors, searched, q, predecessor);
+    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative.first), 9);
     // Reinitialize.
     std::for_each(V.first, V.second, [&](vertex_descriptor u)
     {
@@ -102,10 +102,10 @@ BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_existence_repeat_use, Bender_2
         put(searched, u, white_color);
     });
     breadth_first_visit(H, 7u, q, default_bfs_visitor(), ancestors);
-    relative = find_common_ancestor_existence_impl(H, std::next(V.first, 8), V.second, ancestors, searched, q, predecessor);
-    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative), 8);
-    relative = find_common_ancestor_existence_impl(H, std::next(relative), V.second, ancestors, searched, q, predecessor);
-    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative), 9);
-    relative = find_common_ancestor_existence_impl(H, std::next(relative), V.second, ancestors, searched, q, predecessor);
-    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative), 10);
+    relative = find_common_ancestor_impl(H, std::next(V.first, 8), V.second, ancestors, searched, q, predecessor);
+    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative.first), 8);
+    relative = find_common_ancestor_impl(H, std::next(relative.first), V.second, ancestors, searched, q, predecessor);
+    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative.first), 9);
+    relative = find_common_ancestor_impl(H, std::next(relative.first), V.second, ancestors, searched, q, predecessor);
+    BOOST_REQUIRE_EQUAL(std::distance(V.first, relative.first), 10);
 }

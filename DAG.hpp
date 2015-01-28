@@ -59,7 +59,8 @@ namespace graph_algorithms
      * 
      */
     template <typename IncidenceGraph, typename VertexInputIterator, typename VertexColourMap, typename VertexQueue, typename PredecessorMap>
-    VertexInputIterator find_common_ancestor_existence_impl(IncidenceGraph const &H, VertexInputIterator first, VertexInputIterator last, VertexColourMap const ancestors, VertexColourMap searched, VertexQueue &q, PredecessorMap predecessor)
+    std::pair<VertexInputIterator, typename boost::graph_traits<IncidenceGraph>::vertex_descriptor>
+    find_common_ancestor_impl(IncidenceGraph const &H, VertexInputIterator first, VertexInputIterator last, VertexColourMap const ancestors, VertexColourMap searched, VertexQueue &q, PredecessorMap predecessor)
     {
         using namespace boost;
         using namespace std::placeholders;
@@ -84,31 +85,32 @@ namespace graph_algorithms
                 // BGL does not check source vertex colour, so we do.
                 if (get(searched, v) != black_color)
                 {
-                    breadth_first_visit(H, v, q, foo, searched);
                     predecessor.clear();
+                    breadth_first_visit(H, v, q, foo, searched);
                 }
             }
         }
         catch (found_something<vertex_descriptor> const &e)
         {
-            // Mark predecessors in searched white.
+            // Mark all predecessors in search space back to white.
             typedef typename PredecessorMap::value_type value_type;
             std::for_each(std::begin(predecessor), std::end(predecessor), [&](value_type const &x)
             {
                 put(searched, x.first, white_color);
             });
             put(searched, v, white_color);
-            
+
+            // Mark the path from the source vertex to the target black, 
+            // thereby increasing the size of the target.
             for (auto u = e.thing; u != v; )
             {
                 u = predecessor[u];
                 put(ancestors, u, black_color);
             }
             
-            predecessor.clear();
-            return first;
+            return std::make_pair(first, e.thing);
         }
-        return last;
+        return std::make_pair(last, 0);
     }
     
     
@@ -121,7 +123,8 @@ namespace graph_algorithms
      *  @param  last    End of vertices to search.
      */
     template <typename IncidenceGraph, typename Vertex, typename VertexInputIterator>
-    VertexInputIterator find_common_ancestor_existence(IncidenceGraph const &G, Vertex u, VertexInputIterator first, VertexInputIterator last)
+    std::pair<VertexInputIterator, typename boost::graph_traits<IncidenceGraph>::vertex_descriptor>
+    find_common_ancestor(IncidenceGraph const &G, Vertex u, VertexInputIterator first, VertexInputIterator last)
     {
         using namespace boost;
 
@@ -143,7 +146,7 @@ namespace graph_algorithms
         auto const H = make_reverse_graph(G);
         breadth_first_visit(H, u, q, default_bfs_visitor(), ancestors);
         
-        return find_common_ancestor_existence_impl(H, first, last, ancestors, searched, q, predecessor);
+        return find_common_ancestor_impl(H, first, last, ancestors, searched, q, predecessor);
     }
 }
 
