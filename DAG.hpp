@@ -70,8 +70,8 @@ namespace graph_algorithms
         BOOST_CONCEPT_ASSERT((InputIterator<VertexInputIterator>));
         
         // TODO: Make a decision about how best to do this.
-        typedef std::equal_to<default_color_type> PropRelation;
-        auto const stop_if_black_vertex = make_stop_on_vertex(std::bind(prop_relation_wrapper<vertex_descriptor, IncidenceGraph, VertexColourMap, default_color_type, PropRelation>, _1, _2, ancestors, black_color, PropRelation()), on_discover_vertex());
+        typedef std::equal_to<default_color_type> EqualColour;
+        auto const stop_if_black_vertex = make_stop_on_vertex(std::bind(prop_relation_wrapper<vertex_descriptor, IncidenceGraph, VertexColourMap, default_color_type, EqualColour>, _1, _2, ancestors, black_color, EqualColour()), on_discover_vertex());
         // auto const stop_if_black_vertex = make_stop_on_discover_vertex_if([&](vertex_descriptor v, ReversedGraph const &){ return get(target, v) == black_color; });
         auto const foo = make_bfs_visitor(std::make_pair(stop_if_black_vertex, record_predecessors(make_assoc_property_map(predecessor), boost::on_tree_edge())));
         
