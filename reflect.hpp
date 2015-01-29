@@ -108,7 +108,7 @@ namespace graph_algorithms
         typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
         
         auto const V = vertices(G);
-        auto const source_last = find_if_not(V.first, V.second, bind(is_source(), _1, G));
+        auto const source_last = find_if_not(V.first, V.second, std::bind(is_source(), _1, G));
         auto const n_sources = distance(V.first, source_last);
         unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
         boost::associative_property_map< decltype(vertex_color) > colour(vertex_color);
