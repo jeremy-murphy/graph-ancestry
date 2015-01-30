@@ -26,6 +26,7 @@
 #include "predicates.hpp"
 
 #include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/graph_traits.hpp>
 
 #include <unordered_map>
@@ -54,7 +55,6 @@ namespace graph_algorithms
     
     /** @brief Transform a graph G by adding its reversed reflection at the sources.
      *  @ingroup graph_algorithms
-     *  @tparam Graph A directed Graph type.
      *  @param G A Graph.
      * 
      *  Transform G into F such that if G' is G with all the edges reversed,
@@ -77,6 +77,10 @@ namespace graph_algorithms
         typedef typename graph_traits<BidirectionalGraph>::vertex_descriptor vertex_descriptor;
         typedef typename graph_traits<BidirectionalGraph>::edge_descriptor edge_descriptor;
         
+        BOOST_CONCEPT_ASSERT((BidirectionalGraphConcept<BidirectionalGraph>));
+        
+        assert(n_sources >= 0);
+
         auto const offset = num_vertices(G) - n_sources;
         auto const builder = reflection_builder<BidirectionalGraph>(G, offset);
         auto V = vertices(G);
