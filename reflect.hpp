@@ -52,6 +52,36 @@ namespace graph_algorithms
         }
     };
     
+
+
+    /** @brief Transform a graph G by adding its reversed reflection at the sources.
+     *  @ingroup graph_algorithms
+     *  @param G    Input graph.
+     *  @param F    G reflected through its source vertices.
+     * 
+     *  Transform G into F such that if G' is G with all the edges reversed,
+     *  F is the graph that results from merging the sources of G with the sinks
+     *  of G'.
+     * 
+     *  Time complexity: O(V⋅E)
+     *  Space complexity: queue used by BFS.
+     * 
+     *  Requires: source vertices are the lowest-numbered vertices. I.e. for n
+     *  source vertices, they are numbered 0 to n-1 in the graph.
+     * 
+     *  Unknowns: number of source vertices.
+     */ 
+    template <typename BidirectionalGraph, typename OutputGraph, typename ColourMap, typename Buffer>
+    void reflect_through_sources(BidirectionalGraph const &G, OutputGraph &F, ColourMap colour, Buffer &q)
+    {
+        using namespace boost;
+
+        BOOST_CONCEPT_ASSERT((BidirectionalGraphConcept<BidirectionalGraph>));
+        BOOST_CONCEPT_ASSERT((VertexListGraphConcept<OutputGraph>));
+        BOOST_CONCEPT_ASSERT((AdjacencyGraphConcept<OutputGraph>));
+        
+    }
+    
     
     /** @brief Transform a graph G by adding its reversed reflection at the sources.
      *  @ingroup graph_algorithms

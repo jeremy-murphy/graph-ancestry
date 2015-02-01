@@ -27,7 +27,11 @@
 #include "reflect.hpp"
 #include "fixture.hpp"
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/adjacency_list_io.hpp>
+#include <boost/graph/adjacency_matrix.hpp>
 #include <boost/graph/isomorphism.hpp>
+#include <boost/graph/transitive_closure.hpp>
 
 #ifndef NDEBUG
 #include <boost/graph/graphviz.hpp>
@@ -44,8 +48,9 @@ struct enable_locale
     enable_locale() { std::cout.imbue(std::locale("")); std::cerr.imbue(std::locale("")); }
 };
 
+BOOST_FIXTURE_TEST_SUITE(Reflection, Bender_2005_4<DefaultAdjacencyList>)
 
-BOOST_FIXTURE_TEST_CASE(test_CAE, Bender_2005_4<>)
+BOOST_AUTO_TEST_CASE(test_reflect_through_sources_1)
 {
     #ifndef NDEBUG
     {
@@ -60,8 +65,40 @@ BOOST_FIXTURE_TEST_CASE(test_CAE, Bender_2005_4<>)
         boost::write_graphviz(output, g);
     }
     #endif
-    Bender_2005_4_F const h;
-    BOOST_CHECK_EQUAL(boost::num_vertices(g), boost::num_vertices(h.g));
-    BOOST_REQUIRE_EQUAL(boost::num_edges(g), boost::num_edges(h.g));
-    BOOST_REQUIRE(boost::isomorphism(g, h.g));
+    DefaultAdjacencyList h;
+    add_Bender_2005_4_F(h);
+    BOOST_CHECK_EQUAL(boost::num_vertices(g), boost::num_vertices(h));
+    BOOST_REQUIRE_EQUAL(boost::num_edges(g), boost::num_edges(h));
+    BOOST_REQUIRE(boost::isomorphism(g, h));
 }
+
+
+BOOST_AUTO_TEST_CASE(test_reflect_through_sources_2)
+{
+    typedef boost::graph_traits<decltype(g)>::vertex_descriptor vertex_descriptor;
+    
+    boost::adjacency_matrix<> h(17);
+    auto const V = vertices(g);
+    std::unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
+    boost::associative_property_map<decltype(vertex_color)> colour(vertex_color);
+    boost::queue<vertex_descriptor> q;
+    
+    std::for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
+    
+    // reflect_through_sources(g, h, colour, q);
+    DefaultAdjacencyList F;
+    add_Bender_2005_4_F(F);
+    BOOST_CHECK_EQUAL(num_vertices(h), num_vertices(F));
+    BOOST_REQUIRE_EQUAL(num_edges(h), num_edges(F));
+    BOOST_REQUIRE(boost::isomorphism(h, F));
+}
+
+
+BOOST_AUTO_TEST_CASE(test_transitive_closure_of_reflected_graph)
+{
+    boost::adjacency_matrix<> h(17);
+    // reflect_through_sources(g);
+    boost::transitive_closure(g, h);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
