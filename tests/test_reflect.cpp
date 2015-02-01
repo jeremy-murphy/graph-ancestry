@@ -30,6 +30,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/adjacency_list_io.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
+#include <boost/graph/copy.hpp>
 #include <boost/graph/isomorphism.hpp>
 #include <boost/graph/transitive_closure.hpp>
 
@@ -76,8 +77,8 @@ BOOST_AUTO_TEST_CASE(test_reflect_through_sources_1)
 BOOST_AUTO_TEST_CASE(test_reflect_through_sources_2)
 {
     typedef boost::graph_traits<decltype(g)>::vertex_descriptor vertex_descriptor;
+    typedef boost::graph_traits<decltype(g)>::edge_descriptor edge_descriptor;
     
-    boost::adjacency_matrix<> h(17);
     auto const V = vertices(g);
     std::unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
     boost::associative_property_map<decltype(vertex_color)> colour(vertex_color);
@@ -85,20 +86,35 @@ BOOST_AUTO_TEST_CASE(test_reflect_through_sources_2)
     
     std::for_each(V.first, V.second, [&](vertex_descriptor u){ put(colour, u, boost::white_color); });
     
-    // reflect_through_sources(g, h, colour, q);
+    boost::adjacency_matrix<> h(17);
+#ifndef NDEBUG
+    {
+        std::ofstream output("Bender_2005_4_matrix.dot");
+        boost::write_graphviz(output, h);
+    }
+#endif
+    reflect_through_sources(g, h);
     DefaultAdjacencyList F;
     add_Bender_2005_4_F(F);
-    // BOOST_CHECK_EQUAL(num_vertices(h), num_vertices(F));
-    // BOOST_REQUIRE_EQUAL(num_edges(h), num_edges(F));
-    // BOOST_REQUIRE(boost::isomorphism(h, F));
+    BOOST_CHECK_EQUAL(num_vertices(h), num_vertices(F));
+    BOOST_REQUIRE_EQUAL(num_edges(h), num_edges(F));
+    BOOST_REQUIRE(boost::isomorphism(h, F));
 }
 
 
 BOOST_AUTO_TEST_CASE(test_transitive_closure_of_reflected_graph)
 {
-    boost::adjacency_matrix<> h(17);
-    // reflect_through_sources(g, h);
-    // boost::transitive_closure(g, h);
+    boost::adjacency_matrix<> TC_F(17);
+    auto offset = create_common_ancestor_existence_tc(g, TC_F);
+    // Now that we finally have a transitive-closure of F, we can query.
+    auto q = edge(5 + offset, 9, TC_F);
+    BOOST_CHECK(q.second);
+    q = edge(5 + offset, 10, TC_F);
+    BOOST_CHECK(!q.second);
+    q = edge(8 + offset, 10, TC_F);
+    BOOST_CHECK(q.second);
+    q = edge(5 + offset, 6, TC_F);
+    BOOST_CHECK(!q.second);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
