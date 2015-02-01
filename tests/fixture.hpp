@@ -36,9 +36,10 @@
 #endif
 
 typedef std::vector<std::size_t> index_vector;
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> DefaultAdjacencyList;
 
 /// Figure 2 from the paper cited in LCA.hpp.
-template <typename Graph>
+template <typename Graph = DefaultAdjacencyList>
 struct Bender_2005_2
 {
     typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
@@ -91,50 +92,62 @@ struct Bender_2005_2
 };
 
 
-template <typename Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS>>
+template <typename Graph>
+void add_Bender_2005_4(Graph &g)
+{
+    add_edge(0, 5, g);
+    add_edge(1, 6, g);
+    add_edge(5, 8, g);
+    add_edge(6, 8, g);
+    add_edge(2, 9, g);
+    add_edge(2, 5, g);
+    add_edge(3, 7, g);
+    add_edge(4, 7, g);
+    add_edge(7, 6, g);
+    add_edge(6, 9, g);
+    add_edge(7, 10, g);
+    add_edge(10, 9, g);
+}
+
+
+template <typename Graph>
+void add_Bender_2005_4_F(Graph &g)
+{
+    add_Bender_2005_4(g);
+    add_edge(11, 0, g);
+    add_edge(11, 2, g);
+    add_edge(12, 1, g);
+    add_edge(12, 13, g);
+    add_edge(13, 3, g);
+    add_edge(13, 4, g);
+    add_edge(14, 11, g);
+    add_edge(14, 12, g);
+    add_edge(15, 2, g);
+    add_edge(15, 12, g);
+    add_edge(15, 16, g);
+    add_edge(16, 13, g);
+}
+
+
+template <typename Graph = DefaultAdjacencyList>
 struct Bender_2005_4
 {
-    typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-    typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
-    
     Graph g;
     
     Bender_2005_4()
     {
-        using boost::add_edge;
-        add_edge(0, 5, g);
-        add_edge(1, 6, g);
-        add_edge(5, 8, g);
-        add_edge(6, 8, g);
-        add_edge(2, 9, g);
-        add_edge(2, 5, g);
-        add_edge(3, 7, g);
-        add_edge(4, 7, g);
-        add_edge(7, 6, g);
-        add_edge(6, 9, g);
-        add_edge(7, 10, g);
-        add_edge(10, 9, g);
+        add_Bender_2005_4(g);
     }
 };
 
-
-struct Bender_2005_4_F : public Bender_2005_4<>
+template <typename Graph = DefaultAdjacencyList>
+struct Bender_2005_4_F
 {
+    Graph g;
+    
     Bender_2005_4_F()
     {
-        using boost::add_edge;
-        add_edge(11, 0, g);
-        add_edge(11, 2, g);
-        add_edge(12, 1, g);
-        add_edge(12, 13, g);
-        add_edge(13, 3, g);
-        add_edge(13, 4, g);
-        add_edge(14, 11, g);
-        add_edge(14, 12, g);
-        add_edge(15, 2, g);
-        add_edge(15, 12, g);
-        add_edge(15, 16, g);
-        add_edge(16, 13, g);
+        add_Bender_2005_4_F(g);
     }
 };
 
