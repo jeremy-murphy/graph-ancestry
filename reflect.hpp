@@ -34,11 +34,20 @@
 
 namespace graph_algorithms
 {
+    /** @brief BFS visitor that adds reflected edges to a graph.
+     *  @ingroup graph_algorithms
+     *  @param F        Graph to add reflected vertices to.
+     *  @param offset   Offset from original vertex to number reflected vertex.
+     * 
+     *  For every examined edge e = (x, y) in G, add (y + o, x + o) to F.
+     * 
+     *  It is possible for G and F to be the same graph.
+     * 
+     *  Time complexity: O(1)
+     */ 
     template <typename OutputGraph>
     struct reflection_builder : boost::default_bfs_visitor
     {
-        typedef typename boost::graph_traits<OutputGraph>::vertex_descriptor vertex_descriptor;
-        // typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
         typedef typename boost::graph_traits<OutputGraph>::vertices_size_type vertices_size_type;
         
         OutputGraph *F;
@@ -61,36 +70,6 @@ namespace graph_algorithms
         return reflection_builder<Graph>(g, offset);
     }
 
-    /** @brief Transform a graph G by adding its reversed reflection at the sources.
-     *  @ingroup graph_algorithms
-     *  @param G    Input graph.
-     *  @param F    G reflected through its source vertices.
-     * 
-     *  Transform G into F such that if G' is G with all the edges reversed,
-     *  F is the graph that results from merging the sources of G with the sinks
-     *  of G'.
-     * 
-     *  Time complexity: O(V⋅E)
-     *  Space complexity: queue used by BFS.
-     * 
-     *  Requires: source vertices are the lowest-numbered vertices. I.e. for n
-     *  source vertices, they are numbered 0 to n-1 in the graph.
-     * 
-     *  Unknowns: number of source vertices.
-     */ 
-    /*
-    template <typename BidirectionalGraph, typename OutputGraph, typename ColourMap, typename Buffer, typename N>
-    void reflect_through_sources(BidirectionalGraph const &G, OutputGraph &F, ColourMap colour, Buffer &q, N n_sources)
-    {
-        using namespace boost;
-
-        BOOST_CONCEPT_ASSERT((BidirectionalGraphConcept<BidirectionalGraph>));
-        BOOST_CONCEPT_ASSERT((VertexListGraphConcept<OutputGraph>));
-        BOOST_CONCEPT_ASSERT((AdjacencyGraphConcept<OutputGraph>));
-        
-        copy_graph(G, F);
-    }
-    */
     
     /** @brief Transform a graph G by adding its reversed reflection at the sources.
      *  @ingroup graph_algorithms
@@ -100,7 +79,7 @@ namespace graph_algorithms
      *  F is the graph that results from merging the sources of G with the sinks
      *  of G'.
      * 
-     *  Time complexity: O(V⋅E)
+     *  Time complexity: O(|V|⋅|E|)
      *  Space complexity: queue used by BFS.
      * 
      *  Requires: source vertices are the lowest-numbered vertices. I.e. for n
@@ -179,6 +158,8 @@ namespace graph_algorithms
     }
     
     /**
+     *  Time complexity: worst-case O(|V|⋅|E|)
+     * 
      *  Note: G is also modified.
      */
     template <typename Graph, typename MutableGraph>
@@ -194,6 +175,13 @@ namespace graph_algorithms
         std::for_each(E.first, E.second, [&](edge_descriptor e){ add_edge(source(e, tmp), target(e, tmp), F); });
         
         return offset;
+    }
+    
+    
+    template <typename Graph, typename Vertex, typename N>
+    bool does_common_ancestor_exist(Vertex u, Vertex v, Graph const &F, N offset)
+    {
+        return edge(u + offset, v, F).second;
     }
 }
 

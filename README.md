@@ -1,6 +1,6 @@
 ### graph-algorithms
 
-Generic graph algorithms.
+Generic graph ancestry algorithms.
 
 And their supporting general algorithms.
 
