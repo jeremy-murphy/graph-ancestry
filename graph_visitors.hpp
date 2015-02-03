@@ -30,38 +30,14 @@
 
 namespace graph_algorithms
 {
-    struct found_target : public std::exception {};
-    
-    template <typename Vertex>
+    template <typename T>
     struct found_something : public std::exception
     {
-        Vertex thing;
+        T thing;
         
-        found_something(Vertex u) : thing(u) {}
+        found_something(T x) : thing(x) {}
     };
     
-    // Graph-based visitor equivalent of std::find.
-    template <typename Vertex>
-    struct bfs_find : public boost::default_bfs_visitor
-    {
-        Vertex target;
-        
-        bfs_find(Vertex target) : target(target) {}
-        
-        template <typename Graph>
-        void discover_vertex(Vertex const &v, Graph const &) const
-        {
-            if(target == v)
-                throw found_target();
-        }
-    };
-
-    
-    template <typename Vertex>
-    bfs_find<Vertex> make_bfs_find(Vertex u)
-    {
-        return bfs_find<Vertex>(u);
-    }
     
     /* LCA visitor awkwardness.
      * 
