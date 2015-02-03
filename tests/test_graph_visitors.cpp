@@ -59,29 +59,4 @@ BOOST_AUTO_TEST_CASE(test_eulerian_path)
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
 }
 
-
-BOOST_AUTO_TEST_CASE(test_cycle_detector)
-{
-    vector<edge_descriptor> output;
-    auto vis = make_cycle_detector<edge_descriptor>(back_inserter(output));
-    boost::depth_first_search(g, boost::visitor(vis));
-    BOOST_CHECK(output.empty());
-}
-
 BOOST_AUTO_TEST_SUITE_END()
-
-
-BOOST_AUTO_TEST_CASE(test_cycle_detector)
-{
-    boost::adjacency_list<> g;
-    typedef typename boost::graph_traits<boost::adjacency_list<>>::edge_descriptor edge_descriptor;
-    // Make a simple cycle.
-    boost::add_edge(0, 1, g);
-    boost::add_edge(1, 2, g);
-    boost::add_edge(2, 0, g);
-    vector<edge_descriptor> output;
-    auto vis = make_cycle_detector<edge_descriptor>(back_inserter(output));
-    boost::depth_first_search(g, boost::visitor(vis));
-    // Not sure about the guarantees on order of traversal so don't check for anything more specific.
-    BOOST_CHECK_EQUAL(output.size(), 1);
-}

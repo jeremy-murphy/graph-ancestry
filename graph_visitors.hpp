@@ -129,39 +129,6 @@ namespace graph_algorithms
         return vertex_depth<O>(result);
     }
     
-    
-    /// Outputs an edge from each cycle in a graph.
-    template <typename Edge, typename OutputIterator>
-    struct cycle_detector : public boost::default_dfs_visitor
-    {
-        BOOST_CONCEPT_ASSERT((boost::OutputIterator<OutputIterator, Edge>));
-        
-        std::set<Edge> predecessors;
-        OutputIterator result;
-
-        cycle_detector(OutputIterator result) : result(result) {}
-        
-        template <typename Graph>
-        void back_edge(Edge const &E, Graph&)
-        {
-            if(predecessors.find(E) == std::end(predecessors))
-                *result++ = E;
-        }
-        
-        template <typename Graph>
-        void tree_edge(Edge const &E, Graph &)
-        {
-            predecessors.insert(E);
-        }
-    };
-    
-    
-    template <typename Edge, typename OutputIterator>
-    cycle_detector<Edge, OutputIterator> make_cycle_detector(OutputIterator &&result)
-    {
-        return cycle_detector<Edge, OutputIterator>(std::forward<OutputIterator>(result));
-    }
-    
 
     template <typename Vertex, typename Graph, typename KeyValueMap, typename Value, typename Relation>
     bool prop_relation_wrapper(Vertex u, Graph const &, KeyValueMap m, Value x, Relation r)
