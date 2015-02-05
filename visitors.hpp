@@ -16,7 +16,7 @@
 */
 
 /**
- * @file graph_visitors.hpp
+ * @file visitors.hpp
  * @brief Boost.Graph visitors for depth-first or breadth-first search.
  */
 #include <boost/concept_check.hpp>

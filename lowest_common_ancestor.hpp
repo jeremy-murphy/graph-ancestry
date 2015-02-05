@@ -25,9 +25,9 @@
 #ifndef LCA_HPP
 #define LCA_HPP
 
-#include "RMQ.hpp"
+#include "range_minimum_query.hpp"
 #include "transformers.hpp"
-#include "graph_visitors.hpp"
+#include "visitors.hpp"
 
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>

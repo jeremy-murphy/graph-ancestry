@@ -16,7 +16,7 @@
 */
 
 /**
- * @file test_graph_visitors.hpp
+ * @file test_visitors.hpp
  * @brief Unit tests for graph visitors.  
  */
 
@@ -24,7 +24,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "graph_visitors.hpp"
+#include "visitors.hpp"
 #include "fixture.hpp"
 
 #include <iostream>

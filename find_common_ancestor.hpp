@@ -16,14 +16,14 @@
 */
 
 /**
- * @file DAG.hpp
+ * @file find_common_ancestor.hpp
  * @brief Algorithms for the directed acyclic graph (DAG).
  */
 
 #ifndef DAG_HPP
 #define DAG_HPP
 
-#include "graph_visitors.hpp"
+#include "visitors.hpp"
 
 #include <algorithm>
 #include <vector>

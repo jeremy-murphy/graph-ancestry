@@ -109,8 +109,7 @@ BOOST_AUTO_TEST_CASE(test_transitive_closure_of_reflected_graph)
     // Now that we finally have a transitive-closure of F, we can query.
     auto q = edge(5 + offset, 9, TC_F);
     BOOST_CHECK(q.second);
-    q = edge(5 + offset, 10, TC_F);
-    BOOST_CHECK(!q.second);
+    BOOST_CHECK(!does_common_ancestor_exist(5, 10, TC_F, offset));
     q = edge(8 + offset, 10, TC_F);
     BOOST_CHECK(q.second);
     q = edge(5 + offset, 6, TC_F);

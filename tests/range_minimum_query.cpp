@@ -2,7 +2,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "RMQ.hpp"
+#include "range_minimum_query.hpp"
 
 #include <boost/mpl/vector.hpp>
 #include <boost/multi_array.hpp>

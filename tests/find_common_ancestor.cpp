@@ -16,7 +16,7 @@
 */
 
 /**
- * @file test_DAG.hpp
+ * @file test_find_common_ancestor.hpp
  * @brief Unit tests for DAG functions.  
  */
 
@@ -24,7 +24,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "DAG.hpp"
+#include "find_common_ancestor.hpp"
 #include "fixture.hpp"
 
 #ifndef NDEBUG
