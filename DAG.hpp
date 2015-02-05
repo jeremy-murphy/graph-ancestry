@@ -48,8 +48,7 @@ namespace graph_algorithms
     /**
      *  @brief Finds the first vertex that has a common ancestor 
      *  @ingroup non_mutating_algorithms
-     *  @param  G           Directed acyclic graph.
-     *  @param  u           Vertex to find common ancestor with.
+     *  @param  H           Directed acyclic graph (typically the reverse of another graph).
      *  @param  first       Beginning of vertices to search.
      *  @param  last        End of vertices to search.
      *  @param  target      Which vertices are ancestors of u.
@@ -58,9 +57,9 @@ namespace graph_algorithms
      *  @param  predecessor Vertex predecessors seen during search.
      * 
      */
-    template <typename IncidenceGraph, typename VertexInputIterator, typename VertexColourMap, typename VertexQueue, typename PredecessorMap>
+    template <typename IncidenceGraph, typename VertexInputIterator, typename VertexColourPropMap, typename VertexQueue, typename VertexVertexMap>
     std::pair<VertexInputIterator, typename boost::graph_traits<IncidenceGraph>::vertex_descriptor>
-    find_common_ancestor_impl(IncidenceGraph const &H, VertexInputIterator first, VertexInputIterator last, VertexColourMap const ancestors, VertexColourMap searched, VertexQueue &q, PredecessorMap predecessor)
+    find_common_ancestor_impl(IncidenceGraph const &H, VertexInputIterator first, VertexInputIterator last, VertexColourPropMap ancestors, VertexColourPropMap searched, VertexQueue &q, VertexVertexMap &predecessor)
     {
         using namespace boost;
         using namespace std::placeholders;
@@ -72,7 +71,7 @@ namespace graph_algorithms
         
         // TODO: Make a decision about how best to do this.
         typedef std::equal_to<default_color_type> EqualColour;
-        auto const stop_if_black_vertex = make_stop_on_vertex(std::bind(prop_relation_wrapper<vertex_descriptor, IncidenceGraph, VertexColourMap, default_color_type, EqualColour>, _1, _2, ancestors, black_color, EqualColour()), on_discover_vertex());
+        auto const stop_if_black_vertex = make_stop_on_vertex(std::bind(prop_relation_wrapper<vertex_descriptor, IncidenceGraph, VertexColourPropMap, default_color_type, EqualColour>, _1, _2, ancestors, black_color, EqualColour()), on_discover_vertex());
         // auto const stop_if_black_vertex = make_stop_on_discover_vertex_if([&](vertex_descriptor v, ReversedGraph const &){ return get(target, v) == black_color; });
         auto const foo = make_bfs_visitor(std::make_pair(stop_if_black_vertex, record_predecessors(make_assoc_property_map(predecessor), boost::on_tree_edge())));
         
@@ -86,6 +85,7 @@ namespace graph_algorithms
                 if (get(searched, v) != black_color)
                 {
                     predecessor.clear();
+                    // Clear q? Or is there a use to allowing preloaded values?
                     breadth_first_visit(H, v, q, foo, searched);
                 }
             }
@@ -93,7 +93,7 @@ namespace graph_algorithms
         catch (found_something<vertex_descriptor> const &e)
         {
             // Mark all predecessors in search space back to white.
-            typedef typename PredecessorMap::value_type value_type;
+            typedef typename VertexVertexMap::value_type value_type;
             std::for_each(std::begin(predecessor), std::end(predecessor), [&](value_type const &x)
             {
                 put(searched, x.first, white_color);
@@ -121,6 +121,8 @@ namespace graph_algorithms
      *  @param  u       Vertex to find common ancestor with.
      *  @param  first   Beginning of vertices to search.
      *  @param  last    End of vertices to search.
+     * 
+     *  Useful for finding only one (the first) vertex with a common ancestor to u.
      */
     template <typename IncidenceGraph, typename Vertex, typename VertexInputIterator>
     std::pair<VertexInputIterator, typename boost::graph_traits<IncidenceGraph>::vertex_descriptor>
