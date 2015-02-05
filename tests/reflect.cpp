@@ -101,19 +101,4 @@ BOOST_AUTO_TEST_CASE(test_reflect_through_sources_2)
     BOOST_REQUIRE(boost::isomorphism(h, F));
 }
 
-
-BOOST_AUTO_TEST_CASE(test_transitive_closure_of_reflected_graph)
-{
-    boost::adjacency_matrix<> TC_F(17);
-    auto offset = create_common_ancestor_existence_tc(g, TC_F);
-    // Now that we finally have a transitive-closure of F, we can query.
-    auto q = edge(5 + offset, 9, TC_F);
-    BOOST_CHECK(q.second);
-    BOOST_CHECK(!does_common_ancestor_exist(5, 10, TC_F, offset));
-    q = edge(8 + offset, 10, TC_F);
-    BOOST_CHECK(q.second);
-    q = edge(5 + offset, 6, TC_F);
-    BOOST_CHECK(!q.second);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
