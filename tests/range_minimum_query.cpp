@@ -134,7 +134,7 @@ struct random_RMQ
     mt19937 engine;
     uniform_int_distribution<unsigned> d;
     vector<unsigned> a;
-    typedef typename vector<unsigned>::const_iterator const_iterator;
+    typedef BOOST_DEDUCED_TYPENAME vector<unsigned>::const_iterator const_iterator;
     
     random_RMQ() : d(0, (1ul << 32) - 1)
     {

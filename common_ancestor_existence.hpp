@@ -1,5 +1,7 @@
 #include "reflect.hpp"
 
+#include <boost/config.hpp>
+
 namespace graph_algorithms
 {
     /**
@@ -8,10 +10,10 @@ namespace graph_algorithms
      *  Note: G is also modified.
      */
     template <typename Graph, typename MutableGraph>
-    typename boost::graph_traits<Graph>::vertices_size_type
+    BOOST_DEDUCED_TYPENAME boost::graph_traits<Graph>::vertices_size_type
     create_common_ancestor_existence_tc(Graph &G, MutableGraph &F)
     {
-        typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
         
         auto const offset = reflect_through_sources(G);
         Graph tmp;

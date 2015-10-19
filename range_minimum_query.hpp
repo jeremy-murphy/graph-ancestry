@@ -26,6 +26,7 @@
 #include <boost/concept_check.hpp>
 #include <boost/concept/requires.hpp>
 #include <boost/concept/assert.hpp>
+#include <boost/config.hpp>
 #include <boost/multi_array/concept_checks.hpp>
 #include <boost/multi_array.hpp>
 
@@ -61,7 +62,7 @@ namespace general
         
         if(A.size() > 2)
         {
-            typedef typename C0::size_type size_type;
+            typedef BOOST_DEDUCED_TYPENAME C0::size_type size_type;
             char unsigned j = 1;
             
             for(size_type i = 0; i < A.size() - 1; i++)

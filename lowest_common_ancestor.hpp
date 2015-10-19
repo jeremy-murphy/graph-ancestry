@@ -31,6 +31,7 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>
+#include <boost/config.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/multi_array/concept_checks.hpp>
 
@@ -80,9 +81,9 @@ namespace graph_algorithms
         using namespace boost;
         using namespace general;
         
-        typedef typename VertexContainer::iterator vertex_iterator;
-        typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef typename std::iterator_traits<vertex_iterator>::difference_type vertex_difference_type;
+        typedef BOOST_DEDUCED_TYPENAME VertexContainer::iterator vertex_iterator;
+        typedef BOOST_DEDUCED_TYPENAME graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<vertex_iterator>::difference_type vertex_difference_type;
         typedef std::pair<vertex_descriptor, vertex_difference_type> vertex_index_pair;
 
         BOOST_CONCEPT_ASSERT((VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.

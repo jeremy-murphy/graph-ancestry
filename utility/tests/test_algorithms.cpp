@@ -23,7 +23,7 @@ struct enable_locale
 
 BOOST_GLOBAL_FIXTURE(enable_locale);
 
-typedef typename vector<unsigned>::const_iterator const_iterator;
+typedef BOOST_DEDUCED_TYPENAME vector<unsigned>::const_iterator const_iterator;
 
 struct basic_unordered_map
 {

@@ -32,7 +32,7 @@
 #include <unordered_map>
 
 #include <boost/concept/assert.hpp>
-
+#include <boost/config.hpp>
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -64,7 +64,7 @@ namespace graph_algorithms
         using namespace boost;
         using namespace std::placeholders;
         
-        typedef typename graph_traits<IncidenceGraph>::vertex_descriptor vertex_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME graph_traits<IncidenceGraph>::vertex_descriptor vertex_descriptor;
 
         BOOST_CONCEPT_ASSERT((IncidenceGraphConcept<IncidenceGraph>));
         BOOST_CONCEPT_ASSERT((InputIterator<VertexInputIterator>));
@@ -93,7 +93,7 @@ namespace graph_algorithms
         catch (found_something<vertex_descriptor> const &e)
         {
             // Mark all predecessors in search space back to white.
-            typedef typename VertexVertexMap::value_type value_type;
+            typedef BOOST_DEDUCED_TYPENAME VertexVertexMap::value_type value_type;
             std::for_each(std::begin(predecessor), std::end(predecessor), [&](value_type const &x)
             {
                 put(searched, x.first, white_color);
@@ -133,7 +133,7 @@ namespace graph_algorithms
         BOOST_CONCEPT_ASSERT((IncidenceGraphConcept<IncidenceGraph>));
         BOOST_CONCEPT_ASSERT((InputIterator<VertexInputIterator>));
 
-        typedef typename graph_traits<IncidenceGraph>::vertex_descriptor vertex_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME graph_traits<IncidenceGraph>::vertex_descriptor vertex_descriptor;
         
         auto const V = vertices(G);
         vector_property_map<default_color_type> ancestors, searched;

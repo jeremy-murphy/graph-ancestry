@@ -23,6 +23,7 @@
 #ifndef FIXTURE_HPP
 #define FIXTURE_HPP
 
+#include <boost/config.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
@@ -42,9 +43,9 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> D
 template <typename Graph = DefaultAdjacencyList>
 struct Bender_2005_2
 {
-    typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-    typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
-    typedef typename index_vector::const_iterator const_iterator;
+    typedef BOOST_DEDUCED_TYPENAME boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+    typedef BOOST_DEDUCED_TYPENAME boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+    typedef BOOST_DEDUCED_TYPENAME index_vector::const_iterator const_iterator;
 
     Graph g;
     std::vector<vertex_descriptor> E = {0,  1 , 4,  9, 4, 10, 17, 10, 18, 10,

@@ -77,7 +77,7 @@ BOOST_FIXTURE_TEST_CASE(test_find_common_ancestor_repeat_use, Bender_2005_4<>)
 {
     using namespace boost;
     
-    typedef typename graph_traits<decltype(g)>::vertex_descriptor vertex_descriptor;
+    typedef BOOST_DEDUCED_TYPENAME graph_traits<decltype(g)>::vertex_descriptor vertex_descriptor;
     
     auto const V = vertices(g);
     // std::unordered_map<vertex_descriptor, default_color_type> target_colour, search_colour;

@@ -20,6 +20,8 @@
  * @brief General transformer function objects.
  */
 
+#include <boost/config.hpp>
+
 #include <iterator>
 #include <utility>
 
@@ -37,9 +39,9 @@ namespace general
     template <typename I>
     class element_index
     {
-        typedef typename std::iterator_traits<I>::difference_type difference_type;
-        typedef typename std::iterator_traits<I>::value_type value_type;
-        typedef typename std::iterator_traits<I>::reference reference;
+        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<I>::difference_type difference_type;
+        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<I>::value_type value_type;
+        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<I>::reference reference;
         typedef std::pair<value_type, difference_type> T;
         
         difference_type index;

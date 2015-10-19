@@ -25,6 +25,7 @@
 
 #include "predicates.hpp"
 
+#include <boost/config.hpp>
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -48,7 +49,7 @@ namespace graph_algorithms
     template <typename OutputGraph>
     struct reflection_builder : boost::default_bfs_visitor
     {
-        typedef typename boost::graph_traits<OutputGraph>::vertices_size_type vertices_size_type;
+        typedef BOOST_DEDUCED_TYPENAME boost::graph_traits<OutputGraph>::vertices_size_type vertices_size_type;
         
         OutputGraph *F;
         vertices_size_type offset;
@@ -93,8 +94,8 @@ namespace graph_algorithms
     {
         using namespace boost;
         
-        typedef typename graph_traits<BidirectionalGraph>::vertex_descriptor vertex_descriptor;
-        typedef typename graph_traits<BidirectionalGraph>::edge_descriptor edge_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME graph_traits<BidirectionalGraph>::vertex_descriptor vertex_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME graph_traits<BidirectionalGraph>::edge_descriptor edge_descriptor;
         
         BOOST_CONCEPT_ASSERT((BidirectionalGraphConcept<BidirectionalGraph>));
         BOOST_CONCEPT_ASSERT((MutableGraphConcept<MutableGraph>));
@@ -131,8 +132,8 @@ namespace graph_algorithms
         using namespace std;
         using std::placeholders::_1;
         
-        typedef typename boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef typename boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME boost::graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef BOOST_DEDUCED_TYPENAME boost::graph_traits<Graph>::edge_descriptor edge_descriptor;
         
         auto const V = vertices(G);
         auto const source_last = find_if_not(V.first, V.second, std::bind(is_source(), _1, G));
