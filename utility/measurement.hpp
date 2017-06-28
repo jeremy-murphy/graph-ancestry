@@ -1,3 +1,6 @@
+#ifndef MEASUREMENT_HPP
+#define MEASUREMENT_HPP
+
 #include <boost/test/unit_test.hpp>
 #include <boost/timer/timer.hpp>
 
@@ -19,7 +22,7 @@ void measure(N0 n, N1 reps, F &f, std::string unit="element")
         auto const t_n = double(t) / n / reps;
         auto const test_name = std::string(boost::unit_test::framework::current_test_case().p_name);
         auto const data_file(std::string(".") + test_name);
-        BOOST_MESSAGE(test_name << "[" << reps << " × " << n << "]: " << t_n << " ns per " << unit);
+        BOOST_TEST_MESSAGE(test_name << "[" << reps << " × " << n << "]: " << t_n << " ns per " << unit);
         std::ifstream foo(data_file);
         if(foo.is_open())
         {
@@ -31,13 +34,15 @@ void measure(N0 n, N1 reps, F &f, std::string unit="element")
         }
         else
         {
-            BOOST_MESSAGE(data_file << ": not found; starting anew with " << t_n << ".");
+            BOOST_TEST_MESSAGE(data_file << ": not found; starting anew with " << t_n << ".");
             std::ofstream output(data_file);
             output << t_n << "\n";
         }
     }
     else
     {
-        BOOST_MESSAGE("t = " << t << ": aborting.");
+        BOOST_TEST_MESSAGE("t = " << t << ": aborting.");
     }
 }
+
+#endif
