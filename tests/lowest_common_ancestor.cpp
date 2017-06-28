@@ -90,17 +90,17 @@ BOOST_AUTO_TEST_CASE(basic_query)
     for (auto it = begin(R); it != end(R); ++it)
         R2[it->first] = it->second;
     auto result = LCA(0u, 0u, E, L, R2, M);
-    BOOST_CHECK_EQUAL(result, 0);
+    BOOST_CHECK_EQUAL(result, 0u);
     result = LCA(0u, 7u, E, L, R2, M);
-    BOOST_CHECK_EQUAL(result, 0);
+    BOOST_CHECK_EQUAL(result, 0u);
     result = LCA(11u, 12u, E, L, R2, M);
-    BOOST_CHECK_EQUAL(result, 1);
+    BOOST_CHECK_EQUAL(result, 1u);
     result = LCA(17u, 19u, E, L, R2, M);
-    BOOST_CHECK_EQUAL(result, 4);
+    BOOST_CHECK_EQUAL(result, 4u);
     result = LCA(14u, 16u, E, L, R2, M);
-    BOOST_CHECK_EQUAL(result, 7);
+    BOOST_CHECK_EQUAL(result, 7u);
     result = LCA(12u, 17u, E, L, R2, M);
-    BOOST_CHECK_EQUAL(result, 1);
+    BOOST_CHECK_EQUAL(result, 1u);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
