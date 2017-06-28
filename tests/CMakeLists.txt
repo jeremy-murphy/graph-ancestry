@@ -1,4 +1,4 @@
-find_package(Boost 1.49 REQUIRED graph system test_exec_monitor timer)
+find_package(Boost 1.49 REQUIRED graph system test_exec_monitor timer regex chrono)
 include_directories(".." "../utility/" ${Boost_INCLUDE_DIRS})
 
 add_executable(test_LCA lowest_common_ancestor.cpp)
