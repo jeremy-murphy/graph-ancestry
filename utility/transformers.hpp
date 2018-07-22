@@ -36,22 +36,22 @@ namespace general
      * will convert an element to an (element, index) pair such that index
      * uniquely identifies each element.
      */
-    template <typename I>
+    template <typename Iterator>
     class element_index
     {
-        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<I>::difference_type difference_type;
-        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<I>::value_type value_type;
-        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<I>::reference reference;
-        typedef std::pair<value_type, difference_type> T;
+        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::difference_type difference_type;
+        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::value_type value_type;
+        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::reference reference;
+        typedef std::pair<value_type, difference_type> ValueIndexPair;
         
         difference_type index;
         
     public:
         element_index(difference_type start = 0) : index(start) {}
         
-        T operator()(reference const &x)
+        ValueIndexPair operator()(reference const &x)
         {
-            return T(x, index++);
+            return ValueIndexPair(x, index++);
         }
     };
 }

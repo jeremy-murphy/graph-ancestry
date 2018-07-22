@@ -24,3 +24,7 @@ add_test(test_reflect test_reflect)
 add_executable(test_common_ancestor_existence common_ancestor_existence.cpp)
 target_link_libraries(test_common_ancestor_existence ${Boost_LIBRARIES})
 add_test(test_common_ancestor_existence test_common_ancestor_existence)
+
+add_executable(test_integer_math test_integer_math.cpp)
+target_link_libraries(test_integer_math ${Boost_LIBRARIES})
+add_test(test_integer_math test_integer_math)

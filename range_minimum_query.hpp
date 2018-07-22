@@ -23,19 +23,22 @@
 #ifndef RMQ_HPP
 #define RMQ_HPP
 
-#include <boost/concept_check.hpp>
-#include <boost/concept/requires.hpp>
-#include <boost/concept/assert.hpp>
+// #include <boost/concept_check.hpp>
+// #include <boost/concept/requires.hpp>
+// #include <boost/concept/assert.hpp>
+
+#include <integer_math.hpp>
+
 #include <boost/config.hpp>
-#include <boost/multi_array/concept_checks.hpp>
+
+// #include <boost/multi_array/concept_checks.hpp>
 #include <boost/multi_array.hpp>
 
-#include <iterator>
-#include <algorithm>
-#include <cassert>
-#include <cmath>
+#include <boost/range.hpp>
 
-#include "algorithms.hpp"
+
+#include <limits>
+
 
 
 namespace general
@@ -47,41 +50,45 @@ namespace general
     
     
     /**
-     * @brief           Create a Sparse Table of indexes for RMQ from the input container A.
-     * @ingroup         RMQ_algorithms
-     * @tparam C0       Read-only random-access container.
-     * @tparam C1       Mutable 2d array.
-     * @param A         Input array.
-     * @param M         Sparse Table of A.
+     * @brief               Create a Sparse Table of indexes for RMQ from the input container A.
+     * @ingroup             RMQ_algorithms
+     * @param range          Input range.
+     * @param sparse_table  Metadata created to process queries on the range.
+     *
+     * Time complexity: O(n lg n)
      */
-    template <typename C0, typename C1>
-    void RMQ_preprocess(C0 const &A, C1 &M)
+    template <typename RandomAccessRange, typename MultiArray>
+    void RMQ_preprocess(RandomAccessRange const &range, MultiArray &sparse_table)
     {
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
-        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
+        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
+        // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<MultiArray, 2>));
         
-        if(A.size() > 2)
+        typedef typename boost::range_difference<RandomAccessRange>::type index;
+        typedef typename MultiArray::element element;
+        BOOST_ASSERT(boost::size(range) <= std::numeric_limits<index>::max());
+
+        index const n = boost::size(range);
+
+        if (n > 2)
         {
-            typedef BOOST_DEDUCED_TYPENAME C0::size_type size_type;
-            char unsigned j = 1;
+            char j = 1;
+
+            for (index i = 0; i < n - 1; i++)
+                sparse_table[j][i] = range[i] <= range[i + 1] ? i : i + 1;
+
+            char const lowerlogn = lower_log2(n);
+            index prev_block_length = 2u;
             
-            for(size_type i = 0; i < A.size() - 1; i++)
-                M[j][i] = A[i] <= A[i + 1] ? i : i + 1;
-            
-            auto const n = A.size();
-            auto const lowerlogn = lower_log2(n);
-            auto prev_block_length = 2u;
-            
-            for(j = 2; j <= lowerlogn; j++)
+            for (j = 2; j <= lowerlogn; j++)
             {
-                auto const block_length = pow2(j);
-                auto const last_pos = n - block_length + 1u;
+                index const block_length = pow2(j);
+                index const last_pos = n - block_length + 1u;
                 
-                for(std::size_t i = 0; i != last_pos; i++)
+                for (index i = 0; i != last_pos; i++)
                 {
-                    auto const &M1 = M[j - 1u][i], 
-                                &M2 = M[j - 1u][i + prev_block_length];
-                    M[j][i] = A[M2] < A[M1] ? M2 : M1;
+                    element const &M1 = sparse_table[j - 1u][i],
+                                  &M2 = sparse_table[j - 1u][i + prev_block_length];
+                    sparse_table[j][i] = range[M2] < range[M1] ? M2 : M1;
                 }
                 prev_block_length = block_length;
             }
@@ -92,8 +99,8 @@ namespace general
     template <typename C0, typename C1>
     void initialize_sparse_table(C0 const &A, C1 &M)
     {
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
-        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
+        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
         typedef boost::multi_array_types::extent_range extent_range;
 
         M = C1(boost::extents[extent_range(1, lower_log2(A.size()) + 1)][A.size()]);
@@ -104,8 +111,8 @@ namespace general
     template <typename C0, typename C1, typename F>
     void create_sparse_table(C0 const &A, C1 &M, F initialize)
     {
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
-        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
+        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
         
         initialize(A, M);
         RMQ_preprocess(A, M);
@@ -116,8 +123,8 @@ namespace general
     template <typename C0, typename C1>
     void create_sparse_table(C0 const &A, C1 &M)
     {
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
-        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
+        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
+        // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<C1, 2>));
 
         create_sparse_table(A, M, initialize_sparse_table<C0, C1>);
     }
@@ -126,35 +133,68 @@ namespace general
     /** @brief Perform range minimum query on a Sparse Table.
      *  @ingroup RMQ_algorithms
      *  @tparam N0 Index type
-     *  @tparam N1 Container size type (usually std::size_t)
+     *  @tparam N1 Container size type
      *  @tparam C Container type
      *  @param i Lower bound index of range query
      *  @param j Upper bound index of range query
-     *  @param n Size of original input problem
+     *  @param range
      *  @param sparse_table The Sparse Table to be queried
      * 
      *  Time complexity: Θ(1)
      */
-    template <typename N, typename C0, typename C1>
-    typename C1::element RMQ(N i, N j, C0 const &A, C1 const &M)
+    template <typename N, typename RandomAccessRange, typename MultiArray>
+    typename MultiArray::element
+    RMQ(N i, N j, RandomAccessRange const &range, MultiArray const &sparse_table)
     {
-        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C0>));
-        BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::ConstMultiArrayConcept<C1, 2>));
-        
+        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
+        // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::ConstMultiArrayConcept<MultiArray, 2>));
+
+        typedef typename MultiArray::element element;
+
         // requires: [i, j] is a valid range.
-        assert(i <= j);
+        BOOST_ASSERT(i >= 0);
+        BOOST_ASSERT(i <= j);
         
         if (i == j)
             return i;
         
-        auto const r = j - i + 1;
-        auto const k = lower_log2(r);
-        auto const x = M[k][i], y = M[k][j - pow2(k) + 1];
-        assert(x >= i && x <= j);
-        assert(y >= i && y <= j);
-        return A[y] < A[x] ? y : x;
+        N const r = j - i + 1;
+        char const k = lower_log2(r);
+        element const x = sparse_table[k][i],
+                      y = sparse_table[k][j - pow2(k) + 1];
+        BOOST_ASSERT(x >= i && x <= j);
+        BOOST_ASSERT(y >= i && y <= j);
+        return range[y] < range[x] ? y : x;
     }
+
+    template <typename Integer>
+    boost::multi_array_types::extent_gen::gen_type<2>::type sparse_table_extent(Integer n)
+    {
+        typedef boost::multi_array_types::extent_range extent_range;
+        return boost::extents[extent_range(1, lower_log2(n) + 1)][n];
+    }
+
+
+    template <typename RandomAccessRange, typename Index = int>
+    class range_minimum_query
+    {
+    public:
+        range_minimum_query(RandomAccessRange const &range)
+            : range(range), sparse_table(sparse_table_extent(boost::size(range)))
+        {
+            RMQ_preprocess(range, sparse_table);
+        }
+
+        template <typename N>
+        Index operator()(N i, N j) const
+        {
+            return RMQ(i, j, range, sparse_table);
+        }
+
+    private:
+        RandomAccessRange range;
+        boost::multi_array<Index, 2> sparse_table;
+    };
 }
 
 #endif

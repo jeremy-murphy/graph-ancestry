@@ -112,8 +112,12 @@ namespace graph_algorithms
             std::for_each(E_u.first, E_u.second, [&](edge_descriptor e) // O(E)
             {
                 auto const new_vertex = target(e, G) + offset;
+#ifndef NDEBUG
                 auto const tmp = add_edge(new_vertex, u, F);
                 assert(tmp.second);
+#else
+                add_edge(new_vertex, u, F);
+#endif
                 if (in_degree(new_vertex, F) == 0)
                 {
                     assert(q.empty());

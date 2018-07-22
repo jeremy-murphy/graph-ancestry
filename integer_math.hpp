@@ -16,28 +16,23 @@
 */
 
 /**
- * @file algorithms.hpp
+ * @file integer_math.hpp
  * @brief General algorithms.
  */
 
-#ifndef ALGORITHMS_HPP
-#define ALGORITHMS_HPP
+#ifndef INTEGER_MATH_HPP
+#define INTEGER_MATH_HPP
 
-#include <iterator>
-#include <cassert>
-#include <type_traits>
-
-#include <boost/concept_check.hpp>
-#include <boost/concept/assert.hpp>
+#include <boost/assert.hpp>
 
 
 namespace general
 {
-    template <typename N>
+    template <typename Integer>
     inline
-    long unsigned pow2(N n)
+    long unsigned pow2(Integer n)
     {
-        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
+        BOOST_ASSERT(n >= 0);
 
         return 1ul << n;
     }
@@ -45,14 +40,12 @@ namespace general
     
     template <typename N>
     inline
-    char unsigned lower_log2(N n)
+    char lower_log2(N n)
     {
-        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
-
-        assert(n != 0);
-        char unsigned result = 0;
+        BOOST_ASSERT(n > 0);
+        char result = 0;
         
-        while(n >>= 1u)
+        while (n >>= 1u)
         {
             result++;
         }
@@ -63,12 +56,10 @@ namespace general
     
     template <typename N>
     inline 
-    char unsigned upper_log2(N n)
+    char upper_log2(N n)
     {
-        BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
-        
-        assert(n != 0);
-        auto result = lower_log2(n);
+        BOOST_ASSERT(n >= 0);
+        char result = lower_log2(n);
         if (n & 1u && n != 1u)
             result++;
         return result;

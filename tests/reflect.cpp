@@ -76,10 +76,11 @@ BOOST_AUTO_TEST_CASE(test_reflect_through_sources_1)
 
 BOOST_AUTO_TEST_CASE(test_reflect_through_sources_2)
 {
+    typedef boost::graph_traits<decltype(g)>::vertex_iterator vertex_iterator;
     typedef boost::graph_traits<decltype(g)>::vertex_descriptor vertex_descriptor;
-    typedef boost::graph_traits<decltype(g)>::edge_descriptor edge_descriptor;
+    // typedef boost::graph_traits<decltype(g)>::edge_descriptor edge_descriptor;
     
-    auto const V = vertices(g);
+    std::pair<vertex_iterator, vertex_iterator> const V = vertices(g);
     std::unordered_map<vertex_descriptor, boost::default_color_type> vertex_color;
     boost::associative_property_map<decltype(vertex_color)> colour(vertex_color);
     boost::queue<vertex_descriptor> q;

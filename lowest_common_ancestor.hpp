@@ -25,9 +25,9 @@
 #ifndef LCA_HPP
 #define LCA_HPP
 
-#include "range_minimum_query.hpp"
-#include "transformers.hpp"
-#include "visitors.hpp"
+#include <range_minimum_query.hpp>
+#include <transformers.hpp>
+#include <visitors.hpp>
 
 #include <boost/concept_check.hpp>
 #include <boost/concept/assert.hpp>
@@ -35,20 +35,11 @@
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/multi_array/concept_checks.hpp>
 
+#include <boost/range.hpp>
+#include <boost/range/algorithm/transform.hpp>
+
 #include <algorithm>
 #include <tuple>
-
-/*  A note about parameter types.
- * 
- *  I encourage and practice the use of input and output iterators and 
- *  frequently admonish those who pass and return vectors and sets, etc.
- *  Sometimes, however, you really do need access to a container in a way
- *  that iterators can't provide, such as mixing random-access with back 
- *  insertion.
- * 
- *  That is why several algorithms in this library take containers as input
- *  and output parameters: it seemed like the most reasonable way to do it.
- */
 
 namespace graph_algorithms
 {
@@ -65,7 +56,7 @@ namespace graph_algorithms
      *  @tparam IndexOutput Output iterator of container index.
      *  @tparam IndexMultiArray Mutable 2d array.
      *  @param T Tree.
-     *  @param E Eulerian sequence of vertices.
+     *  @param Euler_tour_index Eulerian sequence of vertices.
      *  @param L Eulerian sequence of vertex depths.
      *  @param R Representative vertices.
      *  @param M Sparse table.
@@ -76,14 +67,16 @@ namespace graph_algorithms
      */ 
     template <typename Graph, typename VertexContainer, typename VertexDepthContainer, typename IndexOutput, typename IndexMultiArray>
     // requires: Directed(Graph)
-    void LCA_preprocess(Graph const &T, VertexContainer &E, VertexDepthContainer &L, IndexOutput R, IndexMultiArray &M)
+    void LCA_preprocess(Graph const &tree, VertexContainer &Euler_tour_index,
+                        VertexDepthContainer &Euler_tour_level, IndexOutput representative,
+                        IndexMultiArray &sparse_table)
     {
         using namespace boost;
         using namespace general;
         
-        typedef BOOST_DEDUCED_TYPENAME VertexContainer::iterator vertex_iterator;
-        typedef BOOST_DEDUCED_TYPENAME graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<vertex_iterator>::difference_type vertex_difference_type;
+        typedef typename VertexContainer::iterator vertex_iterator;
+        typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+        typedef typename std::iterator_traits<vertex_iterator>::difference_type vertex_difference_type;
         typedef std::pair<vertex_descriptor, vertex_difference_type> vertex_index_pair;
 
         BOOST_CONCEPT_ASSERT((VertexListGraphConcept<Graph>)); // This might be too strict, I can't recall.
@@ -92,13 +85,13 @@ namespace graph_algorithms
         BOOST_CONCEPT_ASSERT((OutputIterator<IndexOutput, vertex_index_pair>));
         BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<IndexMultiArray, 2>));
         
-        // requires: acyclic(T)
+        // requires: acyclic(tree)
         
-        depth_first_search(T, visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(E)))); // Θ(n)
-        depth_first_search(T, visitor(make_vertex_depth(std::back_inserter(L)))); // Θ(n)
+        depth_first_search(tree, visitor(make_eulerian_path<vertex_descriptor>(std::back_inserter(Euler_tour_index)))); // Θ(n)
+        depth_first_search(tree, visitor(make_vertex_depth(std::back_inserter(Euler_tour_level)))); // Θ(n)
         // The key realization here is that if R outputs to a map, insert does not replace, thereby providing the representative element.
-        std::transform(std::begin(E), std::end(E), R, element_index<vertex_iterator>()); // Θ(n)
-        RMQ_preprocess(L, M); // Θ(n lg n)
+        std::transform(std::begin(Euler_tour_index), std::end(Euler_tour_index), representative, element_index<vertex_iterator>()); // Θ(n)
+        RMQ_preprocess(Euler_tour_level, sparse_table); // Θ(n lg n)
     }
 
 
@@ -110,8 +103,8 @@ namespace graph_algorithms
         // NOTE: Can use ADL for get()?
         LCA_preprocess(T, get<0>(x), get<1>(x), std::inserter(get<2>(x), std::end(get<2>(x))), get<3>(x));
     }
-    
-    
+
+
     /** @brief Query the lowest common ancestor of two vertices.
      *  @param u First descendent vertex
      *  @param u Second descendent vertex
@@ -136,8 +129,8 @@ namespace graph_algorithms
         auto const minimum = general::RMQ(i, j, L, M); // Θ(1)
         return E[minimum];
     }
-    
-    
+
+
     /** Convenience function.
      *  @ingroup LCA_algorithms
      */
