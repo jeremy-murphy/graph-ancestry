@@ -63,14 +63,16 @@ namespace general
         // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
         // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<MultiArray, 2>));
         
-        typedef typename boost::range_difference<RandomAccessRange>::type index;
+
+        typedef typename boost::range_size<RandomAccessRange>::type index;
         typedef typename MultiArray::element element;
-        BOOST_ASSERT(boost::size(range) <= std::numeric_limits<index>::max());
 
         index const n = boost::size(range);
 
         if (n > 2)
         {
+            BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
+
             char j = 1;
 
             for (index i = 0; i < n - 1; i++)
