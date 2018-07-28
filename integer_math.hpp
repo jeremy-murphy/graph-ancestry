@@ -46,9 +46,7 @@ namespace general
         char result = 0;
         
         while (n >>= 1u)
-        {
             result++;
-        }
         
         return result;
     }
