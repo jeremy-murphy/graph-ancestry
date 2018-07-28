@@ -58,7 +58,7 @@ namespace general
     inline 
     char upper_log2(N n)
     {
-        BOOST_ASSERT(n >= 0);
+        BOOST_ASSERT(n > 0);
         char result = lower_log2(n);
         if (n & 1u && n != 1u)
             result++;
