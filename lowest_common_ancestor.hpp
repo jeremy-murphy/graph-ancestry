@@ -39,7 +39,6 @@
 #include <boost/range/algorithm/transform.hpp>
 
 #include <algorithm>
-#include <tuple>
 
 namespace graph_algorithms
 {
@@ -95,16 +94,6 @@ namespace graph_algorithms
     }
 
 
-    // Convenience function.
-    /// @ingroup LCA_algorithms
-    template <typename Graph, typename Tuple>
-    void LCA_preprocess(Graph const &T, Tuple &x)
-    {
-        // NOTE: Can use ADL for get()?
-        LCA_preprocess(T, get<0>(x), get<1>(x), std::inserter(get<2>(x), std::end(get<2>(x))), get<3>(x));
-    }
-
-
     /** @brief Query the lowest common ancestor of two vertices.
      *  @param u First descendent vertex
      *  @param u Second descendent vertex
@@ -116,31 +105,26 @@ namespace graph_algorithms
      *  That is, lca_query(u, v, ...) == lca_query(v, u, ...).
      */
     // TODO: Does R have to be a container?  Could it be a unary function?
-    template <typename Vertex, typename VertexContainer, typename VertexDepthContainer, typename IndexContainer, typename IndexMultiArray>
-    typename VertexContainer::value_type LCA(Vertex u, Vertex v, VertexContainer const &E, VertexDepthContainer const &L, IndexContainer const &R, IndexMultiArray const &M)
+    template <typename Vertex, typename VertexIndexable, typename IntegerRange,
+              typename IndexIndexable, typename IndexMultiArray>
+    typename VertexIndexable::value_type
+    least_common_ancestor(Vertex u, Vertex v, VertexIndexable const &Euler_tour_index,
+                          IntegerRange const &Euler_tour_level, IndexIndexable const &representative,
+                          IndexMultiArray const &sparse_table)
     {
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexContainer>));
-        BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
+        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessVertexIterator>));
+        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<VertexDepthContainer>));
         BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::ConstMultiArrayConcept<IndexMultiArray, 2>));
         
-        auto i = R[u], j = R[v];
+        typedef typename boost::range_value<IndexIndexable>::type Index;
+
+        Index i = representative[u], j = representative[v];
         if (j < i)
             std::swap(i, j);
-        auto const minimum = general::RMQ(i, j, L, M); // Θ(1)
-        return E[minimum];
-    }
-
-
-    /** Convenience function.
-     *  @ingroup LCA_algorithms
-     */
-    template <typename Vertex, typename Tuple>
-    typename std::tuple_element<0, Tuple>::type::value_type
-    LCA(Vertex u, Vertex v, Tuple const &x)
-    {
-        // NOTE: Can use ADL for get()?
-        return LCA(u, v, get<0>(x), get<1>(x), get<2>(x), get<3>(x));
+        Index const minimum = general::RMQ(i, j, Euler_tour_level, sparse_table); // Θ(1)
+        return Euler_tour_index[minimum];
     }
 }
 
 #endif
+
