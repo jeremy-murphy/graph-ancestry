@@ -134,12 +134,6 @@ BOOST_FIXTURE_TEST_CASE(test_query16, index_16)
         }
 }
 
-BOOST_AUTO_TEST_CASE(RMQ)
-{
-    boost::container::vector<int> data;
-    range_minimum_query< boost::container::vector<int> > rmq(data);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
 
 
