@@ -71,7 +71,7 @@ namespace general
 
         if (n > 2)
         {
-            BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
+            // BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
 
             char j = 1;
 
@@ -95,6 +95,7 @@ namespace general
                 prev_block_length = block_length;
             }
         }
+        // TODO: We should do something for n = 1 and 2.
     }
 
 
@@ -177,26 +178,35 @@ namespace general
     }
 
 
-    template <typename RandomAccessRange, typename Index = int>
+    template <typename RandomAccessRange>
     class range_minimum_query
     {
+      typedef typename boost::range_size<RandomAccessRange>::type index_t;
     public:
         range_minimum_query(RandomAccessRange const &range)
-            : range(range), sparse_table(sparse_table_extent(boost::size(range)))
+            : range(range),
+              sparse_table(sparse_table_extent(boost::size(range)))
         {
             RMQ_preprocess(range, sparse_table);
         }
 
         template <typename N>
-        Index operator()(N i, N j) const
+        index_t operator()(N i, N j) const
         {
             return RMQ(i, j, range, sparse_table);
         }
 
     private:
         RandomAccessRange range;
-        boost::multi_array<Index, 2> sparse_table;
+        boost::multi_array<index_t, 2> sparse_table;
     };
+
+    template <typename RandomAccessRange>
+    range_minimum_query<RandomAccessRange>
+    make_range_minimum_query(RandomAccessRange const &range)
+    {
+      return range_minimum_query<RandomAccessRange>(range);
+    }
 }
 
 #endif
