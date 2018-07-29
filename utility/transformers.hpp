@@ -20,6 +20,9 @@
  * @brief General transformer function objects.
  */
 
+#ifndef GRAPH_TRANSFORMERS_HPP
+#define GRAPH_TRANSFORMERS_HPP
+
 #include <boost/config.hpp>
 
 #include <iterator>
@@ -55,3 +58,5 @@ namespace general
         }
     };
 }
+
+#endif
