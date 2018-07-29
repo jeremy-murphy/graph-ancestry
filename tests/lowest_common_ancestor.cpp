@@ -36,8 +36,7 @@ BOOST_GLOBAL_FIXTURE(enable_locale);
 
 typedef boost::multi_array_types::extent_range range;
 
-BOOST_FIXTURE_TEST_SUITE(TEST_LCA, Bender_2005_2<boost::adjacency_list<>>)
-
+BOOST_FIXTURE_TEST_SUITE(TEST_LCA, Bender_2005_2<boost::adjacency_list<> >)
 
 BOOST_AUTO_TEST_CASE(empty_preprocess)
 {
