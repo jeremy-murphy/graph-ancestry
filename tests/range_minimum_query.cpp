@@ -9,6 +9,8 @@
 
 #include <boost/array.hpp>
 
+#include <boost/assign.hpp>
+
 #include <boost/iterator.hpp>
 #include <boost/container/vector.hpp>
 
@@ -40,32 +42,42 @@ struct index_8
 {
     typedef boost::multi_array_types::extent_range range;
     boost::multi_array<std::size_t, 2> M;
-    boost::array<unsigned, 8> A{{2, 7, 6, 8, 4, 5, 9, 1}};
-    boost::array<std::size_t, 13> Z = {0, 2, 2, 4, 4, 5, 7, 0, 4, 4, 4, 7, 7};
+    boost::array<unsigned, 8> A;
+    boost::array<std::size_t, 13> Z;
     
-    index_8() : M(boost::extents[range(1, 4)][8]) {}
+    index_8() : M(boost::extents[range(1, 4)][8]),
+      A(boost::assign::list_of(2)(7)(6)(8)(4)(5)(9)(1)),
+      Z(boost::assign::list_of(0)(2)(2)(4)(4)(5)(7)(0)(4)(4)(4)(7)(7)) {}
 };
 
 struct index_7
 {
-    boost::container::vector<unsigned> A = {2, 7, 6, 8, 4, 5, 9};
-    boost::container::vector<std::size_t> Z = {0, 2, 2, 4, 4, 5, 0, 4, 4, 4};
+    boost::array<unsigned, 7> A;
+    boost::array<std::size_t, 10> Z;
     typedef boost::multi_array_types::extent_range range;
     boost::multi_array<std::size_t, 2> M;
-    index_7() : M(boost::extents[range(1, 3)][7]) {}
+
+    index_7() :
+      A(boost::assign::list_of(2)(7)(6)(8)(4)(5)(9)),
+      Z(boost::assign::list_of(0)(2)(2)(4)(4)(5)(0)(4)(4)(4)),
+      M(boost::extents[range(1, 3)][7]) {}
 };
 
 struct index_16
 {
-    boost::container::vector<unsigned> A = {2, 7, 6, 8, 4, 5, 9, 1, 10, 11, 3, 7, 19, 4, 11, 16};
-    boost::container::vector<std::size_t> Z = {0, 2, 2, 4, 4, 5, 7, 7, 8, 10, 10, 11, 13, 13, 14, // 2
-                        0, 4, 4, 4, 7, 7, 7, 7, 10, 10, 10, 13, 13, // 4
-                        7, 7, 7, 7, 7, 7, 7, 7, 10, // 8
-                        7 // 16
-    };
+    boost::array<unsigned, 16> A;
+    boost::array<std::size_t, 38> Z;
     typedef boost::multi_array_types::extent_range range;
     boost::multi_array<std::size_t, 2> M;
-    index_16() : M(boost::extents[range(1, 5)][16]) {}
+
+    index_16() :
+      A(boost::assign::list_of(2)(7)(6)(8)(4)(5)(9)(1)(10)(11)(3)(7)(19)(4)(11)(16)),
+      Z(boost::assign::list_of(0)(2)(2)(4)(4)(5)(7)(7)(8)(10)(10)(11)(13)(13)(14)// 2
+        (0)(4)(4)(4)(7)(7)(7)(7)(10)(10)(10)(13)(13)// 4
+        (7)(7)(7)(7)(7)(7)(7)(7)(10)// 8
+        (7) // 16
+      ),
+      M(boost::extents[range(1, 5)][16]) {}
 };
 
 
@@ -91,33 +103,33 @@ BOOST_AUTO_TEST_CASE(test_empty_preprocess)
 
 BOOST_FIXTURE_TEST_CASE(test_query8, index_8)
 {
-    RMQ_preprocess(A, M);
+    range_minimum_query< boost::array<unsigned, 8> > foo(A);
     for(unsigned i = 0; i < A.size(); i++)
         for(unsigned j = i; j < A.size(); j++)
         {
-            auto minimum = RMQ(i, j, A, M);
+            std::size_t minimum = foo(i, j);
             BOOST_CHECK_EQUAL(minimum, RMQ_linear(i, j, A));
         }
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query7, index_7)
 {
-    RMQ_preprocess(A, M);
-    for(unsigned i = 0; i < A.size(); i++)
+  range_minimum_query< boost::array<unsigned, 7> > foo(A);
+  for(unsigned i = 0; i < A.size(); i++)
         for(unsigned j = i; j < A.size(); j++)
         {
-            auto minimum = RMQ(i, j, A, M);
+            std::size_t minimum = foo(i, j);
             BOOST_CHECK_EQUAL(minimum, RMQ_linear(i, j, A));
         }
 }
 
 BOOST_FIXTURE_TEST_CASE(test_query16, index_16)
 {
-    RMQ_preprocess(A, M);
-    for(unsigned i = 0; i < A.size(); i++)
+  range_minimum_query< boost::array<unsigned, 16> > foo(A);
+  for(unsigned i = 0; i < A.size(); i++)
         for(unsigned j = i; j < A.size(); j++)
         {
-            auto minimum = RMQ(i, j, A, M);
+            std::size_t minimum = foo(i, j);
             BOOST_CHECK_EQUAL(minimum, RMQ_linear(i, j, A));
         }
 }
