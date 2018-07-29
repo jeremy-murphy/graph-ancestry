@@ -71,7 +71,7 @@ namespace general
 
         if (n > 2)
         {
-            // BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
+            BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
 
             char j = 1;
 
@@ -95,7 +95,7 @@ namespace general
                 prev_block_length = block_length;
             }
         }
-        // TODO: We should do something for n = 1 and 2.
+        // TODO: Do something for n = 2?
     }
 
 
@@ -157,6 +157,7 @@ namespace general
         // requires: [i, j] is a valid range.
         BOOST_ASSERT(i >= 0);
         BOOST_ASSERT(i <= j);
+        BOOST_ASSERT(i < boost::size(range));
         
         if (i == j)
             return i;
