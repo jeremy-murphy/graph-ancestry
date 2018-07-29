@@ -57,6 +57,35 @@ namespace general
             return ValueIndexPair(x, index++);
         }
     };
+
+
+    // TODO: A better name.
+    template <typename IntegerIterator0, typename IntegerIterator1>
+    struct reflection
+    {
+      typedef typename std::iterator_traits<IntegerIterator0>::value_type Integer;
+
+      IntegerIterator0 a;
+      IntegerIterator1 b;
+      Integer i;
+
+      reflection(IntegerIterator0 a, IntegerIterator1 b, Integer start = 0)
+      : a(a), b(b), i(start) {}
+
+      Integer operator()(Integer u)
+      {
+        a[i] = u;
+        b[u] = i;
+        return i++;
+      }
+    };
+
+    template <typename IntegerIterator0, typename IntegerIterator1>
+    reflection<IntegerIterator0, IntegerIterator1>
+    make_reflection(IntegerIterator0 a, IntegerIterator1 b, int start = 0)
+    {
+      return reflection<IntegerIterator0, IntegerIterator1>(a, b, start);
+    }
 }
 
 #endif
