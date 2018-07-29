@@ -173,7 +173,7 @@ namespace general
     boost::multi_array_types::extent_gen::gen_type<2>::type sparse_table_extent(Integer n)
     {
         typedef boost::multi_array_types::extent_range extent_range;
-        return boost::extents[extent_range(1, lower_log2(n) + 1)][n];
+        return boost::extents[n == 0 ? 0 : extent_range(1, lower_log2(n) + 1)][n];
     }
 
 
