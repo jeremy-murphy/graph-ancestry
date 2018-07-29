@@ -108,7 +108,7 @@ namespace graph_algorithms
     template <typename Vertex, typename VertexIndexable, typename IntegerRange,
               typename IndexIndexable, typename IndexMultiArray>
     typename VertexIndexable::value_type
-    least_common_ancestor(Vertex u, Vertex v, VertexIndexable const &Euler_tour_index,
+    LCA(Vertex u, Vertex v, VertexIndexable const &Euler_tour_index,
                           IntegerRange const &Euler_tour_level, IndexIndexable const &representative,
                           IndexMultiArray const &sparse_table)
     {
