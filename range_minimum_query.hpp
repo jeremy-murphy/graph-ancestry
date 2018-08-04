@@ -84,12 +84,12 @@ namespace general
             for (j = 2; j <= lowerlogn; j++)
             {
                 index const block_length = pow2(j);
-                index const last_pos = n - block_length + 1u;
+                index const last_pos = n - block_length + 1;
                 
                 for (index i = 0; i != last_pos; i++)
                 {
-                    element const &M1 = sparse_table[j - 1u][i],
-                                  &M2 = sparse_table[j - 1u][i + prev_block_length];
+                    element const &M1 = sparse_table[j - 1][i],
+                                  &M2 = sparse_table[j - 1][i + prev_block_length];
                     sparse_table[j][i] = range[M2] < range[M1] ? M2 : M1;
                 }
                 prev_block_length = block_length;
