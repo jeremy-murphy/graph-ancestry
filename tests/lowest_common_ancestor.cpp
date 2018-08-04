@@ -63,8 +63,7 @@ BOOST_AUTO_TEST_CASE(basic_preprocess)
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     auto const n = num_vertices(g);
-    range const x_extent(1, general::lower_log2(2 * n - 1) + 1);
-    boost::multi_array<size_t, 2> M(boost::extents[x_extent][2 * n - 1]);
+    boost::multi_array<size_t, 2> M(general::sparse_table_extent(2 * n - 1));
     LCA_preprocess(g, E, L, inserter(R, end(R)), M);
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
     BOOST_CHECK_EQUAL_COLLECTIONS(begin(L), end(L), begin(this->L), end(this->L));
@@ -80,7 +79,7 @@ BOOST_AUTO_TEST_CASE(basic_query)
     vector<size_t> L;
     unordered_map<size_t, size_t> R;
     auto const n = num_vertices(g);
-    boost::multi_array<size_t, 2> M(boost::extents[range(1, general::lower_log2(2 * n - 1) + 1)][2 * n - 1]);
+    boost::multi_array<size_t, 2> M(general::sparse_table_extent(2 * n - 1));
     LCA_preprocess(g, E, L, inserter(R, end(R)), M);
     // We check just to make sure we did not make a mistake in the test.
     BOOST_REQUIRE_EQUAL_COLLECTIONS(begin(E), end(E), begin(this->E), end(this->E));
