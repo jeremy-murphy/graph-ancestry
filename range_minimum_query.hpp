@@ -71,7 +71,7 @@ namespace general
 
         if (n > 2)
         {
-            BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
+            BOOST_ASSERT(sparse_table.num_elements() >= n * (lower_log2(n) - 1));
 
             char j = 1;
 
