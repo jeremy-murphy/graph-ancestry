@@ -76,7 +76,7 @@ namespace general
             char j = 1;
 
             for (index i = 0; i < n - 1; i++)
-                sparse_table[j][i] = range[i] <= range[i + 1] ? i : i + 1;
+                sparse_table[j - 1][i] = range[i] <= range[i + 1] ? i : i + 1;
 
             char const lowerlogn = lower_log2(n);
             index prev_block_length = 2u;
@@ -88,9 +88,9 @@ namespace general
                 
                 for (index i = 0; i != last_pos; i++)
                 {
-                    element const &M1 = sparse_table[j - 1][i],
-                                  &M2 = sparse_table[j - 1][i + prev_block_length];
-                    sparse_table[j][i] = range[M2] < range[M1] ? M2 : M1;
+                    element const &M1 = sparse_table[j - 2][i],
+                                  &M2 = sparse_table[j - 2][i + prev_block_length];
+                    sparse_table[j - 1][i] = range[M2] < range[M1] ? M2 : M1;
                 }
                 prev_block_length = block_length;
             }
@@ -130,8 +130,8 @@ namespace general
         
         N const r = j - i + 1;
         char const k = lower_log2(r);
-        element const x = sparse_table[k][i],
-                      y = sparse_table[k][j - pow2(k) + 1];
+        element const x = sparse_table[k - 1][i],
+                      y = sparse_table[k - 1][j - pow2(k) + 1];
         BOOST_ASSERT(x >= i && x <= j);
         BOOST_ASSERT(y >= i && y <= j);
         return range[y] < range[x] ? y : x;
@@ -140,8 +140,7 @@ namespace general
     template <typename Integer>
     boost::multi_array_types::extent_gen::gen_type<2>::type sparse_table_extent(Integer n)
     {
-        typedef boost::multi_array_types::extent_range extent_range;
-        return boost::extents[n == 0 ? 0 : extent_range(1, lower_log2(n) + 1)][n];
+        return boost::extents[n == 0 ? 0 : lower_log2(n)][n];
     }
 
 
