@@ -88,13 +88,13 @@ BOOST_AUTO_TEST_CASE(test_empty_preprocess)
     boost::container::vector<unsigned> Q;
     boost::multi_array<std::size_t, 2> B(boost::extents[0][0]);
     boost::multi_array<std::size_t, 2> const C(B);
-    RMQ_preprocess(Q, B);
+    RMQ_sparse_table(Q, B);
     BOOST_CHECK(B == C);
     Q.push_back(0);
-    RMQ_preprocess(Q, B);
+    RMQ_sparse_table(Q, B);
     BOOST_CHECK(B == C);
     Q.push_back(1);
-    RMQ_preprocess(Q, B);
+    RMQ_sparse_table(Q, B);
     BOOST_CHECK(B == C);
 }
 

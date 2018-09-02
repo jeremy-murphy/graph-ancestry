@@ -36,8 +36,7 @@
 
 #include <boost/range.hpp>
 
-
-#include <limits>
+#include <iterator>
 
 
 
@@ -57,45 +56,58 @@ namespace general
      *
      * Time complexity: O(n lg n)
      */
-    template <typename RandomAccessRange, typename MultiArray>
-    void RMQ_preprocess(RandomAccessRange const &range, MultiArray &sparse_table)
+    template <typename Iterator, typename MultiArray>
+    void RMQ_sparse_table(Iterator first,
+                          typename std::iterator_traits<Iterator>::difference_type n,
+                          MultiArray &sparse_table)
     {
         // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
         // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<MultiArray, 2>));
         
 
-        typedef typename boost::range_size<RandomAccessRange>::type index;
+        typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
         typedef typename MultiArray::element element;
 
-        index const n = boost::size(range);
+        BOOST_ASSERT(n >= 0);
 
         if (n > 2)
         {
             BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
 
-            char j = 1;
-
-            for (index i = 0; i < n - 1; i++)
-                sparse_table[j - 1][i] = range[i] <= range[i + 1] ? i : i + 1;
+            for (difference_type i = 0; i != n - 1; i++)
+                sparse_table[0][i] = first[i] <= first[i + 1] ? i : i + 1;
 
             char const lowerlogn = lower_log2(n);
-            index prev_block_length = 2u;
+            difference_type prev_block_length = 2;
             
-            for (j = 2; j <= lowerlogn; j++)
+            for (char j = 2; j != lowerlogn + 1; j++)
             {
-                index const block_length = pow2(j);
-                index const last_pos = n - block_length + 1;
+                difference_type const block_length = pow2(j);
+                difference_type const last_pos = n - block_length + 1;
                 
-                for (index i = 0; i != last_pos; i++)
+                for (difference_type i = 0; i != last_pos; i++)
                 {
                     element const &M1 = sparse_table[j - 2][i],
                                   &M2 = sparse_table[j - 2][i + prev_block_length];
-                    sparse_table[j - 1][i] = range[M2] < range[M1] ? M2 : M1;
+                    sparse_table[j - 1][i] = first[M2] < first[M1] ? M2 : M1;
                 }
                 prev_block_length = block_length;
             }
         }
         // TODO: Do something for n = 2?
+    }
+
+
+    template <typename Iterator, typename MultiArray>
+    void RMQ_sparse_table(Iterator first, Iterator last, MultiArray &sparse_table)
+    {
+      return RMQ_sparse_table(first, last - first, sparse_table);
+    }
+
+    template <typename RandomAccessRange, typename MultiArray>
+    void RMQ_sparse_table(RandomAccessRange const &range, MultiArray &sparse_table)
+    {
+        return RMQ_sparse_table(boost::begin(range), boost::end(range), sparse_table);
     }
 
 
@@ -153,7 +165,7 @@ namespace general
             : range(range),
               sparse_table(sparse_table_extent(boost::size(range)))
         {
-            RMQ_preprocess(range, sparse_table);
+            RMQ_sparse_table(range, sparse_table);
         }
 
         template <typename N>

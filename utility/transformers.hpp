@@ -30,35 +30,6 @@
 
 namespace general
 {
-    /**
-     * @brief Convert element => (element, index).
-     * @ingroup function_objects
-     * @tparam I Input iterator.
-     * 
-     * Starting from an initial index value, successive calls to element_index 
-     * will convert an element to an (element, index) pair such that index
-     * uniquely identifies each element.
-     */
-    template <typename Iterator>
-    class element_index
-    {
-        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::difference_type difference_type;
-        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::value_type value_type;
-        typedef BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::reference reference;
-        typedef std::pair<value_type, difference_type> ValueIndexPair;
-        
-        difference_type index;
-        
-    public:
-        element_index(difference_type start = 0) : index(start) {}
-        
-        ValueIndexPair operator()(reference const &x)
-        {
-            return ValueIndexPair(x, index++);
-        }
-    };
-
-
     // TODO: A better name.
     template <typename IntegerIterator0, typename IntegerIterator1>
     struct reflection
@@ -72,6 +43,7 @@ namespace general
       reflection(IntegerIterator0 a, IntegerIterator1 b, Integer start = 0)
       : a(a), b(b), i(start) {}
 
+      // This is the essential 'reflection' operation.
       Integer operator()(Integer u)
       {
         a[i] = u;
