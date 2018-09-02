@@ -31,10 +31,11 @@
 
 #include <boost/config.hpp>
 
-// #include <boost/multi_array/concept_checks.hpp>
 #include <boost/multi_array.hpp>
 
 #include <boost/range.hpp>
+
+#include <boost/core/enable_if.hpp>
 
 #include <iterator>
 
@@ -61,19 +62,12 @@ namespace general
                           typename std::iterator_traits<Iterator>::difference_type n,
                           MultiArray &sparse_table)
     {
-        // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
-        // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::MutableMultiArrayConcept<MultiArray, 2>));
-        
-
         typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
-        typedef typename MultiArray::element element;
 
         BOOST_ASSERT(n >= 0);
 
         if (n > 2)
         {
-            BOOST_ASSERT(sparse_table.num_elements() >= n * lower_log2(n));
-
             for (difference_type i = 0; i != n - 1; i++)
                 sparse_table[0][i] = first[i] <= first[i + 1] ? i : i + 1;
 
@@ -87,8 +81,8 @@ namespace general
                 
                 for (difference_type i = 0; i != last_pos; i++)
                 {
-                    element const &M1 = sparse_table[j - 2][i],
-                                  &M2 = sparse_table[j - 2][i + prev_block_length];
+                    difference_type const &M1 = sparse_table[j - 2][i],
+                                          &M2 = sparse_table[j - 2][i + prev_block_length];
                     sparse_table[j - 1][i] = first[M2] < first[M1] ? M2 : M1;
                 }
                 prev_block_length = block_length;
@@ -123,31 +117,42 @@ namespace general
      * 
      *  Time complexity: Θ(1)
      */
-    template <typename N, typename RandomAccessRange, typename MultiArray>
-    typename MultiArray::element
-    RMQ(N i, N j, RandomAccessRange const &range, MultiArray const &sparse_table)
+    template <typename N, typename RandomAccessIterator, typename MultiArray>
+    typename boost::disable_if<boost::has_range_const_iterator<RandomAccessIterator>,
+                               typename std::iterator_traits<RandomAccessIterator>::difference_type>::type
+    RMQ(N i, N j, RandomAccessIterator range, MultiArray const &sparse_table)
     {
         // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
         // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::ConstMultiArrayConcept<MultiArray, 2>));
 
-        typedef typename MultiArray::element element;
+        typedef typename std::iterator_traits<RandomAccessIterator>::difference_type difference_type;
 
         // requires: [i, j] is a valid range.
         BOOST_ASSERT(i >= 0);
         BOOST_ASSERT(i <= j);
-        BOOST_ASSERT(i < boost::size(range));
         
         if (i == j)
             return i;
         
         N const r = j - i + 1;
         char const k = lower_log2(r);
-        element const x = sparse_table[k - 1][i],
-                      y = sparse_table[k - 1][j - pow2(k) + 1];
+        difference_type const x = sparse_table[k - 1][i],
+                              y = sparse_table[k - 1][j - pow2(k) + 1];
         BOOST_ASSERT(x >= i && x <= j);
         BOOST_ASSERT(y >= i && y <= j);
         return range[y] < range[x] ? y : x;
     }
+
+
+    template <typename N, typename RandomAccessRange, typename MultiArray>
+    typename boost::enable_if<boost::has_range_const_iterator<RandomAccessRange>,
+                              typename boost::range_difference<RandomAccessRange>::type>::type
+    RMQ(N i, N j, RandomAccessRange const &range, MultiArray const &sparse_table)
+    {
+        BOOST_ASSERT(i < boost::size(range));
+        return RMQ(i, j, boost::begin(range), sparse_table);
+    }
+
 
     template <typename Integer>
     boost::multi_array_types::extent_gen::gen_type<2>::type sparse_table_extent(Integer n)
