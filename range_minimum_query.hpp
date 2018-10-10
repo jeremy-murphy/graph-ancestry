@@ -162,7 +162,8 @@ namespace general
     template <typename Integer>
     boost::multi_array_types::extent_gen::gen_type<2>::type sparse_table_extent(Integer n)
     {
-        return boost::extents[n == 0 ? 0 : lower_log2(n)][n];
+      BOOST_ASSERT(n >= 0);
+      return boost::extents[n == 0 ? 0 : lower_log2(n)][n];
     }
 
 
