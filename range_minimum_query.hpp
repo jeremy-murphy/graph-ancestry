@@ -60,7 +60,7 @@ namespace general
     template <typename Iterator, typename MultiArray>
     void RMQ_sparse_table(Iterator first,
                           typename std::iterator_traits<Iterator>::difference_type n,
-                          MultiArray &sparse_table)
+                          MultiArray sparse_table)
     {
         typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
@@ -93,13 +93,13 @@ namespace general
 
 
     template <typename Iterator, typename MultiArray>
-    void RMQ_sparse_table(Iterator first, Iterator last, MultiArray &sparse_table)
+    void RMQ_sparse_table(Iterator first, Iterator last, MultiArray sparse_table)
     {
       return RMQ_sparse_table(first, last - first, sparse_table);
     }
 
     template <typename RandomAccessRange, typename MultiArray>
-    void RMQ_sparse_table(RandomAccessRange const &range, MultiArray &sparse_table)
+    void RMQ_sparse_table(RandomAccessRange const &range, MultiArray sparse_table)
     {
         return RMQ_sparse_table(boost::begin(range), boost::end(range), sparse_table);
     }
@@ -170,20 +170,25 @@ namespace general
     template <typename RandomAccessRange>
     class range_minimum_query
     {
-      typedef typename boost::range_size<RandomAccessRange>::type index_t;
     public:
-        range_minimum_query(RandomAccessRange const &range)
-            : range(range),
-              sparse_table(sparse_table_extent(boost::size(range)))
-        {
-            RMQ_sparse_table(range, sparse_table);
-        }
+      typedef typename boost::range_difference<RandomAccessRange>::type index_t;
 
-        template <typename N>
-        index_t operator()(N i, N j) const
-        {
-            return RMQ(i, j, range, sparse_table);
-        }
+      range_minimum_query(RandomAccessRange const &range)
+          : range(range),
+            sparse_table(sparse_table_extent(boost::distance(range)))
+      {
+        using boost::multi_array_types::index_range;
+        RMQ_sparse_table(range, sparse_table[boost::indices[index_range(0, sparse_table.shape()[0])]
+                                                           [index_range(0, sparse_table.shape()[1])]]);
+      }
+
+      template <typename N>
+      index_t operator()(N i, N j) const
+      {
+        using boost::multi_array_types::index_range;
+        return RMQ(i, j, range, sparse_table[boost::indices[index_range(0, sparse_table.shape()[0])]
+                                                           [index_range(0, sparse_table.shape()[1])]]);
+      }
 
     private:
         RandomAccessRange range;
@@ -194,7 +199,7 @@ namespace general
     range_minimum_query<RandomAccessRange>
     make_range_minimum_query(RandomAccessRange const &range)
     {
-      return range_minimum_query<RandomAccessRange>(range);
+        return range_minimum_query<RandomAccessRange>(range);
     }
 }
 
