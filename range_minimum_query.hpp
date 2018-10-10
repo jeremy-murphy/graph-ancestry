@@ -117,10 +117,12 @@ namespace general
      * 
      *  Time complexity: Θ(1)
      */
-    template <typename N, typename RandomAccessIterator, typename MultiArray>
+    template <typename RandomAccessIterator, typename MultiArray>
     typename boost::disable_if<boost::has_range_const_iterator<RandomAccessIterator>,
                                typename std::iterator_traits<RandomAccessIterator>::difference_type>::type
-    RMQ(N i, N j, RandomAccessIterator range, MultiArray const &sparse_table)
+    RMQ(typename std::iterator_traits<RandomAccessIterator>::difference_type i,
+        typename std::iterator_traits<RandomAccessIterator>::difference_type j,
+        RandomAccessIterator range, MultiArray sparse_table)
     {
         // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
         // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::ConstMultiArrayConcept<MultiArray, 2>));
@@ -134,20 +136,23 @@ namespace general
         if (i == j)
             return i;
         
-        N const r = j - i + 1;
+        difference_type const r = j - i + 1;
         char const k = lower_log2(r);
+        difference_type const l = j - pow2(k) + 1;
         difference_type const x = sparse_table[k - 1][i],
-                              y = sparse_table[k - 1][j - pow2(k) + 1];
+                              y = sparse_table[k - 1][l];
         BOOST_ASSERT(x >= i && x <= j);
         BOOST_ASSERT(y >= i && y <= j);
         return range[y] < range[x] ? y : x;
     }
 
 
-    template <typename N, typename RandomAccessRange, typename MultiArray>
+    template <typename RandomAccessRange, typename MultiArray>
     typename boost::enable_if<boost::has_range_const_iterator<RandomAccessRange>,
                               typename boost::range_difference<RandomAccessRange>::type>::type
-    RMQ(N i, N j, RandomAccessRange const &range, MultiArray const &sparse_table)
+    RMQ(typename boost::range_difference<RandomAccessRange>::type i,
+        typename boost::range_difference<RandomAccessRange>::type j,
+        RandomAccessRange const &range, MultiArray sparse_table)
     {
         BOOST_ASSERT(i < boost::size(range));
         return RMQ(i, j, boost::begin(range), sparse_table);
