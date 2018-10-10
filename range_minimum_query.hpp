@@ -127,7 +127,7 @@ namespace general
         // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<RandomAccessRange>));
         // BOOST_CONCEPT_ASSERT((boost::multi_array_concepts::ConstMultiArrayConcept<MultiArray, 2>));
 
-        typedef typename std::iterator_traits<RandomAccessIterator>::difference_type difference_type;
+        typedef typename std::iterator_traits<RandomAccessIterator>::difference_type N;
 
         // requires: [i, j] is a valid range.
         BOOST_ASSERT(i >= 0);
@@ -136,10 +136,10 @@ namespace general
         if (i == j)
             return i;
         
-        difference_type const r = j - i + 1;
+        N const r = j - i + 1;
         char const k = lower_log2(r);
-        difference_type const l = j - pow2(k) + 1;
-        difference_type const x = sparse_table[k - 1][i],
+        N const l = j - pow2(k) + 1;
+        N const x = sparse_table[k - 1][i],
                               y = sparse_table[k - 1][l];
         BOOST_ASSERT(x >= i && x <= j);
         BOOST_ASSERT(y >= i && y <= j);
