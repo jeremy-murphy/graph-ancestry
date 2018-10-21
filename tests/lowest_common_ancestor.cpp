@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(empty_preprocess)
     boost::write_graphviz(output, g);
 #endif
     boost::adjacency_list<> const input;
-    vector<vertex_descriptor> Euler_tour_index;
+    vector<Bender_2005_2<boost::adjacency_list<> >::vertex_descriptor> Euler_tour_index;
     vector<size_t> Euler_tour_level;
     vector<size_t> representative;
     boost::multi_array<size_t, 2> M(boost::extents[0][0]);
