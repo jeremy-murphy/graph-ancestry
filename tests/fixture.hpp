@@ -23,9 +23,15 @@
 #ifndef FIXTURE_HPP
 #define FIXTURE_HPP
 
+#include <boost/assign.hpp>
+
 #include <boost/config.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
+
+#include <boost/array.hpp>
+
+#include <boost/unordered_map.hpp>
 
 #include <iterator>
 #include <vector>
@@ -48,26 +54,28 @@ struct Bender_2005_2
     typedef index_vector::const_iterator const_iterator;
 
     Graph g;
-    std::vector<vertex_descriptor> E = {0,  1 , 4,  9, 4, 10, 17, 10, 18, 10,
-                                        4, 11, 19, 11, 4,  1,  5, 12,  5,  1,
-                                        0,  2,  6, 13, 6,  2,  0,  3,  7, 14,
-                                        7, 15,  7, 16, 7,  3,  8,  3,  0
-                                        };
-    index_vector L = {  0, 1, 2, 3, 2, 3, 4, 3, 4, 3,
-                        2, 3, 4, 3, 2, 1, 2, 3, 2, 1,
-                        0, 1, 2, 3, 2, 1, 0, 1, 2, 3,
-                        2, 3, 2, 3, 2, 1, 2, 1, 0    };
-    std::vector<std::size_t> R_indices = {0,  1, 21, 27,  2, 16, 22, 28, 36,  3, 
-                                          5, 11, 17, 23, 29, 31, 33,  6,  8, 12};
-    std::unordered_map<std::size_t, std::size_t> R = {{0, 0}, {1, 1}, {2, 21}, {3, 27}, {4, 2}, {5, 16}, {6, 22}, {7, 28}, {8, 36}, {9, 3}, {10, 5}, {11, 11}, {12, 17}, {13, 23}, {14, 29}, {15, 31}, {16, 33}, {17, 6}, {18, 8}, {19, 12}};
+    boost::array<vertex_descriptor, 39> E;
+    boost::array<std::size_t, 39> L;
+    boost::array<std::size_t, 20> R_indices;
+    boost::unordered_map<std::size_t, std::size_t> R = {{0, 0}, {1, 1}, {2, 21}, {3, 27}, {4, 2}, {5, 16}, {6, 22}, {7, 28}, {8, 36}, {9, 3}, {10, 5}, {11, 11}, {12, 17}, {13, 23}, {14, 29}, {15, 31}, {16, 33}, {17, 6}, {18, 8}, {19, 12}};
     
     // Manually entering iterators is tedious and they are confusing to read.
     std::vector<std::size_t> T_values = {0, 1, 2, 2, 2, 3, 3, 3, 3, 2, 2, 3, 3, 2, 1, 1, 2, 2, 1, 0, 0, 1, 2, 2, 1, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 1, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 2, 2, 2, 2, 1, 1, 1, 0, 0, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     Bender_2005_2()
+    : E(boost::assign::list_of(0)( 1)( 4)( 9)(4)(10)(17)(10)(18)(10)
+                              (4)(11)(19)(11)(4)( 1)( 5)(12)( 5)( 1)
+                              (0)( 2)( 6)(13)(6)( 2)( 0)( 3)( 7)(14)
+                              (7)(15)( 7)(16)(7)( 3)( 8)( 3)( 0)),
+    L(boost::assign::list_of(0)(1)(2)(3)(2)(3)(4)(3)(4)(3)
+                            (2)(3)(4)(3)(2)(1)(2)(3)(2)(1)
+                            (0)(1)(2)(3)(2)(1)(0)(1)(2)(3)
+                            (2)(3)(2)(3)(2)(1)(2)(1)(0)),
+    R_indices(boost::assign::list_of(0)( 1)(21)(27)( 2)(16)(22)(28)(36)( 3)
+                                    (5)(11)(17)(23)(29)(31)(33)( 6)( 8)(12))
     {
         using boost::add_edge;
-        for(auto i = 0u; i < 19u; ++i)
+        for (int i = 0; i != 19; ++i)
             boost::add_vertex(g);
 
         add_edge(0, 1, g);
