@@ -30,6 +30,27 @@
 
 namespace general
 {
+    template <typename RandomAccessIterator>
+    class inverter
+    {
+    public:
+        typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
+        typedef typename std::iterator_traits<RandomAccessIterator>::difference_type difference_type;
+
+        inverter(RandomAccessIterator target, value_type start = 0)
+            : target(target), i(start) {}
+
+        value_type operator()(difference_type value)
+        {
+            target[value] = i;
+            return i++;
+        }
+
+    private:
+        RandomAccessIterator target;
+        value_type i;
+    };
+
     // TODO: A better name.
     template <typename IntegerIterator0, typename IntegerIterator1>
     struct reflection
