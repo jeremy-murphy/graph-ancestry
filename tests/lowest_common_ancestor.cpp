@@ -71,12 +71,10 @@ BOOST_AUTO_TEST_CASE(basic_preprocess)
   LCA_preprocess(g, boost::make_function_output_iterator(
                             general::make_reflection(Euler_tour_index.begin(),
                             representative.begin())), Euler_tour_level, M);
-  /*
   BOOST_CHECK_EQUAL_COLLECTIONS(Euler_tour_index.begin(), Euler_tour_index.end(),
                                 this->E.begin(), this->E.end());
   BOOST_CHECK_EQUAL_COLLECTIONS(Euler_tour_level.begin(), Euler_tour_level.end(),
                                 this->L.begin(), this->L.end());
-  */
   // BOOST_CHECK_EQUAL_COLLECTIONS(begin(R), end(R), begin(R), end(R));
   // BOOST_CHECK(foo.representative() == this->R);
     // BOOST_CHECK_EQUAL_COLLECTIONS(make_indirect_iterator(begin(T)), make_indirect_iterator(end(T)), begin(T_values), end(T_values));
