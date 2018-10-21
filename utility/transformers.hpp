@@ -62,7 +62,7 @@ namespace general
       Integer i;
 
       reflection(IntegerIterator0 a, IntegerIterator1 b, Integer start = 0)
-      : a(a), b(b), i(start) {}
+        : a(a), b(b), i(start) {}
 
       // This is the essential 'reflection' operation.
       Integer operator()(Integer u)
