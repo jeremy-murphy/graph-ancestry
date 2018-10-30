@@ -140,7 +140,7 @@ namespace general
         char const k = lower_log2(r);
         N const l = j - pow2(k) + 1;
         N const x = sparse_table[k - 1][i],
-                              y = sparse_table[k - 1][l];
+                y = sparse_table[k - 1][l];
         BOOST_ASSERT(x >= i && x <= j);
         BOOST_ASSERT(y >= i && y <= j);
         return range[y] < range[x] ? y : x;
@@ -160,7 +160,8 @@ namespace general
 
 
     template <typename Integer>
-    boost::multi_array_types::extent_gen::gen_type<2>::type sparse_table_extent(Integer n)
+    boost::multi_array_types::extent_gen::gen_type<2>::type
+    sparse_table_extent(Integer n)
     {
       BOOST_ASSERT(n >= 0);
       return boost::extents[n == 0 ? 0 : lower_log2(n)][n];
