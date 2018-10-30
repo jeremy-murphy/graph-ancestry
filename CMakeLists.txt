@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.12)
 project(lsca)
 enable_testing()
+# include_directories(.)
 include_directories(utility)
 install(FILES lsca.hpp DESTINATION ${CMAKE_SYSTEM_INCLUDE_PATH})
 add_subdirectory(tests)
