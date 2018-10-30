@@ -62,27 +62,27 @@ namespace general
                           typename std::iterator_traits<Iterator>::difference_type n,
                           MultiArray sparse_table)
     {
-        typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
+        typedef typename std::iterator_traits<Iterator>::difference_type N;
 
         BOOST_ASSERT(n >= 0);
 
         if (n > 2)
         {
-            for (difference_type i = 0; i != n - 1; i++)
+            for (N i = 0; i != n - 1; i++)
                 sparse_table[0][i] = first[i] <= first[i + 1] ? i : i + 1;
 
             char const lowerlogn = lower_log2(n);
-            difference_type prev_block_length = 2;
+            N prev_block_length = 2;
             
             for (char j = 2; j != lowerlogn + 1; j++)
             {
-                difference_type const block_length = pow2(j);
-                difference_type const last_pos = n - block_length + 1;
+                N const block_length = pow2(j);
+                N const last_pos = n - block_length + 1;
                 
-                for (difference_type i = 0; i != last_pos; i++)
+                for (N i = 0; i != last_pos; i++)
                 {
-                    difference_type const &M1 = sparse_table[j - 2][i],
-                                          &M2 = sparse_table[j - 2][i + prev_block_length];
+                    N const &M1 = sparse_table[j - 2][i],
+                            &M2 = sparse_table[j - 2][i + prev_block_length];
                     sparse_table[j - 1][i] = first[M2] < first[M1] ? M2 : M1;
                 }
                 prev_block_length = block_length;
