@@ -154,7 +154,7 @@ namespace general
         typename boost::range_difference<RandomAccessRange>::type j,
         RandomAccessRange const &range, MultiArray sparse_table)
     {
-        BOOST_ASSERT(i < boost::size(range));
+        BOOST_ASSERT(i < boost::distance(range));
         return RMQ(i, j, boost::begin(range), sparse_table);
     }
 
