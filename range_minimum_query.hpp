@@ -175,7 +175,7 @@ namespace general
       typedef typename boost::range_difference<RandomAccessRange>::type index_t;
 
       range_minimum_query(RandomAccessRange const &range)
-          : range(range),
+          : first(boost::begin(range)),
             sparse_table(sparse_table_extent(boost::distance(range)))
       {
         using boost::multi_array_types::index_range;
@@ -183,16 +183,15 @@ namespace general
                                                            [index_range(0, sparse_table.shape()[1])]]);
       }
 
-      template <typename N>
-      index_t operator()(N i, N j) const
+      index_t operator()(index_t i, index_t j) const
       {
         using boost::multi_array_types::index_range;
-        return RMQ(i, j, range, sparse_table[boost::indices[index_range(0, sparse_table.shape()[0])]
+        return RMQ(i, j, first, sparse_table[boost::indices[index_range(0, sparse_table.shape()[0])]
                                                            [index_range(0, sparse_table.shape()[1])]]);
       }
 
     private:
-        RandomAccessRange range;
+        typename boost::range_const_iterator<RandomAccessRange>::type first;
         boost::multi_array<index_t, 2> sparse_table;
     };
 
