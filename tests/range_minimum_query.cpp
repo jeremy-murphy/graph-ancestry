@@ -32,9 +32,9 @@ BOOST_GLOBAL_FIXTURE(enable_locale);
 template <typename C, typename N>
 N RMQ_linear(N i, N j, C const &A)
 {
-    BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
+    // BOOST_CONCEPT_ASSERT((boost::UnsignedInteger<N>));
     // BOOST_CONCEPT_ASSERT((boost::RandomAccessContainer<C>));
-    
+
     return std::min_element(begin(A) + i, begin(A) + j + 1) - begin(A);
 }
 
@@ -96,6 +96,39 @@ BOOST_AUTO_TEST_CASE(test_empty_preprocess)
     Q.push_back(1);
     RMQ_sparse_table(Q, B);
     BOOST_CHECK(B == C);
+}
+
+BOOST_AUTO_TEST_CASE(trivial_1)
+{
+  boost::array<int, 1> A = {3};
+  range_minimum_query< boost::array<int, 1> > q(A);
+  BOOST_CHECK_EQUAL(0, q(0, 0));
+}
+
+BOOST_AUTO_TEST_CASE(trivial_2)
+{
+  boost::array<int, 2> A = {3, 4};
+  range_minimum_query< boost::array<int, 2> > q(A);
+  BOOST_CHECK_EQUAL(0, q(0, 1));
+
+  swap(A[0], A[1]);
+  q = make_range_minimum_query(A);
+  BOOST_CHECK_EQUAL(1, q(0, 1));
+}
+
+BOOST_AUTO_TEST_CASE(semi_trivial_3)
+{
+  boost::array<int, 3> A = {3, 4, 5};
+  range_minimum_query< boost::array<int, 3> > q(A);
+  BOOST_CHECK_EQUAL(0, q(0, 1));
+  BOOST_CHECK_EQUAL(0, q(0, 2));
+  BOOST_CHECK_EQUAL(1, q(1, 2));
+
+  std::reverse(A.begin(), A.end());
+  q = make_range_minimum_query(A);
+  BOOST_CHECK_EQUAL(1, q(0, 1));
+  BOOST_CHECK_EQUAL(2, q(0, 2));
+  BOOST_CHECK_EQUAL(2, q(1, 2));
 }
 
 

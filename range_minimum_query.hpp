@@ -37,6 +37,7 @@
 
 #include <boost/core/enable_if.hpp>
 
+#include <algorithm>
 #include <iterator>
 
 
@@ -88,7 +89,7 @@ namespace general
                 prev_block_length = block_length;
             }
         }
-        // TODO: Do something for n = 2?
+        // NOTE: n <= 2 is handled entirely in the query function.
     }
 
 
@@ -135,6 +136,9 @@ namespace general
         
         if (i == j)
             return i;
+
+        if (j - i == 1)
+            return range[i] < range[j] ? i : j;
         
         N const r = j - i + 1;
         char const k = lower_log2(r);
